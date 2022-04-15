@@ -1,0 +1,11 @@
+// declaration file
+// TypeScript와 styled components theme 연결
+
+import "styled-components";
+
+declare module "styled-components" {
+  export interface DefaultTheme {
+    bgColor: string;
+    textColor: string;
+  }
+}
