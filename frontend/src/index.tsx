@@ -3,21 +3,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
-import { ThemeProvider } from "styled-components";
-import { darkTheme, lightTheme } from "./styles/theme";
-import GlobalStyle from "./styles/GlobalStyle";
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
-      <ThemeProvider theme={lightTheme}>
-        <GlobalStyle />
-        <Router>
-          <App />
-        </Router>
-      </ThemeProvider>
+      <Router>
+        <App />
+      </Router>
     </RecoilRoot>
   </React.StrictMode>,
   document.getElementById("root")
