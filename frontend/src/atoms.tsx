@@ -2,8 +2,14 @@
 
 import { atom } from "recoil";
 
-// 임시
-export const tmp = atom({
-  key: "tmp",
-  default: null,
+// Theme
+export const toggleThemeAtom = atom({
+  key: "theme",
+  default: false,
+});
+
+// Sidebar
+export const toggleSidebarAtom = atom({
+  key: "sidebar",
+  default: false,
 });
