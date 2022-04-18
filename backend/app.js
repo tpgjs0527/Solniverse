@@ -7,8 +7,6 @@ const helmet = require("helmet");
 const logger = require("morgan");
 const cors = require("cors");
 
-const itemsRouter = require("./src/items/items.controller");
-const salesRouter = require("./src/sales/sales.controller");
 const authRouter = require("./src/auth/auth.controller");
 const donationRouter = require("./src/donation/donation.controller");
 
@@ -20,10 +18,6 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-
-// 참고용
-app.use("/items", itemsRouter);
-app.use("/sales", salesRouter);
 
 // 개발용
 app.use("/api/auth", authRouter);
