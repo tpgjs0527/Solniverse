@@ -5,7 +5,7 @@
  * @format
  */
 
-const connection = require("../../config/connection").asPromise();
+const connection = require("../../config/connection")();
 
 class DonationRepository {
   //TODO 작성해야함.

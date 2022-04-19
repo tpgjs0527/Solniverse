@@ -2,7 +2,6 @@
  * DB 연동을 위한 설정
  * MongoDB
  *
- * @format
  */
 
 // const mysql = require("mysql2");
@@ -18,11 +17,24 @@
 
 // module.exports = connection;
 const mongoose = require("mongoose");
+
 require("dotenv").config();
 
-const connection = mongoose.createConnection(process.env.DB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+/**
+ * 라우터별로 하나씩 동작하기 때문에 동시성 문제가 생기는 것은 주의해야함.
+ * @returns conn
+ */
+module.exports = function connectionFactory() {
+  const conn = mongoose.createConnection(process.env.DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 
-module.exports = connection;
+  //
+  conn.model("User", require("../model/User"));
+  conn.model("Transaction", require("../model/Transaction"));
+
+  return conn;
+};
+
+// module.exports = connection;
