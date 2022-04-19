@@ -12,13 +12,13 @@ interface LinkProps {
 const ActiveLink = ({ children, to }: LinkProps) => {
   const { pathname } = useLocation();
   return (
-    <Link to={to}>
-      <Active isActive={pathname === to}>{children}</Active>
-    </Link>
+    <Active isActive={pathname === to}>
+      <Link to={to}>{children}</Link>
+    </Active>
   );
 };
 
-const Active = styled.a<{ isActive: Boolean }>`
+const Active = styled.div<{ isActive: Boolean }>`
   &:hover {
     color: #3395f4;
   }
