@@ -1,19 +1,24 @@
-const { Schema, model, Types } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, Types } = require("mongoose");
 
 const TransactionSchema = new Schema(
   {
-    user_id: { types: Types.ObjectId, required: true, ref: "user" },
     transaction_address: { type: String, required: true },
-    spl_token: { type: String, required: true },
+    spl_token: { type: String, required: false },
     payment_type: { type: String, required: true },
     amount: { type: Number, required: true },
     display_name: { type: String, required: true },
     message: { type: String, required: true },
-    nft_token: { type: String, required: true },
-    // createdat = 지불 날짜, updatedat은 빼야함
+    send_user_id: { type: Types.ObjectId, ref: "User", required: true },
+    receive_user_id: { type: Types.ObjectId, ref: "User", required: true },
+    nft_token: { type: String, required: false },
+    platform: { type: String, required: true },
   },
-  { timestamps: true }
+  {
+    // createdat
+    timestamps: { createdAt: true, updatedAt: false },
+  }
 );
 
-const Transaction = model("transaction", TransactionSchema);
-module.exports = { Transaction };
+module.exports = TransactionSchema;
+// module.exports = mongoose.model("Transaction", TransactionSchema);
