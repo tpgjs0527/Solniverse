@@ -1,7 +1,29 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toggleThemeAtom, toggleSidebarAtom } from "atoms";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+interface LinkProps {
+  children: React.ReactNode;
+  to: string;
+}
+
+const ActiveLink = ({ children, to }: LinkProps) => {
+  const { pathname } = useLocation();
+  return (
+    <Link to={to}>
+      <Active isActive={pathname === to}>{children}</Active>
+    </Link>
+  );
+};
+
+const Active = styled.a<{ isActive: Boolean }>`
+  &:hover {
+    color: #3395f4;
+  }
+  color: ${(props) => (props.isActive ? "#3395f4" : props.theme.textColor)};
+`;
 
 export default function Header() {
   const navigate = useNavigate();
@@ -12,8 +34,19 @@ export default function Header() {
     <Nav>
       <Col>
         <Logo onClick={() => navigate(`/mypage`)}>Solniverse</Logo>
-        <Items>
-          <Item onClick={() => setIsDark((prev) => !prev)}>
+        <List>
+          <Element>
+            <ActiveLink to="/donation-history">후원 내역</ActiveLink>
+          </Element>
+          <Element>
+            <ActiveLink to="/nft-reward">NFT 리워드</ActiveLink>
+          </Element>
+          <Element>
+            <ActiveLink to="/service-center">고객센터</ActiveLink>
+          </Element>
+        </List>
+        <Icons>
+          <ThemeToggle onClick={() => setIsDark((prev) => !prev)}>
             {isDark ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -44,8 +77,8 @@ export default function Header() {
                 />
               </svg>
             )}
-          </Item>
-          <Item onClick={() => setIsSidebar((prev) => !prev)}>
+          </ThemeToggle>
+          <SidebarToggle onClick={() => setIsSidebar((prev) => !prev)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-7 w-7"
@@ -60,23 +93,49 @@ export default function Header() {
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-          </Item>
-        </Items>
+          </SidebarToggle>
+        </Icons>
       </Col>
     </Nav>
   );
 }
 
-const Item = styled.li`
+const SidebarToggle = styled.li`
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+
+  @media screen and (min-width: 1024px) {
+    display: none;
+  }
+`;
+
+const ThemeToggle = styled.li`
   width: 28px;
   height: 28px;
   cursor: pointer;
 `;
 
-const Items = styled.ul`
+const Icons = styled.ul`
   display: flex;
   align-items: center;
   gap: 10px;
+`;
+
+const Element = styled.li`
+  padding: 0 28px;
+  line-height: 72px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+`;
+
+const List = styled.ul`
+  display: flex;
+  align-items: center;
+
+  @media screen and (max-width: 1024px) {
+    display: none;
+  }
 `;
 
 const Logo = styled.h1`
@@ -86,16 +145,31 @@ const Logo = styled.h1`
 `;
 
 const Col = styled.div`
-  height: 54px;
-  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin: 0 auto;
+  height: 60px;
+  padding: 0 24px;
+  max-width: 364px;
+
+  @media screen and (min-width: 767px) {
+    max-width: 630px;
+    padding: 0;
+  }
+  @media screen and (min-width: 1024px) {
+    height: 72px;
+    max-width: 952px;
+  }
+  @media screen and (min-width: 1439px) {
+    max-width: 1296px;
+  }
 `;
 
 const Nav = styled.div`
   position: fixed;
   width: 100%;
   top: 0;
-  border-bottom: 1px solid #dfe6e9;
+  background: ${(props) => props.theme.bgColor};
+  border-bottom: 1px solid ${(props) => props.theme.borderColor};
 `;
