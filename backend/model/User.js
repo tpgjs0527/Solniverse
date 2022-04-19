@@ -1,23 +1,32 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 
 const UserSchema = new Schema(
   {
-    display_name: { type: String, required: true },
-    profileimage_url: { type: String, required: false },
-    oauth: {
-      access_token: { type: String, required: true },
-      refresh_token: { type: String, required: true },
-      type: String,
+    twitch: {
+      login: { type: String, required: true },
+      display_name: { type: String, required: true },
+      profileimage_url: { type: String, required: false },
+      oauth: {
+        access_token: { type: String, required: true },
+        refresh_token: { type: String, required: true },
+        type: String,
+        required: false,
+      },
       required: false,
     },
-    waller_address: { type: String, required: true },
+
+    wallet_address: { type: String, required: true, unique: true },
+    nonce: { type: Types.ObjectId },
     authority: { type: String, required: false },
     enabled: { type: Boolean, required: false },
-
-    // createdat, updatedat
   },
-  { timestamps: true }
+
+  {
+    // createdat, updatedat
+    timestamps: true,
+  }
 );
 
-const User = model("user", UserSchema);
-module.exports = { User };
+module.exports = UserSchema;
+// module.exports = mongoose.model("User", UserSchema);
