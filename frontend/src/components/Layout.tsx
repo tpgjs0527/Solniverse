@@ -15,11 +15,24 @@ export default function Layout({ children, title, canGoBack }: LayoutProps) {
       <Header />
       <Backdrop />
       <Sidebar />
-      <DEF>{children}</DEF>
+      <Base>{children}</Base>
     </>
   );
 }
 
-const DEF = styled.div`
-  padding-top: 54px;
+const Base = styled.div`
+  margin: 0 auto;
+  padding-top: 60px;
+  max-width: 364px;
+
+  @media screen and (min-width: 767px) {
+    max-width: 630px;
+  }
+  @media screen and (min-width: 1024px) {
+    padding-top: 72px;
+    max-width: 952px;
+  }
+  @media screen and (min-width: 1439px) {
+    max-width: 1296px;
+  }
 `;
