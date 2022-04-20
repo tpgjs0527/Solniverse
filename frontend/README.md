@@ -48,10 +48,22 @@ npm i recoil@0.6.1
 npm i recoil-persist
 ```
 
-- styled-components
+- Styled-components
 
 ```bash
 npm i styled-components
 npm i @types/styled-components
+```
+
+- Apex Charts
+
+```bash
+npm install --save react-apexcharts apexcharts
+```
+
+- Query
+
+```bash
+npm i react-query
 ```
 
