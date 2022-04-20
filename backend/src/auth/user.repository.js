@@ -5,6 +5,8 @@
  */
 
 const connection = require("../../config/connection")();
+const crypto = require("crypto");
+const { callbackify } = require("util");
 const User = connection.models["User"];
 
 class UserRepository {
@@ -12,59 +14,58 @@ class UserRepository {
 
   /**
    * 유저를 생성함. Create
-   * @param {*} walletAddress
-   * @returns null & user
+   * @param {string} walletAddress
+   * @throws {error}
+   * @returns {Promise<user>} user
    */
-  async createUser(walletAddress) {
-    //생성 혹은 업데이트
-    const user = new User({ wallet_address: walletAddress });
-    const result = await user
+  async createUserByWalletAddress(walletAddress) {
+    //생성
+    const user = new User({
+      wallet_address: walletAddress,
+      nonce: crypto.randomBytes(16).toString("base64"),
+    });
+
+    return user
       .save()
       .then((res) => {
-        //생성일 경우 반환이 안되므로 조회
         return res;
       })
       .catch((err) => {
-        console.log(err);
+        throw err;
       });
-    return result;
   }
 
   /**
    * WalletAddress로 유저를 찾아냄. Read
-   * @param {*} walletAddress
-   * @returns null & user
+   * @param {string} walletAddress
+   * @returns {Promise<user|null>} user|null
    */
-  async getUser(walletAddress) {
-    //생성 혹은 업데이트
-    const result = User.find({ wallet_address: walletAddress })
+  async getUserByWalletAddress(walletAddress) {
+    return User.findOne({ wallet_address: walletAddress })
       .then((res) => {
-        //반환이 안되므로 조회
         return res;
       })
       .catch((err) => {
-        console.log(err);
+        throw err;
       });
-    return result;
   }
 
   /**
    * WalletAddress로 유저 nonce를 업데이트 시킴. Update
-   * @param {*} walletAddress
-   * @returns null & user
+   * @param {string} walletAddress
+   * @returns {Promise<user>} user
    */
-  async updateNonce(walletAddress) {
+  updateNonceByWalletAddress(walletAddress) {
     // Nonce 업데이트
-    const result = User.findOneAndUpdate(
+    const result = User.updateOne(
       { wallet_address: walletAddress },
-      { nonce: new mongoose.Types.ObjectId() }
+      { nonce: crypto.randomBytes(16).toString("base64") }
     )
       .then((res) => {
-        //생성일 경우 반환이 안되므로 조회
         return res;
       })
       .catch((err) => {
-        console.log(err);
+        throw err;
       });
     return result;
   }
