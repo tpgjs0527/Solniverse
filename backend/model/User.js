@@ -17,7 +17,7 @@ const UserSchema = new Schema(
     },
 
     wallet_address: { type: String, required: true, unique: true },
-    nonce: { type: Types.ObjectId },
+    nonce: { type: String, required: true },
     authority: { type: String, required: false },
     enabled: { type: Boolean, required: false },
   },
