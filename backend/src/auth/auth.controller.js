@@ -52,9 +52,21 @@ router.post("/connect/:walletAddress", async function (req, res) {
 });
 
 /**
- * 사용자 지갑 주소를 입력받으면 nonce를 반환. nonce를 cookie로 전달 및 body로 전달
+ * 사용자 지갑 주소를 입력받으면 user를 반환.
  */
 router.get("/connect/:walletAddress", async function (req, res) {
+  const walletAddress = req.params["walletAddress"];
+  const { statusCode, responseBody } = await authService.getUserByWalletAddress(
+    walletAddress
+  );
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
+ * 사용자 지갑 주소를 입력받으면 nonce를 반환. nonce를 cookie로 전달 및 body로 전달
+ */
+router.get("/nonce/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
   const { statusCode, responseBody } =
     await authService.getNonceByWalletAddress(walletAddress);

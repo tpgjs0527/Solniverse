@@ -4,9 +4,9 @@ const { Schema, model, Types } = require("mongoose");
 const UserSchema = new Schema(
   {
     twitch: {
-      login: { type: String, required: false },
+      id: { type: String, required: false },
       display_name: { type: String, required: false },
-      profileimage_url: { type: String, required: false },
+      profile_image_url: { type: String, required: false },
       oauth: {
         access_token: { type: String, required: false },
         refresh_token: { type: String, required: false },

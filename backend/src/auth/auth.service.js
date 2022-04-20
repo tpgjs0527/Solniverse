@@ -76,6 +76,42 @@ class AuthService {
   }
 
   /**
+   * WalletAddress를 받아 user를 반환한다.
+   * @param {string} walletAddress
+   * @returns response
+   */
+  async getUserByWalletAddress(walletAddress) {
+    return await userRepository
+      .getUserByWalletAddress(walletAddress)
+      .then((user) => {
+        if (!user) return NOT_FOUND_RESPONSE;
+        var res = SUCCESS_RESPONSE;
+        res.responseBody.user = {
+          wallet_address: user.wallet_address,
+          createdAt: user.createdAt,
+        };
+        /**
+         * @TODO 플랫폼 list collection으로 기능 추가 필요.
+         * subdocument로 변경시 다시 또 변경 필요.
+         */
+        let platforms = ["twitch"];
+        for (let platform of platforms) {
+          if (user[platform]) {
+            res.responseBody.user[platform] = {
+              id: user[platform].id,
+              displayName: user[platform].display_name,
+              profileImageUrl: user[platform].profile_image_url,
+            };
+          }
+        }
+        return SUCCESS_RESPONSE;
+      })
+      .catch(() => {
+        return BAD_REQUEST_RESPONSE;
+      });
+  }
+
+  /**
    * WalletAddress를 받아 nonce를 반환한다.
    * @param {string} walletAddress
    * @returns response
