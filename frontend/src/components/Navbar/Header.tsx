@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toggleThemeAtom, toggleSidebarAtom } from "atoms";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 interface LinkProps {
   children: React.ReactNode;
@@ -18,11 +17,12 @@ const ActiveLink = ({ children, to }: LinkProps) => {
   );
 };
 
-const Active = styled.a<{ isActive: Boolean }>`
+const Active = styled.div<{ isActive: Boolean }>`
   &:hover {
-    color: #3395f4;
+    color: ${(props) => props.theme.ownColor};
   }
-  color: ${(props) => (props.isActive ? "#3395f4" : props.theme.textColor)};
+  color: ${(props) =>
+    props.isActive ? props.theme.ownColor : props.theme.textColor};
 `;
 
 export default function Header() {
@@ -46,6 +46,25 @@ export default function Header() {
           </Element>
         </List>
         <Icons>
+          <Profile>
+            <BasicImg />
+            <Nickname>닉네임</Nickname>
+          </Profile>
+          <SearchToggle>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-7 w-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </SearchToggle>
           <ThemeToggle onClick={() => setIsDark((prev) => !prev)}>
             {isDark ? (
               <svg
@@ -78,6 +97,21 @@ export default function Header() {
               </svg>
             )}
           </ThemeToggle>
+          <Logout>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-7 w-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </Logout>
           <SidebarToggle onClick={() => setIsSidebar((prev) => !prev)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -100,6 +134,18 @@ export default function Header() {
   );
 }
 
+const Logout = styled.li`
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+`;
+
+const SearchToggle = styled.li`
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+`;
+
 const SidebarToggle = styled.li`
   width: 28px;
   height: 28px;
@@ -114,6 +160,33 @@ const ThemeToggle = styled.li`
   width: 28px;
   height: 28px;
   cursor: pointer;
+`;
+
+const Nickname = styled.div`
+  font-size: 12px;
+  letter-spacing: -0.03em;
+  line-height: 1.4;
+  font-weight: 700;
+`;
+
+const BasicImg = styled.div`
+  width: 40px;
+  height: 40px;
+  background: #e5e8eb;
+  border-radius: 50%;
+`;
+
+const Profile = styled.div`
+  padding: 0 30px;
+  min-width: 152px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+
+  @media screen and (max-width: 1024px) {
+    display: none;
+  }
 `;
 
 const Icons = styled.ul`
