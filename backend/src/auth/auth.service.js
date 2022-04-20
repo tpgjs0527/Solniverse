@@ -62,7 +62,12 @@ class AuthService {
     }
     return await userRepository
       .createUserByWalletAddress(walletAddress)
-      .then(() => {
+      .then((user) => {
+        var res = SUCCESS_RESPONSE;
+        res.responseBody.user = {
+          walletAddress: user.wallet_address,
+          createdAt: user.createdAt,
+        };
         return SUCCESS_RESPONSE;
       })
       .catch((err) => {
