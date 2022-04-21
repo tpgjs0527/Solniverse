@@ -16,7 +16,7 @@ export default function Header() {
   return (
     <Nav>
       <Col>
-        <Logo onClick={() => navigate(`/mypage`)}>Solniverse</Logo>
+        <Logo onClick={() => navigate(`/main`)}>Solniverse</Logo>
         <List>
           <Element isActive={donationHistoryMatch !== null}>
             <Link to="/donation-history">

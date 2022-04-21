@@ -14,7 +14,7 @@ export default function Sidebar() {
           <Icon
             onClick={() => {
               setIsSidebar((prev) => !prev);
-              navigate(`/mypage`);
+              navigate(`/main`);
             }}
           >
             <svg
@@ -155,4 +155,5 @@ const SideBar = styled.div<{ isSidebar: Boolean }>`
   transform: ${(props) =>
     props.isSidebar ? "translateX(0%)" : "translateX(200%)"};
   transition: all 0.4s;
+  z-index: 2000;
 `;
