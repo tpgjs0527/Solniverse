@@ -6,7 +6,6 @@
 
 const connection = require("../../config/connection")();
 const crypto = require("crypto");
-const { callbackify } = require("util");
 const User = connection.models["User"];
 
 class UserRepository {
@@ -55,7 +54,7 @@ class UserRepository {
    * @param {string} walletAddress
    * @returns {Promise<user>} user
    */
-  updateNonceByWalletAddress(walletAddress) {
+  async updateNonceByWalletAddress(walletAddress) {
     // Nonce 업데이트
     const result = User.updateOne(
       { wallet_address: walletAddress },
