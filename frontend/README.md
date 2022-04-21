@@ -67,3 +67,15 @@ npm install --save react-apexcharts apexcharts
 npm i react-query
 ```
 
+- solana
+
+```bash
+npm i @solana/web3.js
+```
+
+- bs58
+
+```bash
+npm i bs58
+```
+
