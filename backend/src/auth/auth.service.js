@@ -10,12 +10,14 @@ const {
   SUCCESS_RESPONSE,
   NOT_FOUND_RESPONSE,
   CONFLICT_RESPONSE,
+  UNAUTHORIZED_RESPONSE,
 } = require("../common/base.response");
 const UserRepository = require("./user.repository");
+const userRepository = new UserRepository();
 const { web3 } = require("../../config/web3.connection");
 const nacl = require("tweetnacl");
 const base58 = require("bs58");
-const userRepository = new UserRepository();
+const jwtUtil = require("../common/jwt-util");
 
 class AuthService {
   /**
@@ -41,9 +43,20 @@ class AuthService {
     if (!result) {
       return BAD_REQUEST_RESPONSE;
     }
+    const user = await userRepository
+      .getUserByWalletAddress(walletAddress)
+      .then((user) => {
+        if (user) return user;
+      });
+    if (!user) {
+      return BAD_REQUEST_RESPONSE;
+    }
+    var response = SUCCESS_RESPONSE;
+    //액세스 토큰 발급
+    response.responseBody.accessToken = jwtUtil.sign(user);
     //완료됐으니 nonce 업데이트
     await userRepository.updateNonceByWalletAddress(walletAddress);
-    return SUCCESS_RESPONSE;
+    return response;
   }
 
   /**
@@ -81,6 +94,27 @@ class AuthService {
   }
 
   /**
+   * WalletAddress와 refreshToken을 받아 Access token 반환.
+   * @param {string} walletAddress
+   * @param {string} refreshToken
+   * @returns
+   */
+  async refreshAccessToken(walletAddress, refreshToken) {
+    var response;
+    if (await jwtUtil.refreshVerify(refreshToken, walletAddress)) {
+      //user 가져오기.
+      const user = await userRepository.getUserByWalletAddress(walletAddress);
+      response = SUCCESS_RESPONSE;
+      //user로 access token 발행
+      response.responseBody.accessToken = jwtUtil.sign(user);
+      return response;
+    }
+    response = UNAUTHORIZED_RESPONSE;
+    response.responseBody.message = "jwt expired";
+    return response;
+  }
+
+  /**
    * WalletAddress를 받아 user를 반환한다.
    * @param {string} walletAddress
    * @returns response
@@ -101,7 +135,7 @@ class AuthService {
          */
         let platforms = ["twitch"];
         for (let platform of platforms) {
-          if (user[platform]) {
+          if (JSON.stringify(user[platform]) !== "{}") {
             res.responseBody.user[platform] = {
               id: user[platform].id,
               displayName: user[platform].display_name,

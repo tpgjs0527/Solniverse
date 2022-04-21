@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const { Schema, model, Types } = require("mongoose");
 
 const UserSchema = new Schema(
@@ -18,7 +17,12 @@ const UserSchema = new Schema(
 
     wallet_address: { type: String, required: true, unique: true },
     nonce: { type: String, required: true },
-    authority: { type: String, required: false },
+    authority: {
+      type: String,
+      default: "normal",
+      required: true,
+      enum: ["normal", "admin"],
+    },
     enabled: { type: Boolean, required: false },
   },
 

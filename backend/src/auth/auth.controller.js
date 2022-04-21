@@ -8,10 +8,16 @@
 
 const express = require("express");
 const { StatusCodes } = require("http-status-codes");
-
 const router = express.Router();
 const AuthService = require("./auth.service");
 const authService = new AuthService();
+
+const authJwtMiddleware = require("../../config/authJwtMiddleware");
+const jwtUtil = require("../common/jwt-util");
+const { BAD_REQUEST_RESPONSE } = require("../common/base.response");
+// 아래와 jwt 인증이 필요한 부분에서 미들웨어로 사용가능.
+// 아래 작성 후에 라우터를 작성하면 req.walletAddress 와 같이 접근 가능
+// router.post("/connect", authJwtMiddleware);
 
 /**
  * @TODO OAuth 2.0 Authorization code 정보 혹은 access Token을 받아 백엔드에 기록
@@ -19,12 +25,13 @@ const authService = new AuthService();
  */
 
 /**
- * WalletAddress와 signature를 request body로 받아 인증을 거쳐 session verified 설정
+ * WalletAddress와 signature를 request body로 받아 인증을 거쳐 jwt access token refresh token 반환
  */
 router.post("/connect", async function (req, res) {
   const nonce = req.cookies["nonce"];
   const walletAddress = req.body["walletAddress"];
   const signature = req.body["signature"];
+
   const { statusCode, responseBody } =
     await authService.verifyAddressFromSignature(
       nonce,
@@ -32,8 +39,11 @@ router.post("/connect", async function (req, res) {
       signature
     );
   if (statusCode == StatusCodes.OK) {
-    req.session.verified = true;
-    req.session.save();
+    const refreshToken = await jwtUtil.refresh(walletAddress);
+    res.cookie("refreshtoken", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+    });
   }
   res.statusCode = statusCode;
   res.send(responseBody);
@@ -47,6 +57,21 @@ router.post("/connect/:walletAddress", async function (req, res) {
   const { statusCode, responseBody } =
     await authService.createUserByWalletAddress(walletAddress);
 
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
+ * 리프레시 토큰과  user 추가. 기본적인 public key값 검증이 이루어짐
+ */
+router.post("/refresh", async function (req, res) {
+  const refreshToken = req.cookies["refreshtoken"];
+  const walletAddress = req.body["walletAddress"];
+
+  const { statusCode, responseBody } = await authService.refreshAccessToken(
+    walletAddress,
+    refreshToken
+  );
   res.statusCode = statusCode;
   res.send(responseBody);
 });
