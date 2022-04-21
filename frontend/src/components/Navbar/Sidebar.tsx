@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import { toggleSidebarAtom } from "atoms";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -93,6 +93,9 @@ const Element = styled.li`
   letter-spacing: -0.8px;
   margin-bottom: 36px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 `;
 
 const Nav = styled.div`
@@ -125,6 +128,9 @@ const Icon = styled.div`
   width: 28px;
   height: 28px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 `;
 
 const Icons = styled.div`

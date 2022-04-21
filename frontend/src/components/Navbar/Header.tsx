@@ -1,48 +1,37 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toggleThemeAtom, toggleSidebarAtom } from "atoms";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-
-interface LinkProps {
-  children: React.ReactNode;
-  to: string;
-}
-
-const ActiveLink = ({ children, to }: LinkProps) => {
-  const { pathname } = useLocation();
-  return (
-    <Link to={to}>
-      <Active isActive={pathname === to}>{children}</Active>
-    </Link>
-  );
-};
-
-const Active = styled.div<{ isActive: Boolean }>`
-  &:hover {
-    color: ${(props) => props.theme.ownColor};
-  }
-  color: ${(props) =>
-    props.isActive ? props.theme.ownColor : props.theme.textColor};
-`;
+import { Link, useMatch, useNavigate } from "react-router-dom";
 
 export default function Header() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useRecoilState(toggleThemeAtom);
   const setIsSidebar = useSetRecoilState(toggleSidebarAtom);
 
+  // Active Link
+  const donationHistoryMatch = useMatch("/donation-history/*");
+  const nftRewardMatch = useMatch("/nft-reward");
+  const serviceCenterMatch = useMatch("/service-center");
+
   return (
     <Nav>
       <Col>
         <Logo onClick={() => navigate(`/mypage`)}>Solniverse</Logo>
         <List>
-          <Element>
-            <ActiveLink to="/donation-history">후원 내역</ActiveLink>
+          <Element isActive={donationHistoryMatch !== null}>
+            <Link to="/donation-history">
+              <Text>후원 내역</Text>
+            </Link>
           </Element>
-          <Element>
-            <ActiveLink to="/nft-reward">NFT 리워드</ActiveLink>
+          <Element isActive={nftRewardMatch !== null}>
+            <Link to="/nft-reward">
+              <Text>NFT 리워드</Text>
+            </Link>
           </Element>
-          <Element>
-            <ActiveLink to="/service-center">고객센터</ActiveLink>
+          <Element isActive={serviceCenterMatch !== null}>
+            <Link to="/service-center">
+              <Text>고객센터</Text>
+            </Link>
           </Element>
         </List>
         <Icons>
@@ -138,18 +127,27 @@ const Logout = styled.li`
   width: 28px;
   height: 28px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 `;
 
 const SearchToggle = styled.li`
   width: 28px;
   height: 28px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 `;
 
 const SidebarToggle = styled.li`
   width: 28px;
   height: 28px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 
   @media screen and (min-width: 1024px) {
     display: none;
@@ -160,6 +158,9 @@ const ThemeToggle = styled.li`
   width: 28px;
   height: 28px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 `;
 
 const Nickname = styled.div`
@@ -195,11 +196,20 @@ const Icons = styled.ul`
   gap: 10px;
 `;
 
-const Element = styled.li`
+const Text = styled.span`
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
+`;
+
+const Element = styled.li<{ isActive: boolean }>`
   padding: 0 28px;
   line-height: 72px;
   font-weight: 700;
   letter-spacing: -0.5px;
+
+  color: ${(props) =>
+    props.isActive ? props.theme.ownColor : props.theme.textColor};
 `;
 
 const List = styled.ul`

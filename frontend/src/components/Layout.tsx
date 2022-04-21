@@ -22,12 +22,12 @@ export default function Layout({ children, title, canGoBack }: LayoutProps) {
 
 const Base = styled.div`
   margin: 0 auto;
-  padding: 60px 24px 0;
+  padding: 60px 24px 172px;
   max-width: 364px;
 
   @media screen and (min-width: 767px) {
     max-width: 630px;
-    padding: 60px 0 0;
+    padding: 60px 0 172px;
   }
   @media screen and (min-width: 1024px) {
     padding-top: 72px;
