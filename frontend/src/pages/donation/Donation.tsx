@@ -3,6 +3,9 @@ import Layout from "components/Layout";
 import banner from "../../../public/가로긴사진.png";
 
 function Donation() {
+  const onClick = () => {
+    alert("도네이션을 진행하겠습니다");
+  };
   return (
     <Layout>
       <Container>
@@ -29,15 +32,16 @@ function Donation() {
             <MessageTextarea />
           </DonatorWrapper>
         </DonationWrapper>
+        <Line />
         <DonationWrapper>
-          <TotalWrapper>
-            <TotalPrice></TotalPrice>
-            <TotalUSDC></TotalUSDC>
-          </TotalWrapper>
+          <DonatorWrapper>
+            <TotalPrice>Total</TotalPrice>
+            <TotalUSDC>100 USDC</TotalUSDC>
+          </DonatorWrapper>
         </DonationWrapper>
         <DonationWrapper>
           <ButtonWrapper>
-            <Button>Donate</Button>
+            <Button onClick={onClick}>Donate</Button>
           </ButtonWrapper>
         </DonationWrapper>
       </Container>
@@ -62,10 +66,10 @@ const CreatorContent = styled.div`
   font-size: 20px;
 `;
 const CreatorImage = styled.img.attrs({
-  src: `${process.env.PUBLIC_URL}/가로긴사진.png`,
+  src: `${process.env.PUBLIC_URL}/헤이.png`,
 })`
-  width: auto;
-  height: 200px;
+  width: 100%;
+  height: auto;
 `;
 
 const DonatorWrapper = styled.div`
@@ -85,7 +89,6 @@ const Input = styled.input`
   font-weight: bold;
 `;
 const DonatePrice = styled.div``;
-const PriceInput = styled.input``;
 const DonateMessage = styled.div``;
 const MessageTextarea = styled.textarea`
   width: 80%;
@@ -94,11 +97,30 @@ const MessageTextarea = styled.textarea`
   border: 1px solid #7f8fa6;
 `;
 
-const TotalWrapper = styled.div``;
-const TotalPrice = styled.div``;
-const TotalUSDC = styled.div``;
+const Line = styled.hr`
+  margin: 32px 0px;
+`;
 
-const ButtonWrapper = styled.div``;
-const Button = styled.button``;
+const TotalPrice = styled.div``;
+const TotalUSDC = styled.div`
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+const Button = styled.button`
+  width: 30%;
+  height: 40px;
+  color: #ffffff;
+  background-color: #00a8ff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+`;
 
 export default Donation;
