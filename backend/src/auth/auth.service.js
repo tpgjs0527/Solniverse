@@ -168,6 +168,15 @@ class AuthService {
         return BAD_REQUEST_RESPONSE;
       });
   }
+  async insertUserInfo(req) {
+		return {
+			statusCode: 200,
+			responseBody: {
+				result: 'success',
+				itemId: 0
+			}
+		}
+	}
 }
 
 module.exports = AuthService;

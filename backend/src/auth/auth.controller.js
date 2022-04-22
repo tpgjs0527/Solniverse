@@ -11,6 +11,7 @@ const { StatusCodes } = require("http-status-codes");
 const router = express.Router();
 const AuthService = require("./auth.service");
 const authService = new AuthService();
+const axios = require("axios");
 
 const authJwtMiddleware = require("../../config/authJwtMiddleware");
 const jwtUtil = require("../common/jwt-util");
@@ -103,11 +104,40 @@ router.get("/nonce/:walletAddress", async function (req, res) {
 });
 
 router.post("/oauth", async function (req, res) {
-  const responseBody = {
-    result: "success",
-    data: {},
+
+  const userinfo = {
+    access_token : "",
+    refresh_token : "",
+    token_type : "",
+    login : "",
+    display_name : "",
+    profileimage_url : ""
   };
 
+  // 토큰 받아와서 트위치 프로필 정보까지 받아오기
+  axios.post(
+    'https://id.twitch.tv/oauth2/token',
+    'client_id=uve26y4qxaoq0p6t5elsja089p1gn4'+
+    '&client_secret=1mh4jp98i7t3jobse6dtdntoojnsz7'+
+    '&code='+req.code+
+    '&grant_type=authorization_code'+
+    '&redirect_uri=http://localhost:3000',
+    {'Content-Type': 'application/x-www-form-urlencoded'}
+  ).then((res)=>{
+    console.log(res);
+
+    userinfo.access_token = res.access_token;
+    userinfo.refresh_token = res.refresh_token;
+    userinfo.token_type = res.token_type;
+
+    
+
+  });
+
+  // DB에 저장
+  const responseBody = await authService.insertUserInfo(userinfo);
+
+  //res send
   res.statusCode = 200;
   res.send(responseBody);
 });
