@@ -9,7 +9,15 @@ const UserRepository = require("./user.repository");
 const userRepository = new UserRepository();
 
 class AuthService {
-  // TODO 작성해야함.
+  async insertUserInfo(req) {
+		return {
+			statusCode: 200,
+			responseBody: {
+				result: 'success',
+				itemId: 0
+			}
+		}
+	}
 }
 
 module.exports = AuthService;
