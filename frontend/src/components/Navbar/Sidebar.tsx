@@ -49,7 +49,12 @@ export default function Sidebar() {
             </svg>
           </Icon>
         </Icons>
-        <Profile>
+        <Profile
+          onClick={() => {
+            setIsSidebar((prev) => !prev);
+            navigate(`/mypage`);
+          }}
+        >
           <BasicImg />
           <Nickname>닉네임</Nickname>
         </Profile>
@@ -122,6 +127,9 @@ const Profile = styled.div`
   gap: 10px;
   cursor: pointer;
   padding: 18px 0;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 `;
 
 const Icon = styled.div`

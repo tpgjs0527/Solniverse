@@ -35,7 +35,7 @@ export default function Header() {
           </Element>
         </List>
         <Icons>
-          <Profile>
+          <Profile onClick={() => navigate(`/mypage`)}>
             <BasicImg />
             <Nickname>닉네임</Nickname>
           </Profile>
@@ -184,6 +184,9 @@ const Profile = styled.div`
   align-items: center;
   gap: 5px;
   cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
 
   @media screen and (max-width: 1024px) {
     display: none;
