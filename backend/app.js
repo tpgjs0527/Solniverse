@@ -1,12 +1,12 @@
 const createError = require("http-errors");
 const express = require("express");
+require("dotenv").config();
 const path = require("path");
 const helmet = require("helmet");
 const cors = require("cors");
 const cookie = require("cookie-parser");
 global.logger || (global.logger = require("./config/logger")); // → 전역에서 사용
 const morganMiddleware = require("./config/morganMiddleware");
-require("dotenv").config();
 
 const authRouter = require("./src/auth/auth.controller");
 const donationRouter = require("./src/donation/donation.controller");

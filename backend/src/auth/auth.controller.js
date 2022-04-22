@@ -11,11 +11,8 @@ const { StatusCodes } = require("http-status-codes");
 const router = express.Router();
 const AuthService = require("./auth.service");
 const authService = new AuthService();
-const axios = require("axios");
 
-const authJwtMiddleware = require("../../config/authJwtMiddleware");
 const jwtUtil = require("../common/jwt-util");
-const { BAD_REQUEST_RESPONSE } = require("../common/base.response");
 // 아래와 jwt 인증이 필요한 부분에서 미들웨어로 사용가능.
 // 아래 작성 후에 라우터를 작성하면 req.walletAddress 와 같이 접근 가능
 // router.post("/connect", authJwtMiddleware);
@@ -37,7 +34,7 @@ router.post("/connect", async function (req, res) {
     await authService.verifyAddressFromSignature(
       nonce,
       walletAddress,
-      signature
+      signature,
     );
   if (statusCode == StatusCodes.OK) {
     const refreshToken = await jwtUtil.refresh(walletAddress);
@@ -71,7 +68,7 @@ router.post("/refresh", async function (req, res) {
 
   const { statusCode, responseBody } = await authService.refreshAccessToken(
     walletAddress,
-    refreshToken
+    refreshToken,
   );
   res.statusCode = statusCode;
   res.send(responseBody);
@@ -83,7 +80,7 @@ router.post("/refresh", async function (req, res) {
 router.get("/connect/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
   const { statusCode, responseBody } = await authService.getUserByWalletAddress(
-    walletAddress
+    walletAddress,
   );
   res.statusCode = statusCode;
   res.send(responseBody);
@@ -104,11 +101,13 @@ router.get("/nonce/:walletAddress", async function (req, res) {
 });
 
 router.post("/oauth", async function (req, res) {
-
   const walletAddress = req.body["walletAddress"];
   const code = req.body["code"];
 
-  const { statusCode, responseBody } = await authService.insertUserInfo(walletAddress, code);
+  const { statusCode, responseBody } = await authService.insertUserInfo(
+    walletAddress,
+    code,
+  );
 
   //res send
   res.statusCode = statusCode;

@@ -18,8 +18,6 @@
 // module.exports = connection;
 const mongoose = require("mongoose");
 
-require("dotenv").config();
-
 /**
  * 라우터별로 하나씩 동작하기 때문에 동시성 문제가 생기는 것은 주의해야함.
  * @returns conn

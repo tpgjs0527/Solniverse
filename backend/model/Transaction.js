@@ -16,7 +16,7 @@ const TransactionSchema = new Schema(
   {
     // createdat
     timestamps: { createdAt: true, updatedAt: false },
-  }
+  },
 );
 
 module.exports = TransactionSchema;

@@ -30,8 +30,8 @@ const format = winston.format.combine(
   winston.format.timestamp({ format: " YYYY-MM-DD HH:MM:SS ||" }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
-    (info) => `${info.timestamp} [ ${info.level} ] ▶ ${info.message}`
-  )
+    (info) => `${info.timestamp} [ ${info.level} ] ▶ ${info.message}`,
+  ),
 );
 
 const logger = winston.createLogger({
@@ -42,7 +42,7 @@ const logger = winston.createLogger({
       level: "info",
       datePattern: "YYYY-MM-DD",
       dirname: logDir,
-      filename: `%DATE%.log`,
+      filename: "%DATE%.log",
       zippedArchive: true,
       handleExceptions: true,
       maxFiles: 30,
@@ -51,7 +51,7 @@ const logger = winston.createLogger({
       level: "error",
       datePattern: "YYYY-MM-DD",
       dirname: logDir + "/error",
-      filename: `%DATE%.error.log`,
+      filename: "%DATE%.error.log",
       zippedArchive: true,
       maxFiles: 30,
     }),

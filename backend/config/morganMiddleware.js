@@ -46,7 +46,7 @@ morgan.token("makeLine", function () {
 // 보통 배포시에는 combined 혹은 common 에 필요한 정보들을 추가하여 사용하는 것을 추천 || 추후 배포 시 사용 -> 주소,IP_ :remote-addr :remote-user |
 const morganMiddleware = morgan(
   ":makeLine 요청_:method | url_':url' | :request | Status_:status | 응답시간_:response-time ms (:res[content-length]줄)",
-  { stream, skip }
+  { stream, skip },
 );
 
 module.exports = morganMiddleware;

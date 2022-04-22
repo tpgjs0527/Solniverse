@@ -38,7 +38,7 @@ class AuthService {
     const result = nacl.sign.detached.verify(
       messageBytes,
       signatureBytes,
-      publicKeyBytes
+      publicKeyBytes,
     );
 
     if (!result) {
@@ -169,8 +169,9 @@ class AuthService {
         return BAD_REQUEST_RESPONSE;
       });
   }
+
   /**
-   * walletAddress와 code를 받아 access token을 발급받는다
+   * WalletAddress와 code를 받아 access token을 발급받는다
    * access token을 통해 twitch api를 호출하여 프로필 정보를 받아온다
    * 이 모든 내용을 db에 저장한다
    * @param {string} walletAddress
@@ -178,63 +179,87 @@ class AuthService {
    * @returns response
    */
   async insertUserInfo(walletAddress, code) {
-    const userinfo = {
-      id : "",
-      display_name : "",
-      profile_image_url : "",
-      oauth : {
-        access_token : "",
-        refresh_token : ""        
-      }
+    /**
+     * AuthCode를 받아 Twitch에서 Access Token을 발급받습니다.
+     *
+     * @param {string} authCode
+     * @returns AxiosPromise
+     */
+    const getAccessTokenFromAuthCode = (authCode) => {
+      return axios({
+        url: "https://id.twitch.tv/oauth2/token",
+        method: "post",
+        data:
+          `client_id=${process.env.TWITCH_CLIENT_ID}` +
+          `&client_secret=${process.env.TWITCH_CLIENT_SECRET}` +
+          "&code=" +
+          authCode +
+          "&grant_type=authorization_code" +
+          `&redirect_uri=${process.env.SERVER_URL}`,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
     };
-  
+
+    /**
+     * AccessToken를 받아 Twitch에서 해당 코드의 User정보를 받아온다.
+     *
+     * @param {string} accessToken
+     * @returns AxiosPromise
+     */
+    const getTwitchUserFromAccessToken = (accessToken) => {
+      return axios({
+        url: "https://api.twitch.tv/helix/users",
+        method: "get",
+        headers: {
+          "Client-Id": process.env.TWITCH_CLIENT_ID,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    };
+
+    const twitchInfo = {
+      id: "",
+      display_name: "",
+      profile_image_url: "",
+      oauth: {
+        access_token: "",
+        refresh_token: "",
+      },
+    };
+
     // 토큰 받아와서 트위치 프로필 정보까지 받아오기
-    return await axios({
-      url : 'https://id.twitch.tv/oauth2/token',
-      method : "post",
-      data : 
-        'client_id=uve26y4qxaoq0p6t5elsja089p1gn4'+
-        '&client_secret=1mh4jp98i7t3jobse6dtdntoojnsz7'+
-        '&code='+code+
-        '&grant_type=authorization_code'+
-        '&redirect_uri=http://localhost:3000'
-      ,
-      headers : {'Content-Type': 'application/x-www-form-urlencoded'}
-      
-    }).then(async(res)=>{
+    return await getAccessTokenFromAuthCode(code)
+      .then((res) => {
+        twitchInfo.oauth.access_token = res.data.access_token;
+        twitchInfo.oauth.refresh_token = res.data.refresh_token;
 
-      userinfo.oauth.access_token = res.data.access_token;
-      userinfo.oauth.refresh_token = res.data.refresh_token;
+        // Access Token으로 Twitch 유저 정보 가져오기
+        return getTwitchUserFromAccessToken(twitchInfo.oauth.access_token)
+          .then((res) => {
+            twitchInfo.id = res.data.data[0].login;
+            twitchInfo.display_name = res.data.data[0].display_name;
+            twitchInfo.profile_image_url = res.data.data[0].profile_image_url;
 
-      console.log(userinfo.oauth.access_token);
-      return await axios({
-        url : 'https://api.twitch.tv/helix/users',
-        method : 'get',
-        headers : {
-          'Client-Id' : 'uve26y4qxaoq0p6t5elsja089p1gn4',
-          Authorization : `Bearer ${userinfo.oauth.access_token}`
-        }
-      }).then(async(res)=>{
-        userinfo.id = res.data.data[0].login;
-        userinfo.display_name = res.data.data[0].display_name;
-        userinfo.profile_image_url = res.data.data[0].profile_image_url;
-
-        return await userRepository
-          .insertUserInfo(walletAddress, userinfo)
-          .then(async() => {
-            return await this.getUserByWalletAddress(walletAddress);
+            //유저에 가져온 정보 삽입
+            return userRepository
+              .updateTwitchInfoFromWalletAddress(walletAddress, twitchInfo)
+              .then(() => {
+                // 우리 백엔드 유저 정보 반환
+                return this.getUserByWalletAddress(walletAddress);
+              })
+              .catch((err) => {
+                throw err;
+              });
           })
           .catch((err) => {
-            return BAD_REQUEST_RESPONSE;
+            throw err;
           });
-      }).catch((err)=>{
+      })
+      .catch((err) => {
+        //log를 보고 싶거나 기록하고 싶으면 여기만 기록하면 됨.
         return BAD_REQUEST_RESPONSE;
       });
-
-    }).catch((err)=>{
-      return BAD_REQUEST_RESPONSE;
-    });
-	}
+  }
 }
 
 module.exports = AuthService;
