@@ -30,9 +30,10 @@ module.exports = function connectionFactory() {
     useUnifiedTopology: true,
   });
 
-  //
+  //connection에 model 연결
   conn.model("User", require("../model/User"));
   conn.model("Transaction", require("../model/Transaction"));
+  conn.model("RefreshToken", require("../model/RefreshToken"));
 
   return conn;
 };

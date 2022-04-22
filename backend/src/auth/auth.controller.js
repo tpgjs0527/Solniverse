@@ -7,32 +7,99 @@
  */
 
 const express = require("express");
+const { StatusCodes } = require("http-status-codes");
 const router = express.Router();
 const AuthService = require("./auth.service");
 const authService = new AuthService();
 const axios = require("axios");
 
+const authJwtMiddleware = require("../../config/authJwtMiddleware");
+const jwtUtil = require("../common/jwt-util");
+const { BAD_REQUEST_RESPONSE } = require("../common/base.response");
+// 아래와 jwt 인증이 필요한 부분에서 미들웨어로 사용가능.
+// 아래 작성 후에 라우터를 작성하면 req.walletAddress 와 같이 접근 가능
+// router.post("/connect", authJwtMiddleware);
+
 /**
- * TODO OAuth 2.0 Authorization code 정보 혹은 access Token을 받아 백엔드에 기록
+ * @TODO OAuth 2.0 Authorization code 정보 혹은 access Token을 받아 백엔드에 기록
  * Authorization code 정보일 경우엔 OAuth Access Token은 백엔드에서 트위치 Authorization 서버에서 받아와야함.
  */
-router.post("/connect", async function (req, res) {
-  const responseBody = {
-    result: "success",
-    data: {
-      // 이 내용을 jwt로 제공해야할 수도 있음.
-      user: {
-        id: 0,
-        name: "더미",
-        walletAddress: "지갑주소",
-        twitch: {
-          test: "대충 테스트 정보들",
-        },
-      },
-    },
-  };
 
-  res.statusCode = 200;
+/**
+ * WalletAddress와 signature를 request body로 받아 인증을 거쳐 jwt access token refresh token 반환
+ */
+router.post("/connect", async function (req, res) {
+  const nonce = req.cookies["nonce"];
+  const walletAddress = req.body["walletAddress"];
+  const signature = req.body["signature"];
+
+  const { statusCode, responseBody } =
+    await authService.verifyAddressFromSignature(
+      nonce,
+      walletAddress,
+      signature
+    );
+  if (statusCode == StatusCodes.OK) {
+    const refreshToken = await jwtUtil.refresh(walletAddress);
+    res.cookie("refreshtoken", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+    });
+  }
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
+ * 사용자 지갑 주소를 입력받으면 user 추가. 기본적인 public key값 검증이 이루어짐
+ */
+router.post("/connect/:walletAddress", async function (req, res) {
+  const walletAddress = req.params["walletAddress"];
+  const { statusCode, responseBody } =
+    await authService.createUserByWalletAddress(walletAddress);
+
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
+ * 리프레시 토큰과  user 추가. 기본적인 public key값 검증이 이루어짐
+ */
+router.post("/refresh", async function (req, res) {
+  const refreshToken = req.cookies["refreshtoken"];
+  const walletAddress = req.body["walletAddress"];
+
+  const { statusCode, responseBody } = await authService.refreshAccessToken(
+    walletAddress,
+    refreshToken
+  );
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
+ * 사용자 지갑 주소를 입력받으면 user를 반환.
+ */
+router.get("/connect/:walletAddress", async function (req, res) {
+  const walletAddress = req.params["walletAddress"];
+  const { statusCode, responseBody } = await authService.getUserByWalletAddress(
+    walletAddress
+  );
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
+ * 사용자 지갑 주소를 입력받으면 nonce를 반환. nonce를 cookie로 전달 및 body로 전달
+ */
+router.get("/nonce/:walletAddress", async function (req, res) {
+  const walletAddress = req.params["walletAddress"];
+  const { statusCode, responseBody } =
+    await authService.getNonceByWalletAddress(walletAddress);
+  if (statusCode == StatusCodes.OK) {
+    res.cookie("nonce", responseBody.nonce, { httpOnly: true });
+  }
+  res.statusCode = statusCode;
   res.send(responseBody);
 });
 
