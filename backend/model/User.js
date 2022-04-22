@@ -9,7 +9,7 @@ const UserSchema = new Schema(
       oauth: {
         access_token: { type: String, required: false },
         refresh_token: { type: String, required: false },
-        type: String,
+        type: Object,
         required: false,
       },
       required: false,

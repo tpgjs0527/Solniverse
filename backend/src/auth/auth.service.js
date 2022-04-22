@@ -18,6 +18,7 @@ const { web3 } = require("../../config/web3.connection");
 const nacl = require("tweetnacl");
 const base58 = require("bs58");
 const jwtUtil = require("../common/jwt-util");
+const { default: axios } = require("axios");
 
 class AuthService {
   /**
@@ -168,14 +169,71 @@ class AuthService {
         return BAD_REQUEST_RESPONSE;
       });
   }
-  async insertUserInfo(req) {
-		return {
-			statusCode: 200,
-			responseBody: {
-				result: 'success',
-				itemId: 0
-			}
-		}
+  /**
+   * walletAddress와 code를 받아 access token을 발급받는다
+   * access token을 통해 twitch api를 호출하여 프로필 정보를 받아온다
+   * 이 모든 내용을 db에 저장한다
+   * @param {string} walletAddress
+   * @param {string} code
+   * @returns response
+   */
+  async insertUserInfo(walletAddress, code) {
+    const userinfo = {
+      id : "",
+      display_name : "",
+      profile_image_url : "",
+      oauth : {
+        access_token : "",
+        refresh_token : ""        
+      }
+    };
+  
+    // 토큰 받아와서 트위치 프로필 정보까지 받아오기
+    return await axios({
+      url : 'https://id.twitch.tv/oauth2/token',
+      method : "post",
+      data : 
+        'client_id=uve26y4qxaoq0p6t5elsja089p1gn4'+
+        '&client_secret=1mh4jp98i7t3jobse6dtdntoojnsz7'+
+        '&code='+code+
+        '&grant_type=authorization_code'+
+        '&redirect_uri=http://localhost:3000'
+      ,
+      headers : {'Content-Type': 'application/x-www-form-urlencoded'}
+      
+    }).then(async(res)=>{
+
+      userinfo.oauth.access_token = res.data.access_token;
+      userinfo.oauth.refresh_token = res.data.refresh_token;
+
+      console.log(userinfo.oauth.access_token);
+      return await axios({
+        url : 'https://api.twitch.tv/helix/users',
+        method : 'get',
+        headers : {
+          'Client-Id' : 'uve26y4qxaoq0p6t5elsja089p1gn4',
+          Authorization : `Bearer ${userinfo.oauth.access_token}`
+        }
+      }).then(async(res)=>{
+        userinfo.id = res.data.data[0].login;
+        userinfo.display_name = res.data.data[0].display_name;
+        userinfo.profile_image_url = res.data.data[0].profile_image_url;
+
+        return await userRepository
+          .insertUserInfo(walletAddress, userinfo)
+          .then(async() => {
+            return await this.getUserByWalletAddress(walletAddress);
+          })
+          .catch((err) => {
+            return BAD_REQUEST_RESPONSE;
+          });
+      }).catch((err)=>{
+        return BAD_REQUEST_RESPONSE;
+      });
+
+    }).catch((err)=>{
+      return BAD_REQUEST_RESPONSE;
+    });
 	}
 }
 

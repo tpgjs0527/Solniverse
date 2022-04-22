@@ -68,6 +68,21 @@ class UserRepository {
       });
     return result;
   }
+
+  async insertUserInfo(walletAddress,userinfo) {
+    
+    const result = User.updateOne(
+      { wallet_address: walletAddress },
+      { twitch: userinfo }
+    )
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        throw err;
+      });
+    return result;
+  } 
 }
 
 module.exports = UserRepository;
