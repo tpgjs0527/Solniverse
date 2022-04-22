@@ -12,7 +12,7 @@ class RefreshTokenRepository {
     return RefreshToken.updateOne(
       { wallet_address: walletAddress },
       { token },
-      { upsert: true }
+      { upsert: true },
     )
       .then((res) => {
         return res;

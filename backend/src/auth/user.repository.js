@@ -58,7 +58,27 @@ class UserRepository {
     // Nonce 업데이트
     const result = User.updateOne(
       { wallet_address: walletAddress },
-      { nonce: crypto.randomBytes(16).toString("base64") }
+      { nonce: crypto.randomBytes(16).toString("base64") },
+    )
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        throw err;
+      });
+    return result;
+  }
+
+  /**
+   * WalletAddress로 유저 Twtich 정보를 업데이트 시킴.
+   * @param {string} walletAddress
+   * @param {string} twitchInfo
+   * @returns
+   */
+  async updateTwitchInfoFromWalletAddress(walletAddress, twitchInfo) {
+    const result = User.updateOne(
+      { wallet_address: walletAddress },
+      { twitch: twitchInfo },
     )
       .then((res) => {
         return res;

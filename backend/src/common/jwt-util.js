@@ -76,7 +76,7 @@ module.exports = {
     // 현재 refresh token이 만료되지 않았다면 반환
     const currentToken =
       await refreshTokenRepository.findRefreshTokenByWalletAddress(
-        walletAddress
+        walletAddress,
       );
     try {
       jwt.verify(currentToken, secret);
@@ -91,7 +91,7 @@ module.exports = {
       // refresh token 저장
       await refreshTokenRepository.upsertRefreshTokenByWalletAddress(
         token,
-        walletAddress
+        walletAddress,
       );
       return token;
     }

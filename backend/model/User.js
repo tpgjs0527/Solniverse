@@ -1,4 +1,4 @@
-const { Schema, model, Types } = require("mongoose");
+const { Schema } = require("mongoose");
 
 const UserSchema = new Schema(
   {
@@ -9,7 +9,7 @@ const UserSchema = new Schema(
       oauth: {
         access_token: { type: String, required: false },
         refresh_token: { type: String, required: false },
-        type: String,
+        type: Object,
         required: false,
       },
       required: false,
@@ -29,7 +29,7 @@ const UserSchema = new Schema(
   {
     // createdat, updatedat
     timestamps: true,
-  }
+  },
 );
 
 module.exports = UserSchema;

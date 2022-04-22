@@ -11,11 +11,8 @@ const { StatusCodes } = require("http-status-codes");
 const router = express.Router();
 const AuthService = require("./auth.service");
 const authService = new AuthService();
-const axios = require("axios");
 
-const authJwtMiddleware = require("../../config/authJwtMiddleware");
 const jwtUtil = require("../common/jwt-util");
-const { BAD_REQUEST_RESPONSE } = require("../common/base.response");
 // 아래와 jwt 인증이 필요한 부분에서 미들웨어로 사용가능.
 // 아래 작성 후에 라우터를 작성하면 req.walletAddress 와 같이 접근 가능
 // router.post("/connect", authJwtMiddleware);
@@ -37,7 +34,7 @@ router.post("/connect", async function (req, res) {
     await authService.verifyAddressFromSignature(
       nonce,
       walletAddress,
-      signature
+      signature,
     );
   if (statusCode == StatusCodes.OK) {
     const refreshToken = await jwtUtil.refresh(walletAddress);
@@ -71,7 +68,7 @@ router.post("/refresh", async function (req, res) {
 
   const { statusCode, responseBody } = await authService.refreshAccessToken(
     walletAddress,
-    refreshToken
+    refreshToken,
   );
   res.statusCode = statusCode;
   res.send(responseBody);
@@ -83,7 +80,7 @@ router.post("/refresh", async function (req, res) {
 router.get("/connect/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
   const { statusCode, responseBody } = await authService.getUserByWalletAddress(
-    walletAddress
+    walletAddress,
   );
   res.statusCode = statusCode;
   res.send(responseBody);
@@ -104,41 +101,16 @@ router.get("/nonce/:walletAddress", async function (req, res) {
 });
 
 router.post("/oauth", async function (req, res) {
+  const walletAddress = req.body["walletAddress"];
+  const code = req.body["code"];
 
-  const userinfo = {
-    access_token : "",
-    refresh_token : "",
-    token_type : "",
-    login : "",
-    display_name : "",
-    profileimage_url : ""
-  };
-
-  // 토큰 받아와서 트위치 프로필 정보까지 받아오기
-  axios.post(
-    'https://id.twitch.tv/oauth2/token',
-    'client_id=uve26y4qxaoq0p6t5elsja089p1gn4'+
-    '&client_secret=1mh4jp98i7t3jobse6dtdntoojnsz7'+
-    '&code='+req.code+
-    '&grant_type=authorization_code'+
-    '&redirect_uri=http://localhost:3000',
-    {'Content-Type': 'application/x-www-form-urlencoded'}
-  ).then((res)=>{
-    console.log(res);
-
-    userinfo.access_token = res.access_token;
-    userinfo.refresh_token = res.refresh_token;
-    userinfo.token_type = res.token_type;
-
-    
-
-  });
-
-  // DB에 저장
-  const responseBody = await authService.insertUserInfo(userinfo);
+  const { statusCode, responseBody } = await authService.insertUserInfo(
+    walletAddress,
+    code,
+  );
 
   //res send
-  res.statusCode = 200;
+  res.statusCode = statusCode;
   res.send(responseBody);
 });
 
