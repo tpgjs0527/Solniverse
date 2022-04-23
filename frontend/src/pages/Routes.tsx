@@ -6,14 +6,14 @@ import NftReward from "pages/my-info/NftReward";
 import ServiceCenter from "./my-info/ServiceCenter";
 import Payment from "./donation/Payment";
 import Home from "./home/Home";
-import MyPage from "./my-info/MyPage";
+import Account from "./my-info/Account";
 
 function Routes() {
   return (
     <ReactRouterRoutes>
       <Route path="/" element={<Home />} />
       <Route path="/main" element={<Main />} />
-      <Route path="/mypage" element={<MyPage />} />
+      <Route path="/mypage" element={<Account />} />
       <Route path="/donation" element={<Donation />} />
       <Route path="/donation-history/*" element={<DonationHistory />} />
       <Route path="/nft-reward" element={<NftReward />} />
