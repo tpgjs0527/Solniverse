@@ -14,7 +14,12 @@ const donationRouter = require("./src/donation/donation.controller");
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://www.solniverse.net/", /localhost:*/],
+    credentials: true,
+  }),
+);
 app.use(cookie());
 app.use(morganMiddleware); // 콘솔창에 통신결과 나오게 해주는 것
 app.use(express.json());

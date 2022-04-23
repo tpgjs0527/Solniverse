@@ -25,7 +25,7 @@ router.post("/connect", async function (req, res) {
   const signature = req.body["signature"];
 
   const { statusCode, responseBody } =
-    await authService.verifyAddressBySignature(walletAddress, signature);
+    await authService.verifyAddressBySignature(signature, walletAddress);
   if (statusCode == StatusCodes.OK) {
     const refreshToken = await jwtUtil.refresh(walletAddress);
     res.cookie("refreshtoken", refreshToken, {
@@ -50,9 +50,9 @@ router.post("/connect/:walletAddress", async function (req, res) {
 });
 
 /**
- * 리프레시 토큰과  user 추가. 기본적인 public key값 검증이 이루어짐
+ * Refresh token을 이용해서 유효한 토큰이면 Access Token을 반환 받음.
  */
-router.post("/refresh", async function (req, res) {
+router.get("/refresh", async function (req, res) {
   const refreshToken = req.cookies["refreshtoken"];
   const walletAddress = req.body["walletAddress"];
 
