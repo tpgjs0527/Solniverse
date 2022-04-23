@@ -1,14 +1,15 @@
 import Layout from "components/Layout";
 import useMutation from "hooks/useMutation";
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 function Account() {
+  const navigate = useNavigate();
+
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
   const code = searchParams.get("code");
-  console.log(code);
 
   // back에 code 전송
   const [connectToTwitch, { data, loading }] = useMutation<any>(
@@ -18,7 +19,6 @@ function Account() {
   // code 변경 시 실행
   useEffect(() => {
     if (code) {
-      console.log("변경");
       connectToTwitch({
         walletAddress: "8Q8bvExfymY9JjMVEnJLkvFfA5YW6qHEChnKZaLuPjmy",
         code: code,
@@ -30,6 +30,7 @@ function Account() {
   useEffect(() => {
     if (data) {
       console.log(data);
+      navigate(`/account`, { replace: true });
     }
   }, [data]);
 

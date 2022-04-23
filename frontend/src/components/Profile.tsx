@@ -13,7 +13,7 @@ export default function Profile() {
         if (isSidebar) {
           setIsSidebar((prev) => !prev);
         }
-        navigate(`/mypage`);
+        navigate(`/account`);
       }}
       sidebarStyle={isSidebar}
     >

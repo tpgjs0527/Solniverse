@@ -13,7 +13,7 @@ function Routes() {
     <ReactRouterRoutes>
       <Route path="/" element={<Home />} />
       <Route path="/main" element={<Main />} />
-      <Route path="/mypage" element={<Account />} />
+      <Route path="/account" element={<Account />} />
       <Route path="/donation" element={<Donation />} />
       <Route path="/donation-history/*" element={<DonationHistory />} />
       <Route path="/nft-reward" element={<NftReward />} />
