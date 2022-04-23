@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import { toggleSidebarAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
-import Profile from "components/Profile";
+import Profile from "components/Navbar/Profile";
 
 export default function Sidebar() {
   const navigate = useNavigate();

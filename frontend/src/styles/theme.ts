@@ -10,6 +10,7 @@ export const lightTheme: DefaultTheme = {
   subTextColor: "#666666",
   borderColor: "#eeeeee",
   boxColor: "#ffffff",
+  subBoxColor: "#eeeeee",
 };
 
 // 어두운 테마
@@ -18,6 +19,7 @@ export const darkTheme: DefaultTheme = {
   bgColor: "#000000",
   textColor: "#ffffff",
   subTextColor: "#777777",
-  borderColor: "#333333",
+  borderColor: "#444444",
   boxColor: "#333333",
+  subBoxColor: "#444444",
 };

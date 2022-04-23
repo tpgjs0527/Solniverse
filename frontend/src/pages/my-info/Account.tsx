@@ -4,6 +4,15 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
+export interface IUser {
+  result: string;
+  user: {
+    createdAt: string;
+    twitch?: { id: string; displayName: string; profileImageUrl: string };
+    wallet_address: string;
+  };
+}
+
 function Account() {
   const navigate = useNavigate();
 
@@ -11,8 +20,8 @@ function Account() {
   const [searchParams, setSearchParams] = useSearchParams();
   const code = searchParams.get("code");
 
-  // back에 code 전송
-  const [connectToTwitch, { data, loading }] = useMutation<any>(
+  // request (code 전송)
+  const [connectToTwitch, { data, loading }] = useMutation<IUser>(
     `${process.env.REACT_APP_BASE_URL}/auth/oauth`
   );
 
@@ -26,13 +35,13 @@ function Account() {
     }
   }, [code]);
 
-  // data 들어오면 실행
+  // data 변경 시 실행
   useEffect(() => {
     if (data) {
       console.log(data);
       navigate(`/account`, { replace: true });
     }
-  }, [data]);
+  }, [data, navigate]);
 
   return (
     <Layout>
@@ -157,7 +166,7 @@ const Oauth1 = styled.div`
   align-items: center;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 1px solid ${(props) => props.theme.subBoxColor};
   height: 48px;
 
   @media screen and (min-width: 767px) {

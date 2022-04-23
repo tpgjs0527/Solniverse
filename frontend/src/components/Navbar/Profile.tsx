@@ -1,6 +1,6 @@
 import { toggleSidebarAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
 
 export default function Profile() {
@@ -65,7 +65,7 @@ const Nickname = styled.div<{ sidebarStyle: boolean }>`
   letter-spacing: -0.03em;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100px;
+  width: ${(props) => (props.sidebarStyle ? "200px" : "100px")};
   font-size: ${(props) => (props.sidebarStyle ? "17px" : "12px")};
   line-height: ${(props) => (props.sidebarStyle ? "21px" : "1.4")};
 `;

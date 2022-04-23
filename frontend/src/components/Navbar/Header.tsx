@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toggleThemeAtom, toggleSidebarAtom } from "atoms";
 import { Link, useMatch, useNavigate } from "react-router-dom";
-import Profile from "components/Profile";
+import Profile from "components/Navbar/Profile";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -130,8 +130,6 @@ const Logout = styled.li`
     color: ${(props) => props.theme.ownColor};
   }
 `;
-
-const OnProfile = styled.div``;
 
 const SearchToggle = styled.li`
   width: 28px;
