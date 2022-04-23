@@ -79,3 +79,9 @@ npm i @solana/web3.js
 npm i bs58
 ```
 
+- react-cookies
+
+```bash
+npm i @types/react-cookies react-cookies
+```
+
