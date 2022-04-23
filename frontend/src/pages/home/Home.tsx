@@ -1,77 +1,19 @@
 import { walletAtom } from "atoms";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSetRecoilState } from "recoil";
-import { PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
+import { getProvider } from "components/PhantomWallet/getProvider";
 
-type DisplayEncoding = "utf8" | "hex";
-type PhantomRequestMethod = "signMessage";
-
-// const fetcher = async() => {}
-// const {data, isLoading} = useQuery(`Key`, fetcher)
-// useEffect(()=> {},[data]) 갱신해서 atom에 저장
-interface PhantomProvider {
-  signMessage: (
-    message: Uint8Array | string,
-    display?: DisplayEncoding
-  ) => Promise<any>;
-
-  request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
+interface IuserData {
+  walletAddress: string;
+  signature: string;
 }
-
-const getProvider = (): PhantomProvider | undefined => {
-  if ("solana" in window) {
-    const anyWindow: any = window;
-    const provider = anyWindow.solana;
-    if (provider.isPhantom) {
-      return provider;
-    }
-  }
-  window.open("https://phantom.app/", "_blank");
-};
 
 function Home() {
   const provider = getProvider();
-  const { solana }: any = window;
-
   const [walletAddress, setWalletAddress] = useState("");
   const setWallet = useSetRecoilState(walletAtom);
 
-  const checkIfWalletIsConnected = async () => {
-    try {
-      if (solana) {
-        if (solana.isPhantom) {
-          console.log("팬텀 지갑 발견!");
-          // onlyIfTrusted : true
-          // 유저가 지갑을 이미 연결했을 때
-          const response = await solana.connect({ onlyIfTrusted: true });
-          console.log("퍼블릭키랑 함께 연결!", response.publicKey.toString());
-
-          const data = await (
-            await fetch(
-              `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
-              {
-                method: "GET",
-              }
-            )
-          ).json();
-          console.log(data);
-          setWallet({
-            twitch: "",
-            wallet_address: data.user.wallet_address,
-            created_at: data.user.created_at,
-          });
-          console.log(walletAtom);
-          getSign(response.publicKey.toString());
-        }
-      } else {
-        window.open("https://phantom.app/", "_blank");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // 유저가 아직 지갑 연결을 안했을 때 함수 실행
   // connect시 get 요청 후 반환받은 유저 정보가 없으면 post로 재요청
   const connectWallet = async () => {
     const { solana }: any = window;
@@ -80,53 +22,63 @@ function Home() {
       console.log("Connected with Public Key:", response.publicKey.toString());
 
       setWalletAddress(response.publicKey.toString());
-      console.log(document.cookie);
+      try {
+        const data = await (
+          await fetch(
+            `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
+            {
+              method: "GET",
+            }
+          )
+        ).json();
+        console.log("get", data);
 
-      const data = await (
-        await fetch(
-          `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
-          {
-            method: "GET",
-          }
-        )
-      ).json();
-      console.log(data);
+        setWallet(data.user.wallet_address);
+      } catch (error) {
+        const data = await (
+          await fetch(
+            `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
+            {
+              method: "POST",
+            }
+          )
+        ).json();
+        console.log("POST", response.publicKey.toString());
+        console.log(data);
 
-      setWallet({
-        twitch: "",
-        wallet_address: data.user.wallet_address,
-        created_at: data.user.created_at,
-      });
-
-      getSign(response.publicKey.toString());
+        setWallet(data.user.walletAddress);
+      }
     }
   };
-  useEffect(() => {
-    const onLoad = async () => {
-      await checkIfWalletIsConnected();
-    };
-    // 팬텀 확장프로그램 없으면 리턴
-    if (!provider) return;
-    // 컴포넌트가 mount 될 때, onLoad 실행하고, unmount 될 때만 사용하기 위해, []를 넘기고 return으로 removeEventListener
-    window.addEventListener("load", onLoad);
-    return () => {
-      window.removeEventListener("load", onLoad);
-    };
-  }, []);
+
   // 서명을 위한 넌스값 받기
   const getSign = async (walletAddress: string) => {
-    const nonce = await (
-      await fetch(`http://localhost:3000/api/auth/nonce/${walletAddress}`, {
+    const res = await (
+      await fetch(`http://localhost:3000/api/auth/sign/${walletAddress}`, {
         method: "GET",
       })
     ).json();
-    console.log(nonce.nonce);
-    const message = `Sign this message for authenticating with your wallet. Nonce: ${nonce.nonce}`;
-    const messageBytes = new TextEncoder().encode(message);
-    // console.log(messageBytes);
-    const res = await provider?.signMessage(messageBytes);
-    console.log(JSON.stringify(res));
-    console.log(base58.encode(res.signature));
+    console.log(res);
+
+    const messageBytes = new TextEncoder().encode(res.signMessage);
+    const signRes = await provider?.signMessage(messageBytes);
+    const signature = base58.encode(signRes.signature);
+
+    console.log(walletAddress);
+    const userData: IuserData = {
+      walletAddress: walletAddress,
+      signature: signature,
+    };
+    const response = await (
+      await fetch(`http://localhost:3000/api/auth/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
+    ).json();
+    console.log(response);
   };
 
   return (
@@ -138,7 +90,9 @@ function Home() {
         >
           {!walletAddress ? "지갑연결" : "연결완료"}
         </button>
-        {walletAddress ? <button>연동하기</button> : null}
+        {walletAddress ? (
+          <button onClick={() => getSign(walletAddress)}>연동하기</button>
+        ) : null}
       </div>
     </div>
   );

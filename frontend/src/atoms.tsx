@@ -17,7 +17,13 @@ export const toggleSidebarAtom = atom({
 });
 
 export const walletAtom = atom({
-  key: "walletAtom",
-  default: { twitch: "", wallet_address: "", created_at: "" },
+  key: "wallet",
+  default: "",
+  effects_UNSTABLE: [persistAtom],
+});
+
+export const twitchAtom = atom({
+  key: "twitch",
+  default: { id: "", display_name: "", profile_img_url: "" },
   effects_UNSTABLE: [persistAtom],
 });
