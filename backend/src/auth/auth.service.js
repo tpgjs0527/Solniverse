@@ -20,6 +20,8 @@ const base58 = require("bs58");
 const jwtUtil = require("../common/jwt-util");
 const { default: axios } = require("axios");
 
+const message =
+  "Sign this message for authenticating with your wallet. Nonce: ";
 class AuthService {
   /**
    * Signature 받아 address를 얻어내고 인증을 생성한다.
@@ -28,12 +30,18 @@ class AuthService {
    * @param {string} walletAddress
    * @returns response
    */
-  async verifyAddressFromSignature(nonce, signature, walletAddress) {
-    const message = `Sign this message for authenticating with your wallet. Nonce: ${nonce}`;
-    const messageBytes = new TextEncoder().encode(message);
-
-    const publicKeyBytes = base58.decode(signature);
-    const signatureBytes = base58.decode(walletAddress);
+  async verifyAddressBySignature(signature, walletAddress) {
+    const user = await userRepository
+      .getUserByWalletAddress(walletAddress)
+      .then((user) => {
+        if (user) return user;
+      });
+    if (!user) {
+      return BAD_REQUEST_RESPONSE;
+    }
+    const messageBytes = new TextEncoder().encode(message + user.nonce);
+    const publicKeyBytes = base58.decode(walletAddress);
+    const signatureBytes = base58.decode(signature);
 
     const result = nacl.sign.detached.verify(
       messageBytes,
@@ -44,14 +52,7 @@ class AuthService {
     if (!result) {
       return BAD_REQUEST_RESPONSE;
     }
-    const user = await userRepository
-      .getUserByWalletAddress(walletAddress)
-      .then((user) => {
-        if (user) return user;
-      });
-    if (!user) {
-      return BAD_REQUEST_RESPONSE;
-    }
+
     var response = SUCCESS_RESPONSE;
     //액세스 토큰 발급
     response.responseBody.accessToken = jwtUtil.sign(user);
@@ -156,13 +157,13 @@ class AuthService {
    * @param {string} walletAddress
    * @returns response
    */
-  async getNonceByWalletAddress(walletAddress) {
+  async getSignMessageByWalletAddress(walletAddress) {
     return await userRepository
       .getUserByWalletAddress(walletAddress)
       .then((user) => {
         if (!user) return NOT_FOUND_RESPONSE;
         var res = SUCCESS_RESPONSE;
-        res.responseBody.nonce = user.nonce;
+        res.responseBody.signMessage = message + user.nonce;
         return SUCCESS_RESPONSE;
       })
       .catch(() => {
@@ -185,7 +186,7 @@ class AuthService {
      * @param {string} authCode
      * @returns AxiosPromise
      */
-    const getAccessTokenFromAuthCode = (authCode) => {
+    const getAccessTokenByAuthCode = (authCode) => {
       return axios({
         url: "https://id.twitch.tv/oauth2/token",
         method: "post",
@@ -206,7 +207,7 @@ class AuthService {
      * @param {string} accessToken
      * @returns AxiosPromise
      */
-    const getTwitchUserFromAccessToken = (accessToken) => {
+    const getTwitchUserByAccessToken = (accessToken) => {
       return axios({
         url: "https://api.twitch.tv/helix/users",
         method: "get",
@@ -228,13 +229,13 @@ class AuthService {
     };
 
     // 토큰 받아와서 트위치 프로필 정보까지 받아오기
-    return await getAccessTokenFromAuthCode(code)
+    return await getAccessTokenByAuthCode(code)
       .then((res) => {
         twitchInfo.oauth.access_token = res.data.access_token;
         twitchInfo.oauth.refresh_token = res.data.refresh_token;
 
         // Access Token으로 Twitch 유저 정보 가져오기
-        return getTwitchUserFromAccessToken(twitchInfo.oauth.access_token)
+        return getTwitchUserByAccessToken(twitchInfo.oauth.access_token)
           .then((res) => {
             twitchInfo.id = res.data.data[0].login;
             twitchInfo.display_name = res.data.data[0].display_name;
@@ -242,7 +243,7 @@ class AuthService {
 
             //유저에 가져온 정보 삽입
             return userRepository
-              .updateTwitchInfoFromWalletAddress(walletAddress, twitchInfo)
+              .updateTwitchInfoByWalletAddress(walletAddress, twitchInfo)
               .then(() => {
                 // 우리 백엔드 유저 정보 반환
                 return this.getUserByWalletAddress(walletAddress);

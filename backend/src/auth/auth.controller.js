@@ -18,24 +18,14 @@ const jwtUtil = require("../common/jwt-util");
 // router.post("/connect", authJwtMiddleware);
 
 /**
- * @TODO OAuth 2.0 Authorization code 정보 혹은 access Token을 받아 백엔드에 기록
- * Authorization code 정보일 경우엔 OAuth Access Token은 백엔드에서 트위치 Authorization 서버에서 받아와야함.
- */
-
-/**
  * WalletAddress와 signature를 request body로 받아 인증을 거쳐 jwt access token refresh token 반환
  */
 router.post("/connect", async function (req, res) {
-  const nonce = req.cookies["nonce"];
   const walletAddress = req.body["walletAddress"];
   const signature = req.body["signature"];
 
   const { statusCode, responseBody } =
-    await authService.verifyAddressFromSignature(
-      nonce,
-      walletAddress,
-      signature,
-    );
+    await authService.verifyAddressBySignature(walletAddress, signature);
   if (statusCode == StatusCodes.OK) {
     const refreshToken = await jwtUtil.refresh(walletAddress);
     res.cookie("refreshtoken", refreshToken, {
@@ -87,19 +77,20 @@ router.get("/connect/:walletAddress", async function (req, res) {
 });
 
 /**
- * 사용자 지갑 주소를 입력받으면 nonce를 반환. nonce를 cookie로 전달 및 body로 전달
+ * 사용자 지갑 주소를 입력받으면 sign할 평문을 반환. 추가로 nonce를 cookie로 전달.
  */
-router.get("/nonce/:walletAddress", async function (req, res) {
+router.get("/sign/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
   const { statusCode, responseBody } =
-    await authService.getNonceByWalletAddress(walletAddress);
-  if (statusCode == StatusCodes.OK) {
-    res.cookie("nonce", responseBody.nonce, { httpOnly: true });
-  }
+    await authService.getSignMessageByWalletAddress(walletAddress);
   res.statusCode = statusCode;
   res.send(responseBody);
 });
 
+/**
+ * 트위치 OAuth 를 통한 정보 수정.
+ * @TODO Twitch 뿐만 아닌 다른 platform 별 switch로 동작하기 변경. jwt middleware를 사용하도록 변경
+ */
 router.post("/oauth", async function (req, res) {
   const walletAddress = req.body["walletAddress"];
   const code = req.body["code"];

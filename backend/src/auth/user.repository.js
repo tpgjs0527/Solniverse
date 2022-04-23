@@ -75,7 +75,7 @@ class UserRepository {
    * @param {string} twitchInfo
    * @returns
    */
-  async updateTwitchInfoFromWalletAddress(walletAddress, twitchInfo) {
+  async updateTwitchInfoByWalletAddress(walletAddress, twitchInfo) {
     const result = User.updateOne(
       { wallet_address: walletAddress },
       { twitch: twitchInfo },
