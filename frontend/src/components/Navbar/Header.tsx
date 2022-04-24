@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toggleThemeAtom, toggleSidebarAtom } from "atoms";
 import { Link, useMatch, useNavigate } from "react-router-dom";
+import Profile from "components/Navbar/Profile";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -35,10 +36,8 @@ export default function Header() {
           </Element>
         </List>
         <Icons>
-          <Profile onClick={() => navigate(`/mypage`)}>
-            <BasicImg />
-            <Nickname>닉네임</Nickname>
-          </Profile>
+          <Profile />
+
           <SearchToggle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -160,36 +159,6 @@ const ThemeToggle = styled.li`
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.ownColor};
-  }
-`;
-
-const Nickname = styled.div`
-  font-size: 12px;
-  letter-spacing: -0.03em;
-  line-height: 1.4;
-  font-weight: 700;
-`;
-
-const BasicImg = styled.div`
-  width: 40px;
-  height: 40px;
-  background: #e5e8eb;
-  border-radius: 50%;
-`;
-
-const Profile = styled.div`
-  padding: 0 30px;
-  min-width: 152px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  &:hover {
-    color: ${(props) => props.theme.ownColor};
-  }
-
-  @media screen and (max-width: 1024px) {
-    display: none;
   }
 `;
 

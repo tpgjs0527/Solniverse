@@ -3,7 +3,6 @@ import styled from "styled-components";
 import {
   Routes as ReactRouterRoutes,
   Route,
-  Link,
   useMatch,
   useNavigate,
 } from "react-router-dom";

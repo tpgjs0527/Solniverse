@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import { toggleSidebarAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
+import Profile from "components/Navbar/Profile";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -49,15 +50,7 @@ export default function Sidebar() {
             </svg>
           </Icon>
         </Icons>
-        <Profile
-          onClick={() => {
-            setIsSidebar((prev) => !prev);
-            navigate(`/mypage`);
-          }}
-        >
-          <BasicImg />
-          <Nickname>닉네임</Nickname>
-        </Profile>
+        <Profile />
         <Nav>
           <ul>
             <Element
@@ -105,31 +98,6 @@ const Element = styled.li`
 
 const Nav = styled.div`
   padding: 47px 0 66px;
-`;
-
-const Nickname = styled.div`
-  font-size: 17px;
-  line-height: 21px;
-  font-weight: 700;
-`;
-
-const BasicImg = styled.div`
-  width: 50px;
-  height: 50px;
-  background: #e5e8eb;
-  border-radius: 50%;
-`;
-
-const Profile = styled.div`
-  min-width: 152px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 18px 0;
-  &:hover {
-    color: ${(props) => props.theme.ownColor};
-  }
 `;
 
 const Icon = styled.div`
