@@ -1,6 +1,6 @@
 import { userInfoAtom } from "atoms";
 import { useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import base58 from "bs58";
 import { getProvider } from "components/PhantomWallet/getProvider";
 
@@ -12,8 +12,7 @@ interface IuserData {
 function Home() {
   const provider = getProvider();
   const [walletAddress, setWalletAddress] = useState("");
-  const setUserInfo = useSetRecoilState(userInfoAtom);
-  const userInfo = useRecoilValue(userInfoAtom);
+  const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
 
   // connect시 get 요청 후 반환받은 유저 정보가 없으면 post로 재요청
   const connectWallet = async () => {
@@ -30,12 +29,13 @@ function Home() {
             }
           )
         ).json();
+        console.log(data);
         if (data.user.twitch) {
           setUserInfo({
             twitch: {
               id: data.user.twitch.id,
-              display_name: data.user.twitch.display_name,
-              profile_img_url: data.user.twitch.profile_img_url,
+              displayName: data.user.twitch.displayName,
+              profileImgUrl: data.user.twitch.profileImgUrl,
             },
             walletAddress: data.user.wallet_address,
             createdAt: data.user.created_at,
@@ -63,8 +63,8 @@ function Home() {
           setUserInfo({
             twitch: {
               id: data.user.twitch.id,
-              display_name: data.user.twitch.display_name,
-              profile_img_url: data.user.twitch.profile_img_url,
+              displayName: data.user.twitch.displayName,
+              profileImgUrl: data.user.twitch.profileImgUrl,
             },
             walletAddress: data.user.wallet_address,
             createdAt: data.user.created_at,
