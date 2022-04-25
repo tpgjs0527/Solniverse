@@ -16,14 +16,12 @@ export const toggleSidebarAtom = atom({
   default: false,
 });
 
-export const walletAtom = atom({
-  key: "wallet",
-  default: "",
-  effects_UNSTABLE: [persistAtom],
-});
-
-export const twitchAtom = atom({
-  key: "twitch",
-  default: { id: "", display_name: "", profile_img_url: "" },
+export const userInfoAtom = atom({
+  key: "userInfo",
+  default: {
+    twitch: { id: "", display_name: "", profile_img_url: "" },
+    walletAddress: "",
+    createdAt: "",
+  },
   effects_UNSTABLE: [persistAtom],
 });
