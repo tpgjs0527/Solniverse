@@ -19,7 +19,7 @@ export const toggleSidebarAtom = atom({
 export const userInfoAtom = atom({
   key: "userInfo",
   default: {
-    twitch: { id: "", displayName: "", profileImgUrl: "" },
+    twitch: { id: "", displayName: "", profileImageUrl: "" },
     walletAddress: "",
     createdAt: "",
   },
