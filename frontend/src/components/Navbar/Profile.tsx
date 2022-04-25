@@ -1,10 +1,11 @@
-import { toggleSidebarAtom } from "atoms";
+import { toggleSidebarAtom, userInfoAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const userInfo = useRecoilValue(userInfoAtom);
   const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
 
   return (
@@ -53,9 +54,7 @@ export default function Profile() {
           </linearGradient>
         </defs>
       </PhantomIcon>
-      <Nickname sidebarStyle={isSidebar}>
-        8Q8bvExfymY9JjMVEnJLkvFfA5YW6qHEChnKZaLuPjmy
-      </Nickname>
+      <Nickname sidebarStyle={isSidebar}>{userInfo.walletAddress}</Nickname>
     </Container>
   );
 }
