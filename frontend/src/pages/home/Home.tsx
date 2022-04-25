@@ -35,7 +35,7 @@ function Home() {
             twitch: {
               id: data.user.twitch.id,
               displayName: data.user.twitch.displayName,
-              profileImgUrl: data.user.twitch.profileImgUrl,
+              profileImageUrl: data.user.twitch.profileImageUrl,
             },
             walletAddress: data.user.wallet_address,
             createdAt: data.user.created_at,
@@ -64,7 +64,7 @@ function Home() {
             twitch: {
               id: data.user.twitch.id,
               displayName: data.user.twitch.displayName,
-              profileImgUrl: data.user.twitch.profileImgUrl,
+              profileImageUrl: data.user.twitch.profileImageUrl,
             },
             walletAddress: data.user.wallet_address,
             createdAt: data.user.created_at,
