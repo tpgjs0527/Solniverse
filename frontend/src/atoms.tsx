@@ -1,9 +1,9 @@
 // 상태관리
-
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 
-const { persistAtom } = recoilPersist(); // 쿠키 저장
+const { persistAtom } = recoilPersist();
+
 // Theme
 export const toggleThemeAtom = atom({
   key: "theme",
@@ -19,9 +19,14 @@ export const toggleSidebarAtom = atom({
 export const userInfoAtom = atom({
   key: "userInfo",
   default: {
-    twitch: { id: "", displayName: "", profileImgUrl: "" },
+    twitch: { id: "", displayName: "", profileImageUrl: "" },
     walletAddress: "",
     createdAt: "",
   },
   effects_UNSTABLE: [persistAtom],
+});
+
+export const accessTokenAtom = atom({
+  key: "accessToken",
+  default: "",
 });
