@@ -11,6 +11,7 @@ const {
   NOT_FOUND_RESPONSE,
   CONFLICT_RESPONSE,
   UNAUTHORIZED_RESPONSE,
+  BaseResponse,
 } = require("../common/base.response");
 const UserRepository = require("./user.repository");
 const userRepository = new UserRepository();
@@ -53,7 +54,7 @@ class AuthService {
       return BAD_REQUEST_RESPONSE;
     }
 
-    var response = SUCCESS_RESPONSE;
+    let response = new BaseResponse(SUCCESS_RESPONSE);
     //액세스 토큰 발급
     response.responseBody.accessToken = jwtUtil.sign(user);
     //완료됐으니 nonce 업데이트
@@ -78,12 +79,12 @@ class AuthService {
     return await userRepository
       .createUserByWalletAddress(walletAddress)
       .then((user) => {
-        var res = SUCCESS_RESPONSE;
+        let res = new BaseResponse(SUCCESS_RESPONSE);
         res.responseBody.user = {
           walletAddress: user.wallet_address,
           createdAt: user.createdAt,
         };
-        return SUCCESS_RESPONSE;
+        return res;
       })
       .catch((err) => {
         switch (err.code) {
@@ -102,18 +103,18 @@ class AuthService {
    * @returns
    */
   async refreshAccessToken(walletAddress, refreshToken) {
-    var response;
+    let res;
     if (await jwtUtil.refreshVerify(refreshToken, walletAddress)) {
       //user 가져오기.
       const user = await userRepository.getUserByWalletAddress(walletAddress);
-      response = SUCCESS_RESPONSE;
+      res = new BaseResponse(SUCCESS_RESPONSE);
       //user로 access token 발행
-      response.responseBody.accessToken = jwtUtil.sign(user);
-      return response;
+      res.responseBody.accessToken = jwtUtil.sign(user);
+      return res;
     }
-    response = UNAUTHORIZED_RESPONSE;
-    response.responseBody.message = "jwt expired";
-    return response;
+    res = new BaseResponse(UNAUTHORIZED_RESPONSE);
+    res.responseBody.message = "jwt expired";
+    return res;
   }
 
   /**
@@ -126,7 +127,7 @@ class AuthService {
       .getUserByWalletAddress(walletAddress)
       .then((user) => {
         if (!user) return NOT_FOUND_RESPONSE;
-        var res = SUCCESS_RESPONSE;
+        let res = new BaseResponse(SUCCESS_RESPONSE);
         res.responseBody.user = {
           wallet_address: user.wallet_address,
           createdAt: user.createdAt,
@@ -145,7 +146,7 @@ class AuthService {
             };
           }
         }
-        return SUCCESS_RESPONSE;
+        return res;
       })
       .catch(() => {
         return BAD_REQUEST_RESPONSE;
@@ -162,9 +163,9 @@ class AuthService {
       .getUserByWalletAddress(walletAddress)
       .then((user) => {
         if (!user) return NOT_FOUND_RESPONSE;
-        var res = SUCCESS_RESPONSE;
+        let res = new BaseResponse(SUCCESS_RESPONSE);
         res.responseBody.signMessage = message + user.nonce;
-        return SUCCESS_RESPONSE;
+        return res;
       })
       .catch(() => {
         return BAD_REQUEST_RESPONSE;
