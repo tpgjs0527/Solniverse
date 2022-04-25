@@ -38,14 +38,14 @@ function Home() {
               profileImageUrl: data.user.twitch.profileImageUrl,
             },
             walletAddress: data.user.wallet_address,
-            createdAt: data.user.created_at,
+            createdAt: data.user.createdAt,
           });
           console.log("twitch true", userInfo);
         } else {
           setUserInfo({
             ...userInfo,
             walletAddress: data.user.wallet_address,
-            createdAt: data.user.created_at,
+            createdAt: data.user.createdAt,
           });
           console.log("twitch false", userInfo);
         }
@@ -67,13 +67,13 @@ function Home() {
               profileImageUrl: data.user.twitch.profileImageUrl,
             },
             walletAddress: data.user.wallet_address,
-            createdAt: data.user.created_at,
+            createdAt: data.user.createdAt,
           });
         } else {
           setUserInfo({
             ...userInfo,
             walletAddress: data.user.wallet_address,
-            createdAt: data.user.created_at,
+            createdAt: data.user.createdAt,
           });
         }
       }

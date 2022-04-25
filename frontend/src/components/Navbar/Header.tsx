@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { toggleThemeAtom, toggleSidebarAtom } from "atoms";
+import { toggleThemeAtom, toggleSidebarAtom, userInfoAtom } from "atoms";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import Profile from "components/Navbar/Profile";
 
@@ -8,6 +8,7 @@ export default function Header() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useRecoilState(toggleThemeAtom);
   const setIsSidebar = useSetRecoilState(toggleSidebarAtom);
+  const setUserInfo = useSetRecoilState(userInfoAtom);
 
   // Active Link
   const donationHistoryMatch = useMatch("/donation-history/*");
@@ -37,7 +38,6 @@ export default function Header() {
         </List>
         <Icons>
           <Profile />
-
           <SearchToggle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +85,21 @@ export default function Header() {
               </svg>
             )}
           </ThemeToggle>
-          <Logout>
+          <Logout
+            onClick={() => {
+              if (window.confirm("지갑 연결을 끊으시겠습니까?") == true) {
+                setUserInfo({
+                  twitch: {
+                    id: "",
+                    displayName: "",
+                    profileImageUrl: "",
+                  },
+                  walletAddress: "",
+                  createdAt: "",
+                });
+              }
+            }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-7 w-7"
