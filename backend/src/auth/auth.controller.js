@@ -52,7 +52,7 @@ router.post("/connect/:walletAddress", async function (req, res) {
 /**
  * Refresh token을 이용해서 유효한 토큰이면 Access Token을 반환 받음.
  */
-router.get("/refresh", async function (req, res) {
+router.post("/refresh", async function (req, res) {
   const refreshToken = req.cookies["refreshtoken"];
   const walletAddress = req.body["walletAddress"];
 
