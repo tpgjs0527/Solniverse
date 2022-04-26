@@ -12,6 +12,8 @@ const UserSchema = new Schema(
         type: Object,
         required: false,
       },
+      type: Object,
+      default: undefined,
       required: false,
     },
 

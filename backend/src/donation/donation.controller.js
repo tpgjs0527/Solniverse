@@ -7,9 +7,35 @@
  */
 
 const express = require("express");
+const platforms = require("../../config/platforms");
+const {
+  BAD_REQUEST_RESPONSE,
+  BaseResponse,
+} = require("../common/base.response");
 const router = express.Router();
 const DonationService = require("./donation.service");
 const donationService = new DonationService();
+
+/**
+ * 후원 실제로 보내기 전 받는 POST 라우터
+ */
+router.post("/send", async function (req, res) {
+  const displayName = req.body["displayName"],
+    message = req.body["message"],
+    platform = req.body["platform"];
+  if (!platforms.includes(platform)) {
+    const { statusCode, responseBody } = new BaseResponse(BAD_REQUEST_RESPONSE);
+    res.statusCode = statusCode;
+    res.send(responseBody);
+  }
+  const { statusCode, responseBody } = await donationService.createTransaction(
+    displayName,
+    message,
+    platform,
+  );
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
 
 /**
  * TODO 보낸 후원 리스트 조회
