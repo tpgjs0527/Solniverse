@@ -1,11 +1,33 @@
 import styled from "styled-components";
 import Layout from "components/Layout";
 import banner from "../../../public/가로긴사진.png";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+interface IDonation {
+  nickname: string;
+  amount: number;
+  message: string;
+}
 
 function Donation() {
+  const navigate = useNavigate();
+
+  const [nickName, setNickName] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [message, setMessage] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IDonation>({ mode: "onBlur" });
+
   const onClick = () => {
     alert("도네이션을 진행하겠습니다");
   };
+  console.log(nickName, amount, message);
   return (
     <Layout>
       <Container>
@@ -18,21 +40,53 @@ function Donation() {
             </CreatorContent>
           </CreatorWrapper>
         </DonationWrapper>
-        <DonationWrapper>
+        <DonationForm>
           <DonatorWrapper>
             <DonatorName>후원닉네임</DonatorName>
-            <Input />
+            <Input
+              {...register("nickname", {
+                required: "필수 입력정보입니다.",
+                pattern: {
+                  value: /^[가-힣a-zA-Z0-9]{2,15}$/,
+                  message:
+                    "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
+                },
+                onChange: (e) => {
+                  setNickName(e.target.value);
+                },
+              })}
+              placeholder="후원닉네임을 입력해주세요."
+            />
           </DonatorWrapper>
           <DonatorWrapper>
             <DonatePrice>후원금액</DonatePrice>
-            <Input />
+            <Input
+              {...register("amount", {
+                required: "필수 입력정보입니다.",
+                pattern: {
+                  value: /^[0-9]*$/,
+                  message: "숫자만 입력 가능합니다.",
+                },
+                onChange: (e) => {
+                  setAmount(e.target.value);
+                },
+              })}
+              placeholder="후원금액을 입력해주세요."
+            />
           </DonatorWrapper>
           <DonatorWrapper>
             <DonateMessage>후원메시지</DonateMessage>
-            <MessageTextarea />
+            <MessageTextarea
+              {...register("message", {
+                required: "필수 입력정보입니다.",
+                onChange: (e) => {
+                  setMessage(e.target.value);
+                },
+              })}
+              placeholder="후원메시지를 작성해주세요."
+            />
           </DonatorWrapper>
-        </DonationWrapper>
-        <Line />
+        </DonationForm>
         <DonationWrapper>
           <DonatorWrapper>
             <TotalPrice>Total</TotalPrice>
@@ -57,6 +111,11 @@ const DonationWrapper = styled.div`
   margin-bottom: 32px;
 `;
 
+const DonationForm = styled.form`
+  margin-bottom: 32px;
+  border-bottom: 1px solid ${(props) => props.theme.borderColor};
+`;
+
 const CreatorWrapper = styled.div``;
 const CreatorName = styled.div`
   font-size: 32px;
@@ -77,6 +136,7 @@ const DonatorWrapper = styled.div`
   justify-content: space-between;
   margin-bottom: 24px;
 `;
+
 const DonatorName = styled.div``;
 const Input = styled.input`
   width: 80%;
@@ -84,9 +144,11 @@ const Input = styled.input`
   border-radius: 4px;
   /* border-width: 1px; */
   /* border-color: whitesmoke; */
-  border: 1px solid #7f8fa6;
+  border: 1px solid ${(props) => props.theme.borderColor};
   font-size: 16px;
-  font-weight: bold;
+  color: ${(props) => props.theme.subTextColor};
+  background-color: ${(props) => props.theme.boxColor};
+  /* font-weight: bold; */
 `;
 const DonatePrice = styled.div``;
 const DonateMessage = styled.div``;
@@ -94,11 +156,10 @@ const MessageTextarea = styled.textarea`
   width: 80%;
   height: 100px;
   border-radius: 4px;
-  border: 1px solid #7f8fa6;
-`;
-
-const Line = styled.hr`
-  margin: 32px 0px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  font-size: 16px;
+  color: ${(props) => props.theme.subTextColor};
+  background-color: ${(props) => props.theme.boxColor};
 `;
 
 const TotalPrice = styled.div``;
@@ -115,7 +176,7 @@ const Button = styled.button`
   width: 30%;
   height: 40px;
   color: #ffffff;
-  background-color: #00a8ff;
+  background-color: ${(props) => props.theme.ownColor};
   border: none;
   border-radius: 5px;
   font-size: 16px;
