@@ -1,20 +1,38 @@
-import { toggleSidebarAtom, userInfoAtom } from "atoms";
+import { accessTokenAtom, toggleSidebarAtom, userInfoAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
+import { getAccessToken } from "utils/getAccessToken";
 
 export default function Profile() {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
+  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
 
   return (
     <Container
-      onClick={() => {
+      onClick={async () => {
         if (isSidebar) {
           setIsSidebar((prev) => !prev);
         }
-        navigate(`/account`);
+        // 액세스 토큰가 있으면 안으로 들어가
+        // 액세스 토큰 없으면
+        // 1. 리프레쉬 토큰 있어서 액세스토큰 재발급받아가지고 들어갈 수 있음
+        // 2. 리프레쉬 토큰 없어서 시그니처 검증한 후, 토큰 받아서 들어갈 수 있음
+
+        if (accessToken) {
+          navigate(`/account`);
+        } else {
+          if (userInfo && userInfo.walletAddress) {
+            const token = await getAccessToken(userInfo.walletAddress);
+            console.log("액세스 토큰 발급 받기 완료", token);
+            setAccessToken(token);
+            navigate(`/account`);
+          } else {
+            alert("지갑 연결 해주세요");
+          }
+        }
       }}
       sidebarStyle={isSidebar}
     >
