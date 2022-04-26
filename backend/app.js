@@ -44,4 +44,6 @@ app.use(function (err, req, res) {
   res.status(err.status || 500);
 });
 
+require("./src/donation/donation.web3");
+
 module.exports = app;

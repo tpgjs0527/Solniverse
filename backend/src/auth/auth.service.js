@@ -20,6 +20,14 @@ const nacl = require("tweetnacl");
 const base58 = require("bs58");
 const jwtUtil = require("../common/jwt-util");
 const { default: axios } = require("axios");
+const platforms = require("../../config/platforms");
+
+/**
+ * 재활용 response들
+ */
+const badRequestResponse = new BaseResponse(BAD_REQUEST_RESPONSE);
+const notFoundResponse = new BaseResponse(NOT_FOUND_RESPONSE);
+const conflictResponse = new BaseResponse(CONFLICT_RESPONSE);
 
 const message =
   "Sign this message for authenticating with your wallet. Nonce: ";
@@ -38,7 +46,7 @@ class AuthService {
         if (user) return user;
       });
     if (!user) {
-      return BAD_REQUEST_RESPONSE;
+      return badRequestResponse;
     }
     const messageBytes = new TextEncoder().encode(message + user.nonce);
     const publicKeyBytes = base58.decode(walletAddress);
@@ -51,7 +59,7 @@ class AuthService {
     );
 
     if (!result) {
-      return BAD_REQUEST_RESPONSE;
+      return badRequestResponse;
     }
 
     let response = new BaseResponse(SUCCESS_RESPONSE);
@@ -71,10 +79,10 @@ class AuthService {
     try {
       const publicKey = new web3.PublicKey(walletAddress);
       if (!(await web3.PublicKey.isOnCurve(publicKey))) {
-        return BAD_REQUEST_RESPONSE;
+        return badRequestResponse;
       }
     } catch (error) {
-      return BAD_REQUEST_RESPONSE;
+      return badRequestResponse;
     }
     return await userRepository
       .createUserByWalletAddress(walletAddress)
@@ -89,9 +97,9 @@ class AuthService {
       .catch((err) => {
         switch (err.code) {
           case 11000:
-            return CONFLICT_RESPONSE;
+            return conflictResponse;
           default:
-            return BAD_REQUEST_RESPONSE;
+            return badRequestResponse;
         }
       });
   }
@@ -126,7 +134,7 @@ class AuthService {
     return await userRepository
       .getUserByWalletAddress(walletAddress)
       .then((user) => {
-        if (!user) return NOT_FOUND_RESPONSE;
+        if (!user) return notFoundResponse;
         let res = new BaseResponse(SUCCESS_RESPONSE);
         res.responseBody.user = {
           wallet_address: user.wallet_address,
@@ -136,9 +144,8 @@ class AuthService {
          * @TODO 플랫폼 list collection으로 기능 추가 필요.
          * subdocument로 변경시 다시 또 변경 필요.
          */
-        let platforms = ["twitch"];
         for (let platform of platforms) {
-          if (JSON.stringify(user[platform]) !== "{}") {
+          if (user[platform]) {
             res.responseBody.user[platform] = {
               id: user[platform].id,
               displayName: user[platform].display_name,
@@ -149,7 +156,7 @@ class AuthService {
         return res;
       })
       .catch(() => {
-        return BAD_REQUEST_RESPONSE;
+        return badRequestResponse;
       });
   }
 
@@ -162,13 +169,13 @@ class AuthService {
     return await userRepository
       .getUserByWalletAddress(walletAddress)
       .then((user) => {
-        if (!user) return NOT_FOUND_RESPONSE;
+        if (!user) return notFoundResponse;
         let res = new BaseResponse(SUCCESS_RESPONSE);
         res.responseBody.signMessage = message + user.nonce;
         return res;
       })
       .catch(() => {
-        return BAD_REQUEST_RESPONSE;
+        return badRequestResponse;
       });
   }
 
@@ -259,7 +266,7 @@ class AuthService {
       })
       .catch((err) => {
         //log를 보고 싶거나 기록하고 싶으면 여기만 기록하면 됨.
-        return BAD_REQUEST_RESPONSE;
+        return badRequestResponse;
       });
   }
 }

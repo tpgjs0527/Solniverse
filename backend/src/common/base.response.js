@@ -2,7 +2,6 @@ const { ReasonPhrases, StatusCodes } = require("http-status-codes");
 
 const SUCCESS_RESPONSE = {
   statusCode: StatusCodes.OK,
-  result: "success",
 };
 
 const UNAUTHORIZED_RESPONSE = {
