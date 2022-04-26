@@ -4,7 +4,7 @@ import { getTokens } from "./getTokens";
 
 export async function getAccessToken(walletAddress: string) {
   const response = await (
-    await fetch(`http://localhost:3000/api/auth/refresh`, {
+    await fetch(`${process.env.REACT_APP_BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

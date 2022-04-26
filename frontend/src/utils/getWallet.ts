@@ -7,12 +7,15 @@ export const getWallet = async () => {
 
   // provider가 undefined면 팬텀지갑 공식홈페이지로 이동
   if (provider) {
+    console.log(provider);
     const response = await provider.connect();
-
+    console.log(response);
     try {
       const data = await (
         await fetch(
-          `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
+          `${
+            process.env.REACT_APP_BASE_URL
+          }/auth/connect/${response.publicKey.toString()}`,
           {
             method: "GET",
           }
@@ -23,7 +26,9 @@ export const getWallet = async () => {
     } catch (error) {
       const data = await (
         await fetch(
-          `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
+          `${
+            process.env.REACT_APP_BASE_URL
+          }/auth/connect/${response.publicKey.toString()}`,
           {
             method: "POST",
           }

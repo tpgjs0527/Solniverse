@@ -10,35 +10,43 @@ interface IuserData {
 
 export const getTokens = async (walletAddress: string) => {
   const provider = getProvider();
-  // sign message 받기
-  const res = await (
-    await fetch(`http://localhost:3000/api/auth/sign/${walletAddress}`, {
-      method: "GET",
-    })
-  ).json();
+  console.log(provider);
+  if (provider) {
+    // 연결해서 sign message 받기
 
-  const messageBytes = new TextEncoder().encode(res.signMessage);
-  const signRes = await provider?.signMessage(messageBytes);
-  const signature = base58.encode(signRes.signature);
+    const res = await (
+      await fetch(
+        `${process.env.REACT_APP_BASE_URL}/auth/sign/${walletAddress}`,
+        {
+          method: "GET",
+        }
+      )
+    ).json();
 
-  const userData: IuserData = {
-    walletAddress: walletAddress,
-    signature: signature,
-  };
+    const messageBytes = new TextEncoder().encode(res.signMessage);
 
-  const response = await (
-    await fetch(`http://localhost:3000/api/auth/connect`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(userData),
-    })
-  ).json();
-  console.log(response);
+    const signRes = await provider?.signMessage(messageBytes);
+    const signature = base58.encode(signRes.signature);
 
-  // accessToken 반환
-  // refreshToken은 자동으로 cookie에 저장됨
-  return response.accessToken;
+    const userData: IuserData = {
+      walletAddress: walletAddress,
+      signature: signature,
+    };
+
+    const response = await (
+      await fetch(`${process.env.REACT_APP_BASE_URL}/auth/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(userData),
+      })
+    ).json();
+    console.log(response);
+
+    // accessToken 반환
+    // refreshToken은 자동으로 cookie에 저장됨
+    return response.accessToken;
+  }
 };
