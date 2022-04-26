@@ -1,114 +1,79 @@
-import { userInfoAtom } from "atoms";
-import { useState } from "react";
+import { accessTokenAtom, userInfoAtom } from "atoms";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import base58 from "bs58";
-import { getProvider } from "components/PhantomWallet/getProvider";
-
-interface IuserData {
-  walletAddress: string;
-  signature: string;
-}
+import { getAccessToken } from "utils/getAccessToken";
+import { getProvider } from "utils/getProvider";
+import { getTokens } from "utils/getTokens";
+import { getWallet } from "utils/getWallet";
 
 function Home() {
-  const provider = getProvider();
-  const [walletAddress, setWalletAddress] = useState("");
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
+  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
+  const [wallet, setWallet] = useState(false);
 
-  // connect시 get 요청 후 반환받은 유저 정보가 없으면 post로 재요청
-  const connectWallet = async () => {
-    const { solana }: any = window;
-    if (solana) {
-      const response = await solana.connect();
-      setWalletAddress(response.publicKey.toString());
-      try {
-        const data = await (
-          await fetch(
-            `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
-            {
-              method: "GET",
-            }
-          )
-        ).json();
-        console.log(data);
-        if (data.user.twitch) {
-          setUserInfo({
-            twitch: {
-              id: data.user.twitch.id,
-              displayName: data.user.twitch.displayName,
-              profileImageUrl: data.user.twitch.profileImageUrl,
-            },
-            walletAddress: data.user.wallet_address,
-            createdAt: data.user.createdAt,
-          });
-          console.log("twitch true", userInfo);
-        } else {
-          setUserInfo({
-            ...userInfo,
-            walletAddress: data.user.wallet_address,
-            createdAt: data.user.createdAt,
-          });
-          console.log("twitch false", userInfo);
-        }
-      } catch (error) {
-        const data = await (
-          await fetch(
-            `http://localhost:3000/api/auth/connect/${response.publicKey.toString()}`,
-            {
-              method: "POST",
-            }
-          )
-        ).json();
+  // 기존에 지갑 있으면 연결 ㅇㅋ
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { solana }: any = window;
+      if (solana) {
+        if (solana.isPhantom) {
+          console.log("지갑찾음");
+          const res = await solana.connect({ onlyIfTrusted: true });
 
-        if (data.user.twitch) {
-          setUserInfo({
-            twitch: {
-              id: data.user.twitch.id,
-              displayName: data.user.twitch.displayName,
-              profileImageUrl: data.user.twitch.profileImageUrl,
-            },
-            walletAddress: data.user.wallet_address,
-            createdAt: data.user.createdAt,
-          });
+          console.log("지갑연결", res.publicKey.toString());
+          setWallet(!wallet);
         } else {
-          setUserInfo({
-            ...userInfo,
-            walletAddress: data.user.wallet_address,
-            createdAt: data.user.createdAt,
-          });
+          alert("팬텀지갑 설치하세요");
         }
       }
+    } catch (error) {}
+  };
+  // 지갑연결
+  const connectWallet = async () => {
+    const data = await getWallet();
+    if (data.result === "success") {
+      if (data.user.twitch) {
+        setUserInfo({
+          twitch: {
+            id: data.user.twitch.id,
+            displayName: data.user.twitch.displayName,
+            profileImageUrl: data.user.twitch.profileImageUrl,
+          },
+          walletAddress: data.user.wallet_address,
+          createdAt: data.user.createdAt,
+        });
+        console.log("twitch true", userInfo);
+      } else {
+        setUserInfo({
+          ...userInfo,
+          walletAddress: data.user.wallet_address,
+          createdAt: data.user.createdAt,
+        });
+        console.log("twitch false", userInfo);
+      }
+    } else {
+      alert("지갑연결이 실패했습니다");
     }
   };
-
-  // 서명을 위한 넌스값 받기
-  const getSign = async (walletAddress: string) => {
-    const res = await (
-      await fetch(`http://localhost:3000/api/auth/sign/${walletAddress}`, {
-        method: "GET",
-      })
-    ).json();
-
-    const messageBytes = new TextEncoder().encode(res.signMessage);
-    const signRes = await provider?.signMessage(messageBytes);
-    const signature = base58.encode(signRes.signature);
-
-    const userData: IuserData = {
-      walletAddress: walletAddress,
-      signature: signature,
-    };
-    const response = await (
-      await fetch(`http://localhost:3000/api/auth/connect`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(userData),
-      })
-    ).json();
-    console.log(response);
+  // refreshToken과 accessToken받기
+  const getToken = async (walletAddress: string) => {
+    const res = await getTokens(walletAddress);
+    setAccessToken(res);
+  };
+  // accessToken 재발급
+  const reGetToken = async (walletAddress: string) => {
+    console.log(accessToken, "before");
+    const res = await getAccessToken(walletAddress);
+    setAccessToken(res);
   };
 
+  useEffect(() => {
+    const onLoad = async () => {
+      await checkIfWalletIsConnected();
+    };
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
   return (
     <div className="App">
       <div className="container">
@@ -116,11 +81,16 @@ function Home() {
           className="cta-button connect-wallet-button"
           onClick={connectWallet}
         >
-          {!walletAddress ? "지갑연결" : "연결완료"}
+          {!wallet ? "지갑연결" : "연결완료"}
         </button>
-        {walletAddress ? (
-          <button onClick={() => getSign(walletAddress)}>연동하기</button>
+        {userInfo.walletAddress ? (
+          <button onClick={() => getToken(userInfo.walletAddress)}>
+            연동하기
+          </button>
         ) : null}
+        <button onClick={() => reGetToken(userInfo.walletAddress)}>
+          토큰 재발급
+        </button>
       </div>
     </div>
   );

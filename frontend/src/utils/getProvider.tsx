@@ -1,20 +1,12 @@
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  clusterApiUrl,
-  SystemProgram,
-} from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 
 type DisplayEncoding = "utf8" | "hex";
 type PhantomEvent = "connect";
 
 type PhantomRequestMethod = "connect" | "signTransaction" | "signMessage";
-
 interface ConnectOpts {
   onlyIfTrusted: boolean;
 }
-
 interface PhantomProvider {
   publicKey: PublicKey | null;
   signTransaction: (transaction: Transaction) => Promise<Transaction>;
@@ -22,8 +14,7 @@ interface PhantomProvider {
     message: Uint8Array | string,
     display?: DisplayEncoding
   ) => Promise<any>;
-  // onlyIfTrusted가 true이면 퍼블릭키 받음
-  connect: () => Promise<{ publicKey: PublicKey }>;
+  connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
   on: (event: PhantomEvent, handler: (args: any) => void) => void;
   request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
 }
