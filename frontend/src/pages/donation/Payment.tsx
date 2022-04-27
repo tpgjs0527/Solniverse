@@ -1,6 +1,30 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
+interface IDonation {
+  nickname: string;
+  amount: number;
+  message: string;
+}
+
 function Payment() {
+  const navigate = useNavigate();
+
+  const [nickName, setNickName] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [message, setMessage] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IDonation>({ mode: "onBlur" });
+
+  const onClick = () => {
+    alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
+  };
   return (
     <Container>
       <PageName>Payment Page</PageName>
@@ -32,7 +56,7 @@ function Payment() {
             </PriceWrapper>
           </TotalPriceWrapper>
           <ButtonWrapper>
-            <Button>Pay</Button>
+            <Button onClick={onClick}>Pay</Button>
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>
