@@ -4,11 +4,11 @@ const UserSchema = new Schema(
   {
     twitch: {
       id: { type: String, required: false },
-      display_name: { type: String, required: false },
-      profile_image_url: { type: String, required: false },
+      displayName: { type: String, required: false },
+      profileImageUrl: { type: String, required: false },
       oauth: {
-        access_token: { type: String, required: false },
-        refresh_token: { type: String, required: false },
+        accessToken: { type: String, required: false },
+        refreshToken: { type: String, required: false },
         type: Object,
         required: false,
       },
@@ -17,7 +17,7 @@ const UserSchema = new Schema(
       required: false,
     },
 
-    wallet_address: { type: String, required: true, unique: true },
+    walletAddress: { type: String, required: true, unique: true },
     nonce: { type: String, required: true },
     authority: {
       type: String,

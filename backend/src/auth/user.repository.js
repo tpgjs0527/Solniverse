@@ -20,18 +20,11 @@ class UserRepository {
   async createUserByWalletAddress(walletAddress) {
     //생성
     const user = new User({
-      wallet_address: walletAddress,
+      walletAddress,
       nonce: crypto.randomBytes(16).toString("base64"),
     });
 
-    return user
-      .save()
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    return user.save();
   }
 
   /**
@@ -40,13 +33,7 @@ class UserRepository {
    * @returns {Promise<user|null>} user|null
    */
   async getUserByWalletAddress(walletAddress) {
-    return User.findOne({ wallet_address: walletAddress })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    return User.findOne({ walletAddress }).then((res) => res);
   }
 
   /**
@@ -56,17 +43,10 @@ class UserRepository {
    */
   async updateNonceByWalletAddress(walletAddress) {
     // Nonce 업데이트
-    const result = User.updateOne(
-      { wallet_address: walletAddress },
+    return User.updateOne(
+      { walletAddress },
       { nonce: crypto.randomBytes(16).toString("base64") },
-    )
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
-    return result;
+    );
   }
 
   /**
@@ -76,17 +56,7 @@ class UserRepository {
    * @returns
    */
   async updateTwitchInfoByWalletAddress(walletAddress, twitchInfo) {
-    const result = User.updateOne(
-      { wallet_address: walletAddress },
-      { twitch: twitchInfo },
-    )
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
-    return result;
+    return User.updateOne({ walletAddress }, { twitch: twitchInfo });
   }
 }
 
