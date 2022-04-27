@@ -19,7 +19,7 @@ export const darkTheme: DefaultTheme = {
   bgColor: "#000000",
   textColor: "#ffffff",
   subTextColor: "#777777",
-  borderColor: "#444444",
+  borderColor: "#333333",
   boxColor: "#333333",
   subBoxColor: "#444444",
 };
