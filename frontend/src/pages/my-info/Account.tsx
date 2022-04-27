@@ -1,10 +1,12 @@
 import { userInfoAtom } from "atoms";
 import Layout from "components/Layout";
+import Spinner from "components/Spinner";
 import useMutation from "hooks/useMutation";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
+import { Connection } from "@solana/web3.js";
 
 export interface IUser {
   result: string;
@@ -17,16 +19,19 @@ export interface IUser {
 
 function Account() {
   const navigate = useNavigate();
-  const userInfo = useRecoilValue(userInfoAtom);
+  const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
 
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
   const code = searchParams.get("code");
 
-  // request (code 전송)
+  // request (twitch code 전송)
   const [connectToTwitch, { data, loading }] = useMutation<IUser>(
     `${process.env.REACT_APP_BASE_URL}/auth/oauth`
   );
+
+  const connection = new Connection("https://api.devnet.solana.com");
+  console.log(connection);
 
   // code 변경 시 실행
   useEffect(() => {
@@ -40,7 +45,16 @@ function Account() {
 
   // data 변경 시 실행
   useEffect(() => {
-    if (data) {
+    if (data?.user?.twitch) {
+      console.log(data);
+      setUserInfo({
+        ...userInfo,
+        twitch: {
+          id: data.user.twitch.id,
+          displayName: data.user.twitch.displayName,
+          profileImageUrl: data.user.twitch.profileImageUrl,
+        },
+      });
       navigate(`/account`, { replace: true });
     }
   }, [data, navigate]);
@@ -84,7 +98,9 @@ function Account() {
                 />
               </OauthImg>
               {loading ? (
-                "loading..."
+                <SpinnerDiv>
+                  <Spinner />
+                </SpinnerDiv>
               ) : (
                 <>
                   {userInfo.twitch.id ? (
@@ -168,6 +184,14 @@ const OauthProfileImg = styled.img`
 const OauthProfile = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const SpinnerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 `;
 
 const HoverNoneDiv = styled.div`

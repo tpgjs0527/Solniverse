@@ -7,35 +7,42 @@ export const getWallet = async () => {
 
   // provider가 undefined면 팬텀지갑 공식홈페이지로 이동
   if (provider) {
-    console.log(provider);
     const response = await provider.connect();
-    console.log(response);
     try {
-      const data = await (
-        await fetch(
-          `${
-            process.env.REACT_APP_BASE_URL
-          }/auth/connect/${response.publicKey.toString()}`,
-          {
-            method: "GET",
-          }
-        )
-      ).json();
-      console.log("get", data);
-      return data;
+      const res = await fetch(
+        `${
+          process.env.REACT_APP_BASE_URL
+        }/auth/connect/${response.publicKey.toString()}`,
+        {
+          method: "GET",
+        }
+      );
+      if (res.status >= 200 && res.status < 400) {
+        const data = await res.json();
+        return data;
+      } else {
+        const error = new Error(res.statusText);
+        throw error;
+      }
     } catch (error) {
-      const data = await (
-        await fetch(
-          `${
-            process.env.REACT_APP_BASE_URL
-          }/auth/connect/${response.publicKey.toString()}`,
-          {
-            method: "POST",
-          }
-        )
-      ).json();
-      console.log("post", data);
-      return data;
+      console.log(error);
+      const res = await fetch(
+        `${
+          process.env.REACT_APP_BASE_URL
+        }/auth/connect/${response.publicKey.toString()}`,
+        {
+          method: "POST",
+        }
+      );
+      if (res.status >= 200 && res.status < 400) {
+        const data = await res.json();
+        console.log(data);
+        return data;
+      } else {
+        const error = new Error(res.statusText);
+        console.log(error);
+        alert("지갑 연결이 안되네요");
+      }
     }
   }
 };

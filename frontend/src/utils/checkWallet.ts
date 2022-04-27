@@ -8,11 +8,11 @@ export const checkWallet = async () => {
   // provider가 undefined면 팬텀지갑 공식홈페이지로 이동
   if (provider) {
     console.log("지갑찾음");
-    const response = await provider.connect({ onlyIfTrusted: true });
-
-    console.log("지갑연결", response.publicKey.toString());
-
     try {
+      const response = await provider.connect({ onlyIfTrusted: true });
+
+      console.log("지갑연결", response.publicKey.toString());
+
       const data = await (
         await fetch(
           `${
@@ -26,18 +26,7 @@ export const checkWallet = async () => {
       console.log("get", data);
       return data;
     } catch (error) {
-      const data = await (
-        await fetch(
-          `${
-            process.env.REACT_APP_BASE_URL
-          }/auth/connect/${response.publicKey.toString()}`,
-          {
-            method: "POST",
-          }
-        )
-      ).json();
-      console.log("post", data);
-      return data;
+      console.log(error);
     }
   }
 };

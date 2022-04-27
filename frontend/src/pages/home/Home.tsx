@@ -14,7 +14,7 @@ function Home() {
   // 기존에 지갑 있으면 연결 ㅇㅋ
   const checkIfWalletIsConnected = async () => {
     const data = await checkWallet();
-    if (data.result === "success") {
+    if (data && data.result === "success") {
       setWallet(true);
       if (data.user.twitch) {
         setUserInfo({
@@ -23,19 +23,19 @@ function Home() {
             displayName: data.user.twitch.displayName,
             profileImageUrl: data.user.twitch.profileImageUrl,
           },
-          walletAddress: data.user.wallet_address,
+          walletAddress: data.user.walletAddress,
           createdAt: data.user.createdAt,
         });
       } else {
         setUserInfo({
           ...userInfo,
-          walletAddress: data.user.wallet_address,
+          walletAddress: data.user.walletAddress,
           createdAt: data.user.createdAt,
         });
       }
       setWallet(true);
     } else {
-      alert("지갑연결이 실패했습니다");
+      alert("지갑을 연결해주세요");
     }
   };
   // 지갑연결
@@ -50,13 +50,13 @@ function Home() {
             displayName: data.user.twitch.displayName,
             profileImageUrl: data.user.twitch.profileImageUrl,
           },
-          walletAddress: data.user.wallet_address,
+          walletAddress: data.user.walletAddress,
           createdAt: data.user.createdAt,
         });
       } else {
         setUserInfo({
           ...userInfo,
-          walletAddress: data.user.wallet_address,
+          walletAddress: data.user.walletAddress,
           createdAt: data.user.createdAt,
         });
       }

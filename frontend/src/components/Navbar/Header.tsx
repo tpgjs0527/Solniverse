@@ -87,7 +87,7 @@ export default function Header() {
           </ThemeToggle>
           <Logout
             onClick={() => {
-              if (window.confirm("지갑 연결을 끊으시겠습니까?") == true) {
+              if (window.confirm("지갑 연결을 끊으시겠습니까?") === true) {
                 setUserInfo({
                   twitch: {
                     id: "",
