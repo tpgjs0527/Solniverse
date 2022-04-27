@@ -19,13 +19,13 @@ class DonationService {
   // TODO 작성해야함.
   /**
    *
-   * @param {string} display_name
+   * @param {string} displayName
    * @param {string} message
    * @param {string} platform
    */
-  async createTransaction(display_name, message, platform) {
+  async createTransaction(displayName, message, platform) {
     const data = {
-      display_name,
+      displayName,
       message,
       platform,
     };
