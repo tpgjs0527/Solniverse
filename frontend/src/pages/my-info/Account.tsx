@@ -29,6 +29,7 @@ function Account() {
     usd: 0.0,
     sol: 0,
   });
+  const [isBalance, isSetBalance] = useState(true);
 
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,7 +54,7 @@ function Account() {
 
   // 지갑 잔액 가져오는 함수
   const getBalance = async () => {
-    const connection = new Connection(clusterApiUrl("testnet"));
+    const connection = new Connection(clusterApiUrl("devnet"));
     const publicKey = new PublicKey(userInfo.walletAddress);
 
     const lamports = await connection.getBalance(publicKey).catch((err) => {
@@ -77,12 +78,11 @@ function Account() {
           sol,
           usd: Number((sol * usdPrice).toFixed(2)),
         });
+        isSetBalance(false);
       }
     };
     getAsyncBalance();
   }, []);
-
-  console.log(balance);
 
   // code 변경 시 실행
   useEffect(() => {
@@ -118,7 +118,18 @@ function Account() {
           <Box>
             <BoxTitle>Wallet</BoxTitle>
             <Card>
-              <Balance>$ 0</Balance>
+              <div>
+                {isBalance ? (
+                  <SpinnerDiv>
+                    <Spinner />
+                  </SpinnerDiv>
+                ) : (
+                  <>
+                    <BalanceUSD>{`$ ${balance.usd}`}</BalanceUSD>
+                    <BalanceSol>{`${balance.sol}`} SOL</BalanceSol>{" "}
+                  </>
+                )}
+              </div>
               <Address>{userInfo.walletAddress}</Address>
             </Card>
           </Box>
@@ -289,7 +300,7 @@ const Oauth1 = styled.div`
 `;
 
 const Address = styled.p`
-  color: white;
+  color: whitesmoke;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: -0.03em;
@@ -300,8 +311,18 @@ const Address = styled.p`
   }
 `;
 
-const Balance = styled.p`
-  color: white;
+const BalanceSol = styled.p`
+  color: whitesmoke;
+  font-size: 19px;
+  font-weight: 500;
+
+  @media screen and (min-width: 767px) {
+    font-size: 23px;
+  }
+`;
+
+const BalanceUSD = styled.p`
+  color: whitesmoke;
   font-size: 28px;
   font-weight: 500;
 
