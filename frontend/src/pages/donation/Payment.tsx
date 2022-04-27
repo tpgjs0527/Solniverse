@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import ReactDOM from "react-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
+import { isBrowser, isMobile } from "react-device-detect";
 
 function Payment() {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ function Payment() {
     // alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
     setOpenModal(true);
   };
+
   return (
     <Container>
       <PageName>Payment Page</PageName>
@@ -49,7 +52,7 @@ function Payment() {
             <Line />
             <PriceWrapper>
               <Price>Total</Price>
-              <USDC>{amount}.00 USDC</USDC>
+              <USDC>{amount} USDC</USDC>
             </PriceWrapper>
           </TotalPriceWrapper>
           <ButtonWrapper>
@@ -57,13 +60,13 @@ function Payment() {
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>
-      {openModal && (
+      {openModal && isBrowser && (
         <Qrcode open={openModal} onClose={closeModal} params={params} />
       )}
+      {/* {isMobile && } */}
     </Container>
   );
 }
-
 const Container = styled.div`
   margin: 32px 64px;
   min-width: 400px;
