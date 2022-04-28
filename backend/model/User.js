@@ -1,4 +1,5 @@
 const { Schema } = require("mongoose");
+const { v4, v5 } = require("uuid");
 
 const UserSchema = new Schema(
   {
@@ -25,6 +26,7 @@ const UserSchema = new Schema(
       required: true,
       enum: ["normal", "admin"],
     },
+    userKey: { type: String, immutable: true, unique: true },
     enabled: { type: Boolean, required: false },
   },
 
@@ -33,6 +35,11 @@ const UserSchema = new Schema(
     timestamps: true,
   },
 );
+
+UserSchema.pre("save", function (next) {
+  this.userKey = v5(this.get("walletAddress"), v4()).replace(/-/g, "");
+  next();
+});
 
 module.exports = UserSchema;
 // module.exports = mongoose.model("User", UserSchema);

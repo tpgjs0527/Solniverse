@@ -37,6 +37,19 @@ class UserRepository {
   }
 
   /**
+   * UserKey로 유저를 찾아냄. Read
+   *
+   * @param {string} userKey
+   *
+   * @typedef {Object} User
+   * @property {import("mongoose").ObjectId} _id
+   * @returns {Promise<User>} User
+   */
+  async getUserByUserKey(userKey) {
+    return User.findOne({ userKey });
+  }
+
+  /**
    * WalletAddress로 유저 nonce를 업데이트 시킴. Update
    * @param {string} walletAddress
    * @returns {Promise<user>} user

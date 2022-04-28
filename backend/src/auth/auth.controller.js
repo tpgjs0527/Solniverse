@@ -88,6 +88,17 @@ router.get("/sign/:walletAddress", async function (req, res) {
 });
 
 /**
+ * 사용자 jwt access 코드를 받으면 userKey를 전달.
+ */
+router.get("/userKey", async function (req, res) {
+  const walletAddress = req.body["walletAddress"];
+  const { statusCode, responseBody } =
+    await authService.getUserKeyByWalletAddress(walletAddress);
+  res.statusCode = statusCode;
+  res.send(responseBody);
+});
+
+/**
  * 트위치 OAuth 를 통한 정보 수정.
  * @TODO Twitch 뿐만 아닌 다른 platform 별 switch로 동작하기 변경. jwt middleware를 사용하도록 변경
  */
