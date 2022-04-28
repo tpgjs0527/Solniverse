@@ -19,7 +19,7 @@ npm run build
 
 ## Install
 
-### basic
+### Basic
 
 - React & TypeScript
 
@@ -61,16 +61,51 @@ npm i @types/styled-components
 npm install --save react-apexcharts apexcharts
 ```
 
-- Query
+- SWR
 
 ```bash
-npm i react-query
+npm i swr
 ```
 
-- solana
+- react-cookies
+
+```bash
+npm i @types/react-cookies react-cookies
+```
+
+- react modal
+
+```bash
+npm i react-modal
+npm i @types/react-modal
+```
+
+- react-device-detect
+
+```bash
+npm i react-device-detect
+```
+
+- react-mobile-store-button
+
+```bash
+npm i react-mobile-store-button
+```
+
+
+
+### Provider
+
+- solana web3
 
 ```bash
 npm i @solana/web3.js
+```
+
+- solana pay
+
+```bash
+npm i @solana/pay
 ```
 
 - bs58
@@ -79,9 +114,15 @@ npm i @solana/web3.js
 npm i bs58
 ```
 
-- react-cookies
+- bignumber.js
 
 ```bash
-npm i @types/react-cookies react-cookies
+npm i bignumber.js
+```
+
+- qr-code-styling
+
+```bas
+npm i qr-code-styling
 ```
 
