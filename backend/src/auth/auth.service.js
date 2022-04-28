@@ -183,6 +183,23 @@ class AuthService {
   }
 
   /**
+   * WalletAddress를 받아 userKey를 반환한다.
+   * @param {string} walletAddress
+   * @returns response
+   */
+  async getUserKeyByWalletAddress(walletAddress) {
+    return userRepository
+      .getUserByWalletAddress(walletAddress)
+      .then((user) => {
+        if (!user) return notFoundResponse;
+        let res = new BaseResponse(SUCCESS_RESPONSE);
+        res.responseBody.userKey = user.userKey;
+        return res;
+      })
+      .catch(() => badRequestResponse);
+  }
+
+  /**
    * WalletAddress와 code를 받아 access token을 발급받는다
    * access token을 통해 twitch api를 호출하여 프로필 정보를 받아온다
    * 이 모든 내용을 db에 저장한다

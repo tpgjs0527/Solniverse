@@ -34,7 +34,9 @@
     "mongoose": "^6.3.0",
     "morgan": "~1.9.1",
     "pm2": "^5.2.0",
+    "socket.io": "2.3.0",
     "tweetnacl": "^1.0.3",
+    "uuid": "^8.3.2",
     "vary": "^1.1.2",
     "winston": "^3.7.2",
     "winston-daily-rotate-file": "^4.6.1"

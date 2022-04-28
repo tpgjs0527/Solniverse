@@ -8,6 +8,9 @@ app.set("port", port);
 
 const server = http.createServer(app);
 
+const sockapp = require("../sockapp");
+sockapp.io.attach(server);
+
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
@@ -53,4 +56,3 @@ function onListening() {
     typeof address === "string" ? "pipe " + address : "port " + address.port;
   debug("Listening on " + bind);
 }
-

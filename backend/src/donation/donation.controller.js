@@ -224,4 +224,3 @@ router.get("/chart/receive", async function (req, res) {
 });
 
 module.exports = router;
-

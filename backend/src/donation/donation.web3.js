@@ -1,10 +1,10 @@
-//@ts-check
 const { PublicKey } = require("@solana/web3.js");
 const { web3, connection } = require("../../config/web3.connection");
 const DonationRepository = require("./donation.repository");
 const donationRepository = new DonationRepository();
 const UserRepository = require("../auth/user.repository");
 const { Types } = require("mongoose");
+const { io } = require("../../sockapp");
 const userRepository = new UserRepository();
 
 /**
@@ -70,8 +70,14 @@ async function txCallback(tx) {
         sendUserId: sendUser._id,
         receiveUserId: receiveUser._id,
       };
-      donationRepository.updateTransactionById(txid, data).then(() => {
-        //여기서 도네이션 메시지를 프론트에 전송
+      donationRepository.updateTransactionById(txid, data).then((user) => {
+        const donation = {
+          displayName: user.displayName,
+          message: user.message,
+          paymentType: user.paymentType,
+          amount: user.amount,
+        };
+        io.to(user._id.toString()).emit("donation", donation);
       });
     } catch (err) {
       return;
@@ -88,4 +94,3 @@ connection.onLogs(
   logCallback,
   "confirmed",
 );
-

@@ -44,7 +44,7 @@ class DonationRepository {
    */
   async updateTransactionById(_id, data) {
     //생성
-    return Transaction.updateOne(
+    return Transaction.findByIdAndUpdate(
       {
         _id,
       },
@@ -98,4 +98,3 @@ class DonationRepository {
 }
 
 module.exports = DonationRepository;
-

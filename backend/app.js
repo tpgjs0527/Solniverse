@@ -126,4 +126,3 @@ async function getLatestTransaction() {
 getLatestTransaction();
 
 module.exports = app;
-
