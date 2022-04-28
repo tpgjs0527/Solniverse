@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Layout from "components/Layout";
 import banner from "../../../public/가로긴사진.png";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -17,6 +17,7 @@ function Donation() {
   const [nickName, setNickName] = useState("");
   const [amount, setAmount] = useState(0);
   const [message, setMessage] = useState("");
+  const params = { amount: amount.toString(), nickName, message };
 
   const {
     register,
@@ -25,7 +26,15 @@ function Donation() {
   } = useForm<IDonation>({ mode: "onBlur" });
 
   const onClick = () => {
-    alert("도네이션을 진행하겠습니다");
+    // navigate({
+    //   pathname: "/payment",
+    //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
+    // });
+    navigate({
+      pathname: "/payment",
+      search: `?${createSearchParams(params)}`,
+    });
+    // alert("도네이션을 진행하겠습니다");
   };
   console.log(nickName, amount, message);
   return (
@@ -96,6 +105,7 @@ function Donation() {
         <DonationWrapper>
           <ButtonWrapper>
             <Button onClick={onClick}>Donate</Button>
+            {/* <Button onClick={Donate}>Donate</Button> */}
           </ButtonWrapper>
         </DonationWrapper>
       </Container>
