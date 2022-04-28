@@ -1,12 +1,17 @@
-import { userInfoAtom } from "atoms";
 import Layout from "components/Layout";
-import Spinner from "components/Spinner";
-import useMutation from "hooks/useMutation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { Connection } from "@solana/web3.js";
+import useMutation from "hooks/useMutation";
+import { useRecoilState } from "recoil";
+import { userInfoAtom } from "atoms";
+import Spinner from "components/Spinner";
+import {
+  clusterApiUrl,
+  Connection,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from "@solana/web3.js";
 
 export interface IUser {
   result: string;
@@ -20,6 +25,11 @@ export interface IUser {
 function Account() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
+  const [balance, setBalance] = useState({
+    usd: 0.0,
+    sol: 0,
+  });
+  const [isBalance, isSetBalance] = useState(true);
 
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,8 +40,49 @@ function Account() {
     `${process.env.REACT_APP_BASE_URL}/auth/oauth`
   );
 
-  const connection = new Connection("https://api.devnet.solana.com");
-  console.log(connection);
+  const getSolanaPrice = async () => {
+    const response = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`,
+      {
+        method: "GET",
+      }
+    );
+
+    const data = await response.json();
+    return data.solana.usd;
+  };
+
+  // 지갑 잔액 가져오는 함수
+  const getBalance = async () => {
+    const connection = new Connection(clusterApiUrl("devnet"));
+    const publicKey = new PublicKey(userInfo.walletAddress);
+
+    const lamports = await connection.getBalance(publicKey).catch((err) => {
+      console.error(`Error: ${err}`);
+    });
+
+    if (lamports) {
+      const sol = lamports / LAMPORTS_PER_SOL;
+      return sol;
+    }
+  };
+
+  // 페이지 들어오면 지갑 잔액 함수 실행
+  useEffect(() => {
+    const getAsyncBalance = async () => {
+      const sol = await getBalance();
+      const usdPrice = await getSolanaPrice();
+
+      if (sol && usdPrice) {
+        setBalance({
+          sol,
+          usd: Number((sol * usdPrice).toFixed(2)),
+        });
+        isSetBalance(false);
+      }
+    };
+    getAsyncBalance();
+  }, []);
 
   // code 변경 시 실행
   useEffect(() => {
@@ -67,7 +118,18 @@ function Account() {
           <Box>
             <BoxTitle>Wallet</BoxTitle>
             <Card>
-              <Balance>$ 0</Balance>
+              <div>
+                {isBalance ? (
+                  <SpinnerDiv>
+                    <Spinner />
+                  </SpinnerDiv>
+                ) : (
+                  <>
+                    <BalanceUSD>{`$ ${balance.usd}`}</BalanceUSD>
+                    <BalanceSol>{`${balance.sol}`} SOL</BalanceSol>{" "}
+                  </>
+                )}
+              </div>
               <Address>{userInfo.walletAddress}</Address>
             </Card>
           </Box>
@@ -238,7 +300,7 @@ const Oauth1 = styled.div`
 `;
 
 const Address = styled.p`
-  color: white;
+  color: whitesmoke;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: -0.03em;
@@ -249,8 +311,18 @@ const Address = styled.p`
   }
 `;
 
-const Balance = styled.p`
-  color: white;
+const BalanceSol = styled.p`
+  color: whitesmoke;
+  font-size: 19px;
+  font-weight: 500;
+
+  @media screen and (min-width: 767px) {
+    font-size: 23px;
+  }
+`;
+
+const BalanceUSD = styled.p`
+  color: whitesmoke;
   font-size: 28px;
   font-weight: 500;
 
