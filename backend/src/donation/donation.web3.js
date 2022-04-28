@@ -33,37 +33,44 @@ async function txCallback(tx) {
   if (!meta.err) {
     try {
       const transaction = tx.transaction;
-      const memo = meta.logMessages[1];
-      // eslint-disable-next-line quotes
-      const from = memo.indexOf('"') + 1;
-      // eslint-disable-next-line quotes
-      const to = memo.indexOf('"', from);
 
-      /** @type {string} */
-      const txid = memo.substring(from, to);
+      // sendWallet과 receiveWallet을 알아냄
       /** @type {Array<PublicKey>} */
-      const accountKeys = transaction.message.accountKeys;
+      const accountKeys = transaction.message.accountKeys,
+        // 아래는 string 타입임
+        sendWallet = accountKeys[0].toString(),
+        receiveWallet = accountKeys[1].toString();
 
-      const sendWallet = accountKeys[0].toString();
-      const receiveWallet = accountKeys[1].toString();
-      /** @type {{_id:Types.ObjectId}} */
-      const send_user = await getUserOrCreate(sendWallet);
-      /** @type {{_id:Types.ObjectId}} */
-      const receive_user = await getUserOrCreate(receiveWallet);
+      // DB에서 비동기적으로 sendWallet과 receiveWallet의 user를 얻어냄
+      /** @type {[{_id:Types.ObjectId}, {_id:Types.ObjectId}]} */
+      const [sendUser, receiveUser] = await Promise.all([
+        getUserOrCreate(sendWallet),
+        getUserOrCreate(receiveWallet),
+      ]);
 
       const amount = meta.postBalances[1] - meta.preBalances[1];
 
+      // txid를 얻어냄.
+      const memo = meta.logMessages[1],
+        // eslint-disable-next-line quotes
+        from = memo.indexOf('"') + 1,
+        // 성능을 위해 할당 횟수를 줄이고 인라인으로 사용함.
+        txid = new Types.ObjectId(
+          // eslint-disable-next-line quotes
+          memo.substring(from, memo.indexOf('"', from)),
+        );
+
+      // txio 도큐먼트에 삽입할 데이터
       const data = {
-        _id: new Types.ObjectId(txid),
         /**@type {string} data */
-        tx_signature: transaction.signatures[0],
+        txSignature: transaction.signatures[0],
         /**@type {"sol"|"usdc"} */
-        payment_type: "sol",
+        paymentType: "sol",
         amount,
-        send_user_id: send_user._id,
-        receive_user_id: receive_user._id,
+        sendUserId: sendUser._id,
+        receiveUserId: receiveUser._id,
       };
-      donationRepository.updateTransactionById(data).then(() => {
+      donationRepository.updateTransactionById(txid, data).then(() => {
         //여기서 도네이션 메시지를 프론트에 전송
       });
     } catch (err) {

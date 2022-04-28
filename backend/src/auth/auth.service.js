@@ -40,34 +40,34 @@ class AuthService {
    * @returns response
    */
   async verifyAddressBySignature(signature, walletAddress) {
-    const user = await userRepository
-      .getUserByWalletAddress(walletAddress)
-      .then((user) => {
-        if (user) return user;
-      });
-    if (!user) {
+    try {
+      const user = await userRepository.getUserByWalletAddress(walletAddress);
+      if (!user) {
+        return badRequestResponse;
+      }
+      const messageBytes = new TextEncoder().encode(message + user.nonce);
+      const publicKeyBytes = base58.decode(walletAddress);
+      const signatureBytes = base58.decode(signature);
+
+      const result = nacl.sign.detached.verify(
+        messageBytes,
+        signatureBytes,
+        publicKeyBytes,
+      );
+
+      if (!result) {
+        return badRequestResponse;
+      }
+
+      let response = new BaseResponse(SUCCESS_RESPONSE);
+      //액세스 토큰 발급
+      response.responseBody.accessToken = jwtUtil.sign(user);
+      //완료됐으니 nonce 업데이트
+      await userRepository.updateNonceByWalletAddress(walletAddress);
+      return response;
+    } catch (err) {
       return badRequestResponse;
     }
-    const messageBytes = new TextEncoder().encode(message + user.nonce);
-    const publicKeyBytes = base58.decode(walletAddress);
-    const signatureBytes = base58.decode(signature);
-
-    const result = nacl.sign.detached.verify(
-      messageBytes,
-      signatureBytes,
-      publicKeyBytes,
-    );
-
-    if (!result) {
-      return badRequestResponse;
-    }
-
-    let response = new BaseResponse(SUCCESS_RESPONSE);
-    //액세스 토큰 발급
-    response.responseBody.accessToken = jwtUtil.sign(user);
-    //완료됐으니 nonce 업데이트
-    await userRepository.updateNonceByWalletAddress(walletAddress);
-    return response;
   }
 
   /**
@@ -81,27 +81,27 @@ class AuthService {
       if (!(await web3.PublicKey.isOnCurve(publicKey))) {
         return badRequestResponse;
       }
-    } catch (error) {
-      return badRequestResponse;
-    }
-    return await userRepository
-      .createUserByWalletAddress(walletAddress)
-      .then((user) => {
+      try {
+        const user = await userRepository.createUserByWalletAddress(
+          walletAddress,
+        );
         let res = new BaseResponse(SUCCESS_RESPONSE);
         res.responseBody.user = {
-          walletAddress: user.wallet_address,
+          walletAddress: user.walletAddress,
           createdAt: user.createdAt,
         };
         return res;
-      })
-      .catch((err) => {
+      } catch (err) {
         switch (err.code) {
           case 11000:
             return conflictResponse;
           default:
             return badRequestResponse;
         }
-      });
+      }
+    } catch (error) {
+      return badRequestResponse;
+    }
   }
 
   /**
@@ -111,18 +111,22 @@ class AuthService {
    * @returns
    */
   async refreshAccessToken(walletAddress, refreshToken) {
-    let res;
-    if (await jwtUtil.refreshVerify(refreshToken, walletAddress)) {
-      //user 가져오기.
-      const user = await userRepository.getUserByWalletAddress(walletAddress);
-      res = new BaseResponse(SUCCESS_RESPONSE);
-      //user로 access token 발행
-      res.responseBody.accessToken = jwtUtil.sign(user);
+    try {
+      let res;
+      if (await jwtUtil.refreshVerify(refreshToken, walletAddress)) {
+        //user 가져오기.
+        const user = await userRepository.getUserByWalletAddress(walletAddress);
+        res = new BaseResponse(SUCCESS_RESPONSE);
+        //user로 access token 발행
+        res.responseBody.accessToken = jwtUtil.sign(user);
+        return res;
+      }
+      res = new BaseResponse(UNAUTHORIZED_RESPONSE);
+      res.responseBody.message = "jwt expired";
       return res;
+    } catch (err) {
+      return badRequestResponse;
     }
-    res = new BaseResponse(UNAUTHORIZED_RESPONSE);
-    res.responseBody.message = "jwt expired";
-    return res;
   }
 
   /**
@@ -131,33 +135,32 @@ class AuthService {
    * @returns response
    */
   async getUserByWalletAddress(walletAddress) {
-    return await userRepository
-      .getUserByWalletAddress(walletAddress)
-      .then((user) => {
-        if (!user) return notFoundResponse;
-        let res = new BaseResponse(SUCCESS_RESPONSE);
-        res.responseBody.user = {
-          wallet_address: user.wallet_address,
-          createdAt: user.createdAt,
-        };
-        /**
-         * @TODO 플랫폼 list collection으로 기능 추가 필요.
-         * subdocument로 변경시 다시 또 변경 필요.
-         */
-        for (let platform of platforms) {
-          if (user[platform]) {
-            res.responseBody.user[platform] = {
-              id: user[platform].id,
-              displayName: user[platform].display_name,
-              profileImageUrl: user[platform].profile_image_url,
-            };
-          }
+    try {
+      const user = await userRepository.getUserByWalletAddress(walletAddress);
+      if (!user) return notFoundResponse;
+      let res = new BaseResponse(SUCCESS_RESPONSE),
+        responseBody = res.responseBody;
+      responseBody.user = {
+        walletAddress: user.walletAddress,
+        createdAt: user.createdAt,
+      };
+      /**
+       * @TODO 플랫폼 list collection으로 기능 추가 필요.
+       * subdocument로 변경시 다시 또 변경 필요.
+       */
+      for (let platform of platforms) {
+        if (user[platform]) {
+          responseBody.user[platform] = {
+            id: user[platform].id,
+            displayName: user[platform].displayName,
+            profileImageUrl: user[platform].profileImageUrl,
+          };
         }
-        return res;
-      })
-      .catch(() => {
-        return badRequestResponse;
-      });
+      }
+      return res;
+    } catch (err) {
+      return badRequestResponse;
+    }
   }
 
   /**
@@ -166,7 +169,7 @@ class AuthService {
    * @returns response
    */
   async getSignMessageByWalletAddress(walletAddress) {
-    return await userRepository
+    return userRepository
       .getUserByWalletAddress(walletAddress)
       .then((user) => {
         if (!user) return notFoundResponse;
@@ -194,7 +197,7 @@ class AuthService {
      * @param {string} authCode
      * @returns AxiosPromise
      */
-    const getAccessTokenByAuthCode = (authCode) => {
+    const getTokensByAuthCode = (authCode) => {
       return axios({
         url: "https://id.twitch.tv/oauth2/token",
         method: "post",
@@ -226,48 +229,32 @@ class AuthService {
       });
     };
 
-    const twitchInfo = {
-      id: "",
-      display_name: "",
-      profile_image_url: "",
-      oauth: {
-        access_token: "",
-        refresh_token: "",
-      },
-    };
+    try {
+      const { data: tokens } = await getTokensByAuthCode(code);
+      const accessToken = tokens.access_token;
+      const refreshToken = tokens.refresh_token;
+      const { data: twitchUsers } = await getTwitchUserByAccessToken(
+        accessToken,
+      );
+      const twitchUser = twitchUsers.data[0];
 
-    // 토큰 받아와서 트위치 프로필 정보까지 받아오기
-    return await getAccessTokenByAuthCode(code)
-      .then((res) => {
-        twitchInfo.oauth.access_token = res.data.access_token;
-        twitchInfo.oauth.refresh_token = res.data.refresh_token;
-
-        // Access Token으로 Twitch 유저 정보 가져오기
-        return getTwitchUserByAccessToken(twitchInfo.oauth.access_token)
-          .then((res) => {
-            twitchInfo.id = res.data.data[0].login;
-            twitchInfo.display_name = res.data.data[0].display_name;
-            twitchInfo.profile_image_url = res.data.data[0].profile_image_url;
-
-            //유저에 가져온 정보 삽입
-            return userRepository
-              .updateTwitchInfoByWalletAddress(walletAddress, twitchInfo)
-              .then(() => {
-                // 우리 백엔드 유저 정보 반환
-                return this.getUserByWalletAddress(walletAddress);
-              })
-              .catch((err) => {
-                throw err;
-              });
-          })
-          .catch((err) => {
-            throw err;
-          });
-      })
-      .catch((err) => {
-        //log를 보고 싶거나 기록하고 싶으면 여기만 기록하면 됨.
-        return badRequestResponse;
-      });
+      const twitchInfo = {
+        id: twitchUser.login,
+        displayName: twitchUser.display_name,
+        profileImageUrl: twitchUser.profile_image_url,
+        oauth: {
+          accessToken,
+          refreshToken,
+        },
+      };
+      await userRepository.updateTwitchInfoByWalletAddress(
+        walletAddress,
+        twitchInfo,
+      );
+      return this.getUserByWalletAddress(walletAddress);
+    } catch (err) {
+      return badRequestResponse;
+    }
   }
 }
 

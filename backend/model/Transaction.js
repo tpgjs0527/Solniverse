@@ -5,19 +5,19 @@ const TransactionSchema = new Schema(
   {
     _id: { type: Types.ObjectId, auto: true },
     //처음 update 뒤에 다시 update하려고 하면 에러 발생
-    tx_signature: { type: String, required: false, immutable: true },
-    spl_token: { type: String, required: false },
-    payment_type: {
+    txSignature: { type: String, required: false, immutable: true },
+    splToken: { type: String, required: false },
+    paymentType: {
       type: String,
       default: "usdc",
       required: true,
       enum: ["usdc", "sol"],
     },
     amount: { type: Number, required: false },
-    send_user_id: { type: Types.ObjectId, ref: "User", required: false },
-    receive_user_id: { type: Types.ObjectId, ref: "User", required: false },
-    nft_token: { type: String, required: false },
-    display_name: { type: String, required: true },
+    sendUserId: { type: Types.ObjectId, ref: "User", required: false },
+    receiveUserId: { type: Types.ObjectId, ref: "User", required: false },
+    nftToken: { type: String, required: false },
+    displayName: { type: String, required: true },
     message: { type: String, required: true },
     platform: {
       type: String,
