@@ -1,30 +1,26 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import ReactDOM from "react-dom";
 import styled from "styled-components";
-
-interface IDonation {
-  nickname: string;
-  amount: number;
-  message: string;
-}
+import Qrcode from "./Qrcode";
+import { isBrowser, isMobile } from "react-device-detect";
 
 function Payment() {
   const navigate = useNavigate();
-
-  const [nickName, setNickName] = useState("");
-  const [amount, setAmount] = useState(0);
-  const [message, setMessage] = useState("");
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IDonation>({ mode: "onBlur" });
-
-  const onClick = () => {
-    alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [openModal, setOpenModal] = useState(false);
+  const amount = searchParams.get("amount");
+  const nickName = searchParams.get("nickName");
+  const message = searchParams.get("message");
+  const params = { amount, nickName, message };
+  const closeModal = () => {
+    setOpenModal(false);
   };
+  const onClick = () => {
+    // alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
+    setOpenModal(true);
+  };
+
   return (
     <Container>
       <PageName>Payment Page</PageName>
@@ -33,7 +29,7 @@ function Payment() {
         <PaymentWrapper>
           <Title>Your Information</Title>
           <InfoWrapper>
-            <Name>백종원</Name>
+            <Name>{nickName}</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>Pu674dikkyAAUotqgQUZMe5fHzsgnYwFKQEmjEx4oR8</Account>
           </InfoWrapper>
@@ -45,14 +41,18 @@ function Payment() {
           </InfoWrapper>
           <Title>Donate Information</Title>
           <TotalPriceWrapper>
+            <PriceWrapper style={{ marginBottom: "8px" }}>
+              <Price>Donate Message</Price>
+              <Price>{message}</Price>
+            </PriceWrapper>
             <PriceWrapper>
               <Price>Donate Price</Price>
-              <USDC>100 USDC</USDC>
+              <USDC>{amount} USDC</USDC>
             </PriceWrapper>
             <Line />
             <PriceWrapper>
               <Price>Total</Price>
-              <USDC>100.00 USDC</USDC>
+              <USDC>{amount} USDC</USDC>
             </PriceWrapper>
           </TotalPriceWrapper>
           <ButtonWrapper>
@@ -60,10 +60,13 @@ function Payment() {
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>
+      {openModal && isBrowser && (
+        <Qrcode open={openModal} onClose={closeModal} params={params} />
+      )}
+      {/* {isMobile && } */}
     </Container>
   );
 }
-
 const Container = styled.div`
   margin: 32px 64px;
   min-width: 400px;
