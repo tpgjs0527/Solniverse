@@ -3,6 +3,7 @@ const app = require("../app");
 const debug = require("debug")("saffy-sample:server");
 const http = require("http");
 const port = normalizePort(process.env.PORT || 3000);
+
 app.set("port", port);
 
 const server = http.createServer(app);
@@ -52,3 +53,4 @@ function onListening() {
     typeof address === "string" ? "pipe " + address : "port " + address.port;
   debug("Listening on " + bind);
 }
+

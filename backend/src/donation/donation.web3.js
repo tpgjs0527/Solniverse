@@ -81,3 +81,4 @@ connection.onLogs(
   logCallback,
   "confirmed",
 );
+
