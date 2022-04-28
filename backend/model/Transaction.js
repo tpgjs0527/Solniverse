@@ -9,9 +9,8 @@ const TransactionSchema = new Schema(
     splToken: { type: String, required: false },
     paymentType: {
       type: String,
-      default: "usdc",
-      required: true,
-      enum: ["usdc", "sol"],
+      default: "",
+      enum: ["", "usdc", "sol"],
     },
     amount: { type: Number, required: false },
     sendUserId: { type: Types.ObjectId, ref: "User", required: false },

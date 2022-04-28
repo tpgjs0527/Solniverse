@@ -70,14 +70,14 @@ async function txCallback(tx) {
         sendUserId: sendUser._id,
         receiveUserId: receiveUser._id,
       };
-      donationRepository.updateTransactionById(txid, data).then((user) => {
+      donationRepository.updateTransactionById(txid, data).then((tx) => {
         const donation = {
-          displayName: user.displayName,
-          message: user.message,
-          paymentType: user.paymentType,
-          amount: user.amount,
+          displayName: tx.displayName,
+          message: tx.message,
+          paymentType: tx.paymentType,
+          amount: tx.amount,
         };
-        io.to(user._id.toString()).emit("donation", donation);
+        io.to(tx.receiveUserId.toString()).emit("donation", donation);
       });
     } catch (err) {
       return;
