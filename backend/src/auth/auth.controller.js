@@ -21,7 +21,7 @@ const { BaseResponse, SUCCESS_RESPONSE } = require("../common/base.response");
 router.get("/accessToken", authJwtMiddleware);
 router.get("/accessToken", function (req, res) {
   const { statusCode, responseBody } = new BaseResponse(SUCCESS_RESPONSE);
-  res.statusCode(statusCode).send(responseBody);
+  res.status(statusCode).send(responseBody);
 });
 
 /**
