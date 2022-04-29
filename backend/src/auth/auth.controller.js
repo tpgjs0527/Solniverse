@@ -13,9 +13,16 @@ const AuthService = require("./auth.service");
 const authService = new AuthService();
 
 const jwtUtil = require("../common/jwt-util");
+const authJwtMiddleware = require("../../config/authJwtMiddleware");
+const { BaseResponse, SUCCESS_RESPONSE } = require("../common/base.response");
 // 아래와 jwt 인증이 필요한 부분에서 미들웨어로 사용가능.
 // 아래 작성 후에 라우터를 작성하면 req.walletAddress 와 같이 접근 가능
-// router.post("/connect", authJwtMiddleware);
+
+router.get("/accessToken", authJwtMiddleware);
+router.get("/accessToken", function (req, res) {
+  const { statusCode, responseBody } = new BaseResponse(SUCCESS_RESPONSE);
+  res.statusCode(statusCode).send(responseBody);
+});
 
 /**
  * WalletAddress와 signature를 request body로 받아 인증을 거쳐 jwt access token refresh token 반환
@@ -102,8 +109,9 @@ router.get("/userKey", async function (req, res) {
  * 트위치 OAuth 를 통한 정보 수정.
  * @TODO Twitch 뿐만 아닌 다른 platform 별 switch로 동작하기 변경. jwt middleware를 사용하도록 변경
  */
+router.post("/oauth", authJwtMiddleware);
 router.post("/oauth", async function (req, res) {
-  const walletAddress = req.body["walletAddress"];
+  const walletAddress = req.walletAddress;
   const code = req.body["code"];
 
   const { statusCode, responseBody } = await authService.insertUserInfo(
