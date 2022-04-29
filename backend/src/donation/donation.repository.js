@@ -63,37 +63,27 @@ class DonationRepository {
 
   async findExistTransaction(txId) {
     try {
-      const transaction = await Transaction.find({ _id: txId });
-      const meta = transaction[0];
-      // 트랜잭션이 있는 경우(= 누군가 QR을 재활용하고 있다는 뜻)에만 실행
-      const tx = new Transaction({
-        display_name: meta.display_name,
-        message: meta.message,
-        platform: meta.platform,
-        payment_type: meta.payment_type,
-        amount: meta.amount,
-        tx_signature: meta.tx_signature,
-        send_user_id: meta.send_user_id,
-        receive_user_id: meta.receive_user_id,
-      });
-      tx.save();
-      return true;
+      return await Transaction.find({ _id: txId });
     } catch (err) {
       return false;
     }
   }
+
+  /**
+   * @param {Object} data
+   * @param {string} data.txSignature
+   * @param {string} data.platform
+   * @param {string} data.message
+   * @param {number} data.amount,
+   * @param {Types.ObjectId} data.sendUserId
+   * @param {Types.ObjectId} data.receiveUserId
+   * @returns
+   */
   async createUnDoneTransaction(data) {
     const tx = new Transaction({
-      display_name: data.display_name,
-      message: data.message,
-      platform: data.platform,
-      payment_type: data.payment_type,
-      amount: data.amount,
-      tx_signature: data.tx_signature,
-      send_user_id: data.send_user_id,
-      receive_user_id: data.receive_user_id,
+      ...data,
     });
-    tx.save();
+    return tx.save();
   }
 }
 

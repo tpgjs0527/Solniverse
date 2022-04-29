@@ -2,6 +2,8 @@ const { PublicKey } = require("@solana/web3.js");
 const { web3, connection } = require("../../config/web3.connection");
 const DonationRepository = require("./donation.repository");
 const donationRepository = new DonationRepository();
+const DonationService = require("./donation.service");
+const donationService = new DonationService();
 const UserRepository = require("../auth/user.repository");
 const { Types } = require("mongoose");
 const { io } = require("../../sockapp");
@@ -34,51 +36,54 @@ async function txCallback(tx) {
     try {
       const transaction = tx.transaction;
 
-      // sendWallet과 receiveWallet을 알아냄
-      /** @type {Array<PublicKey>} */
-      const accountKeys = transaction.message.accountKeys,
-        // 아래는 string 타입임
-        sendWallet = accountKeys[0].toString(),
-        receiveWallet = accountKeys[1].toString();
+      await donationService.findExistTransactionAndUpdate(transaction, 1);
 
-      // DB에서 비동기적으로 sendWallet과 receiveWallet의 user를 얻어냄
-      /** @type {[{_id:Types.ObjectId}, {_id:Types.ObjectId}]} */
-      const [sendUser, receiveUser] = await Promise.all([
-        getUserOrCreate(sendWallet),
-        getUserOrCreate(receiveWallet),
-      ]);
+      // // sendWallet과 receiveWallet을 알아냄
+      // /** @type {Array<PublicKey>} */
+      // const accountKeys = transaction.message.accountKeys,
+      //   // 아래는 string 타입임
+      //   sendWallet = accountKeys[0].toString(),
+      //   receiveWallet = accountKeys[1].toString();
 
-      const amount = meta.postBalances[1] - meta.preBalances[1];
+      // // DB에서 비동기적으로 sendWallet과 receiveWallet의 user를 얻어냄
+      // /** @type {[{_id:Types.ObjectId}, {_id:Types.ObjectId}]} */
+      // const [sendUser, receiveUser] = await Promise.all([
+      //   getUserOrCreate(sendWallet),
+      //   getUserOrCreate(receiveWallet),
+      // ]);
 
-      // txid를 얻어냄.
-      const memo = meta.logMessages[1],
-        // eslint-disable-next-line quotes
-        from = memo.indexOf('"') + 1,
-        // 성능을 위해 할당 횟수를 줄이고 인라인으로 사용함.
-        txid = new Types.ObjectId(
-          // eslint-disable-next-line quotes
-          memo.substring(from, memo.indexOf('"', from)),
-        );
+      // const amount = meta.postBalances[1] - meta.preBalances[1];
 
-      // txio 도큐먼트에 삽입할 데이터
-      const data = {
-        /**@type {string} data */
-        txSignature: transaction.signatures[0],
-        /**@type {"sol"|"usdc"} */
-        paymentType: "sol",
-        amount,
-        sendUserId: sendUser._id,
-        receiveUserId: receiveUser._id,
-      };
-      donationRepository.updateTransactionById(txid, data).then((user) => {
-        const donation = {
-          displayName: user.displayName,
-          message: user.message,
-          paymentType: user.paymentType,
-          amount: user.amount,
-        };
-        io.to(user._id.toString()).emit("donation", donation);
-      });
+      // // txid를 얻어냄.
+      // const memo = meta.logMessages[1],
+      //   // eslint-disable-next-line quotes
+      //   from = memo.indexOf('"') + 1,
+      //   // 성능을 위해 할당 횟수를 줄이고 인라인으로 사용함.
+      //   txid = new Types.ObjectId(
+      //     // eslint-disable-next-line quotes
+      //     memo.substring(from, memo.indexOf('"', from)),
+      //   );
+
+      // // txio 도큐먼트에 삽입할 데이터
+      // const data = {
+      //   /**@type {string} data */
+      //   txSignature: transaction.signatures[0],
+      //   /**@type {"sol"|"usdc"} */
+      //   paymentType: "sol",
+      //   amount,
+      //   sendUserId: sendUser._id,
+      //   receiveUserId: receiveUser._id,
+      // };
+
+      // donationRepository.updateTransactionById(txid, data).then((user) => {
+      //   const donation = {
+      //     displayName: user.displayName,
+      //     message: user.message,
+      //     paymentType: user.paymentType,
+      //     amount: user.amount,
+      //   };
+      //   io.to(user._id.toString()).emit("donation", donation);
+      // });
     } catch (err) {
       return;
     }
@@ -94,3 +99,5 @@ connection.onLogs(
   logCallback,
   "confirmed",
 );
+
+module.exports = { getUserOrCreate };
