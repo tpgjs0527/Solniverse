@@ -51,6 +51,7 @@ class DonationRepository {
       {
         ...data,
       },
+      { new: true },
     );
   }
 

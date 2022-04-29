@@ -98,7 +98,7 @@ router.get("/sign/:walletAddress", async function (req, res) {
  * 사용자 jwt access 코드를 받으면 userKey를 전달.
  */
 router.get("/userKey", async function (req, res) {
-  const walletAddress = req.body["walletAddress"];
+  const walletAddress = req.query["walletAddress"];
   const { statusCode, responseBody } =
     await authService.getUserKeyByWalletAddress(walletAddress);
   res.statusCode = statusCode;
