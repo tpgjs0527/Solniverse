@@ -14,12 +14,15 @@ const authService = new AuthService();
 
 const jwtUtil = require("../common/jwt-util");
 const authJwtMiddleware = require("../../config/authJwtMiddleware");
-const { BaseResponse, SUCCESS_RESPONSE } = require("../common/base.response");
+const {
+  BaseResponse,
+  SUCCESS_RESPONSE,
+  BAD_REQUEST_RESPONSE,
+} = require("../common/base.response");
 // 아래와 jwt 인증이 필요한 부분에서 미들웨어로 사용가능.
 // 아래 작성 후에 라우터를 작성하면 req.walletAddress 와 같이 접근 가능
 
-router.get("/accessToken", authJwtMiddleware);
-router.get("/accessToken", function (req, res) {
+router.get("/accessToken", authJwtMiddleware, function (req, res) {
   const { statusCode, responseBody } = new BaseResponse(SUCCESS_RESPONSE);
   res.status(statusCode).send(responseBody);
 });
@@ -35,10 +38,16 @@ router.post("/connect", async function (req, res) {
     await authService.verifyAddressBySignature(signature, walletAddress);
   if (statusCode == StatusCodes.OK) {
     const refreshToken = await jwtUtil.refresh(walletAddress);
-    res.cookie("refreshtoken", refreshToken, {
-      httpOnly: true,
-      sameSite: "strict",
-    });
+    if (refreshToken)
+      res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        sameSite: "strict",
+      });
+    else {
+      const { badCode, badBody } = new BaseResponse(BAD_REQUEST_RESPONSE);
+      res.status(badCode).send(badBody);
+      return;
+    }
   }
   res.statusCode = statusCode;
   res.send(responseBody);
@@ -97,8 +106,8 @@ router.get("/sign/:walletAddress", async function (req, res) {
 /**
  * 사용자 jwt access 코드를 받으면 userKey를 전달.
  */
-router.get("/userKey", async function (req, res) {
-  const walletAddress = req.query["walletAddress"];
+router.get("/userKey", authJwtMiddleware, async function (req, res) {
+  const walletAddress = req.walletAddress;
   const { statusCode, responseBody } =
     await authService.getUserKeyByWalletAddress(walletAddress);
   res.statusCode = statusCode;
@@ -109,8 +118,8 @@ router.get("/userKey", async function (req, res) {
  * 트위치 OAuth 를 통한 정보 수정.
  * @TODO Twitch 뿐만 아닌 다른 platform 별 switch로 동작하기 변경. jwt middleware를 사용하도록 변경
  */
-router.post("/oauth", authJwtMiddleware);
-router.post("/oauth", async function (req, res) {
+
+router.post("/oauth", authJwtMiddleware, async function (req, res) {
   const walletAddress = req.walletAddress;
   const code = req.body["code"];
 
