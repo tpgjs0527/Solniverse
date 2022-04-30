@@ -10,5 +10,5 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /home/ubuntu/docker-volume/ssl:/root
+      - /home/ubuntu/docker-volume/ssl2:/root
     container_name: "backend"
