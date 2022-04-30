@@ -14,17 +14,17 @@ const sockapp = { io };
 io.on("connection", async function (socket) {
   const userKey = socket.handshake.query.userKey;
   try {
-    const user = await userRepository.getUserByUserKey(userKey);
-    if (!user) {
+    const userId = await userRepository.getUserIdByUserKey(userKey);
+    if (!userId) {
       socket.disconnect(true);
       return;
     }
     //연결된 소켓을 user._id로 emit받기 위해서 room에 입장.
-    socket.join(user._id.toString());
+    socket.join(userId.toString());
     /**
      * 연결 체크 완료
      */
-    console.log(`A user connected ${user._id.toString()}`);
+    console.log(`A user connected ${userId.toString()}`);
   } catch (err) {
     socket.disconnect(true);
   }

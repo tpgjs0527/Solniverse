@@ -24,6 +24,8 @@ const CONFLICT_RESPONSE = {
   message: ReasonPhrases.CONFLICT,
 };
 
+const JWT_EXPIRED_MESSAGE = "jwt expired";
+
 class BaseResponse {
   /**
    * BaseResponse 생성자.
@@ -44,5 +46,6 @@ module.exports = {
   BAD_REQUEST_RESPONSE,
   NOT_FOUND_RESPONSE,
   CONFLICT_RESPONSE,
+  JWT_EXPIRED_MESSAGE,
   BaseResponse,
 };

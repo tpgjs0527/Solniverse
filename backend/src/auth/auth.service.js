@@ -12,6 +12,7 @@ const {
   CONFLICT_RESPONSE,
   UNAUTHORIZED_RESPONSE,
   BaseResponse,
+  JWT_EXPIRED_MESSAGE,
 } = require("../common/base.response");
 const UserRepository = require("./user.repository");
 const userRepository = new UserRepository();
@@ -122,7 +123,7 @@ class AuthService {
         return res;
       }
       res = new BaseResponse(UNAUTHORIZED_RESPONSE);
-      res.responseBody.message = "jwt expired";
+      res.responseBody.message = JWT_EXPIRED_MESSAGE;
       return res;
     } catch (err) {
       return badRequestResponse;
