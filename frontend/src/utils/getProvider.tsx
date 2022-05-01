@@ -1,4 +1,4 @@
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
 type DisplayEncoding = "utf8" | "hex";
 type PhantomEvent = "connect";

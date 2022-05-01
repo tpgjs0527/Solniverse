@@ -15,8 +15,6 @@ npm test
 npm run build
 ```
 
-
-
 ## Install
 
 ### Basic
@@ -104,9 +102,12 @@ npm i color-interpolate
 npm i react-circular-progressbar
 ```
 
+- socket.io
 
-
-
+```bash
+npm i socket.io-client
+npm i --save-dev @types/socket.io-client
+```
 
 ### Provider
 
@@ -139,4 +140,3 @@ npm i bignumber.js
 ```bas
 npm i qr-code-styling
 ```
-
