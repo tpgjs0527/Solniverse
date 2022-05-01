@@ -4,9 +4,15 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
 import { isBrowser, isMobile } from "react-device-detect";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
+import { encodeURL } from "@solana/pay";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 
 function Payment() {
   const navigate = useNavigate();
+  const userInfo = useRecoilValue(userInfoAtom);
   const [searchParams, setSearchParams] = useSearchParams();
   const [openModal, setOpenModal] = useState(false);
   const amount = searchParams.get("amount");
@@ -16,9 +22,49 @@ function Payment() {
   const closeModal = () => {
     setOpenModal(false);
   };
-  const onClick = () => {
+  const onClick = async () => {
+    // pay버튼 누를 때 백으로 display name, message, platform
+    // soniverse.net/displayname/platform
+    // soniverse.net/walletAddress
+    // http://localhost:3000/api/donation/send
     // alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
-    setOpenModal(true);
+    if (isMobile) {
+      // 스트리머 주소 받아오기
+      const recipient = new PublicKey(
+        "RpigkMduJPjCobrBJXaK68kRLGTJ3UbEwxRgFDADFNC"
+      );
+      const label = `${
+        userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+      }`;
+
+      const message = `${params.message}`;
+      // 이 자리에는 txid값이 담겨야 한다. 100kb
+      const memo = `${params.message}`;
+      // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
+      const amount = new BigNumber(Number(`${params.amount}`));
+      // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
+      // bum reference
+      // const reference = new PublicKey(
+      //   "FTvDSffKvWaL8hdhATY1sxgZKVg6LZwxtDS86JHuL6Fd"
+      // );
+      // official DDD reference
+      const reference = new PublicKey(
+        "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
+      );
+      // const splToken = new PublicKey("")
+
+      const url = encodeURL({
+        recipient,
+        amount,
+        reference,
+        label,
+        message,
+        memo,
+      });
+      window.location.href = url;
+    } else {
+      setOpenModal(true);
+    }
   };
 
   return (
@@ -31,7 +77,7 @@ function Payment() {
           <InfoWrapper>
             <Name>{nickName}</Name>
             <AccountTitle>Account</AccountTitle>
-            <Account>Pu674dikkyAAUotqgQUZMe5fHzsgnYwFKQEmjEx4oR8</Account>
+            <Account>{userInfo.walletAddress}</Account>
           </InfoWrapper>
           <Title>Creator Information</Title>
           <InfoWrapper>
@@ -47,12 +93,12 @@ function Payment() {
             </PriceWrapper>
             <PriceWrapper>
               <Price>Donate Price</Price>
-              <USDC>{amount} USDC</USDC>
+              <SOL>{amount} SOL</SOL>
             </PriceWrapper>
             <Line />
             <PriceWrapper>
               <Price>Total</Price>
-              <USDC>{amount} USDC</USDC>
+              <SOL>{amount} SOL</SOL>
             </PriceWrapper>
           </TotalPriceWrapper>
           <ButtonWrapper>
@@ -122,7 +168,7 @@ const PriceWrapper = styled.div`
 const Price = styled.div`
   font-size: 14px;
 `;
-const USDC = styled.div`
+const SOL = styled.div`
   font-weight: bold;
 `;
 
