@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Layout from "components/Layout";
 import banner from "../../../public/가로긴사진.png";
 import { createSearchParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface IDonation {
@@ -25,6 +25,9 @@ function Donation() {
     formState: { errors },
   } = useForm<IDonation>({ mode: "onBlur" });
 
+  const handleAmount = (value: any) => {
+    console.log(value);
+  };
   const onClick = () => {
     // navigate({
     //   pathname: "/payment",
@@ -80,9 +83,36 @@ function Donation() {
                   setAmount(e.target.value);
                 },
               })}
+              value={amount}
               placeholder="후원금액을 입력해주세요."
             />
           </DonatorWrapper>
+          <DonationWrapper>
+            <DonatePriceButton value="0.01" onClick={handleAmount}>
+              0.01
+            </DonatePriceButton>
+            <DonatePriceButton value="0.05" onClick={handleAmount}>
+              0.05
+            </DonatePriceButton>
+            <DonatePriceButton value="0.1" onClick={handleAmount}>
+              0.1
+            </DonatePriceButton>
+            <DonatePriceButton value="0.5" onClick={handleAmount}>
+              0.5
+            </DonatePriceButton>
+            <DonatePriceButton value="1" onClick={handleAmount}>
+              1
+            </DonatePriceButton>
+            <DonatePriceButton value="5" onClick={handleAmount}>
+              5
+            </DonatePriceButton>
+            <DonatePriceButton value="10" onClick={handleAmount}>
+              10
+            </DonatePriceButton>
+            <DonatePriceButton value="20" onClick={handleAmount}>
+              20
+            </DonatePriceButton>
+          </DonationWrapper>
           <DonatorWrapper>
             <DonateMessage>후원메시지</DonateMessage>
             <MessageTextarea
@@ -99,13 +129,13 @@ function Donation() {
         <DonationWrapper>
           <DonatorWrapper>
             <TotalPrice>Total</TotalPrice>
-            <TotalUSDC>100 USDC</TotalUSDC>
+            <TotalUSDC>{amount} SOL</TotalUSDC>
           </DonatorWrapper>
         </DonationWrapper>
         <DonationWrapper>
           <ButtonWrapper>
-            <Button onClick={onClick}>Donate</Button>
-            {/* <Button onClick={Donate}>Donate</Button> */}
+            <DonateButton onClick={onClick}>Donate</DonateButton>
+            {/* <DonateButton onClick={Donate}>Donate</DonateButton> */}
           </ButtonWrapper>
         </DonationWrapper>
       </Container>
@@ -147,6 +177,18 @@ const DonatorWrapper = styled.div`
   margin-bottom: 24px;
 `;
 
+const DonatePriceButton = styled.button`
+  width: 10%;
+  height: 40px;
+  color: #ffffff;
+  background-color: ${(props) => props.theme.ownColor};
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+`;
+
 const DonatorName = styled.div``;
 const Input = styled.input`
   width: 80%;
@@ -182,7 +224,7 @@ const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
 `;
-const Button = styled.button`
+const DonateButton = styled.button`
   width: 30%;
   height: 40px;
   color: #ffffff;

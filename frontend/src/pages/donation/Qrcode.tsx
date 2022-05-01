@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Modal from "react-modal";
 // import { Modal } from "react-responsive-modal";
 import { createQR, encodeURL } from "@solana/pay";
@@ -7,6 +7,9 @@ import BigNumber from "bignumber.js";
 import QRCodeStyling from "qr-code-styling";
 import styled from "styled-components";
 import { BrowserView, isMobile, MobileView } from "react-device-detect";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
+import { Navigate, useNavigate, useNavigationType } from "react-router-dom";
 
 interface IPayment {
   open: any;
@@ -19,9 +22,14 @@ interface IPayment {
 }
 
 function Qrcode({ open, onClose, params }: IPayment) {
+  const navigate = useNavigate();
+  const userInfo = useRecoilValue(userInfoAtom);
+  const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+
   const [modalIsOpen, setModalIsOpen] = useState(open);
   const [makeQR, setMakeQR] = useState({});
-  const [modalStyle, setModalStyle] = useState({});
+  const [signature, setSignature] = useState("");
+
   const mobileStyle = {
     content: {
       top: "50%",
@@ -50,22 +58,23 @@ function Qrcode({ open, onClose, params }: IPayment) {
   };
 
   const main = async () => {
-    let paymentStatus: string;
-
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-
+    console.log(userInfo);
     // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
     const recipient = new PublicKey(
       "RpigkMduJPjCobrBJXaK68kRLGTJ3UbEwxRgFDADFNC"
     );
-    const label = `후원자가 후원하는 스트리머 이름`;
-    const message = `스트리머가 남기는 메시지 or 우리 서비스가 주는 메시지`;
+
+    const label = `${
+      userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+    }`;
+
+    const message = `${params.message}`;
     const memo = `${params.message}`;
     // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
     const amount = new BigNumber(Number(`${params.amount}`));
     // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
     const reference = new PublicKey(
-      "FTvDSffKvWaL8hdhATY1sxgZKVg6LZwxtDS86JHuL6Fd"
+      "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
     );
 
     const url = encodeURL({
@@ -76,6 +85,7 @@ function Qrcode({ open, onClose, params }: IPayment) {
       message,
       memo,
     });
+    console.log(url);
 
     const qrCode = createQR(url);
     const QrCode = new QRCodeStyling({
@@ -114,12 +124,58 @@ function Qrcode({ open, onClose, params }: IPayment) {
     setModalIsOpen(false);
     onClose();
   };
-  const onClick = () => {
-    main();
+  const getSignature = async () => {
+    const reference = new PublicKey(`${userInfo.walletAddress}`);
+    const options = {};
+    const finality = "confirmed";
+    const signatures = await connection.getSignaturesForAddress(
+      reference,
+      options,
+      finality
+    );
+    console.log(signatures[0].signature);
+    console.log(signatures[0]);
+    setSignature(signatures[0].signature);
   };
+
   useEffect(() => {
     setTimeout(() => main(), 100);
+    getSignature();
   }, []);
+
+  useEffect(() => {
+    if (signature) {
+      const interval = setInterval(async () => {
+        const reference = new PublicKey(`${userInfo.walletAddress}`);
+        const options = { until: `${signature}`, limit: 1000 };
+        console.log(options);
+        const finality = "confirmed";
+        const signatures = await connection.getSignaturesForAddress(
+          reference,
+          options,
+          finality
+        );
+        console.log(signatures);
+        for (let i = 0; i < signatures.length; i++) {
+          const transaction = await connection.getTransaction(
+            signatures[i].signature
+          );
+          if (
+            transaction?.transaction.message.accountKeys[1].toBase58() ===
+            "RpigkMduJPjCobrBJXaK68kRLGTJ3UbEwxRgFDADFNC"
+          ) {
+            console.log("이 트랜잭션이 현재 진행된 결제입니다.");
+            console.log(signatures[i].signature);
+            clearInterval(interval);
+            navigate("/payment/confirmed", {
+              state: { signature: signatures[i].signature },
+            });
+          }
+        }
+      }, 1000);
+    }
+  }, [signature]);
+
   return (
     <Container>
       <BrowserView>
@@ -172,7 +228,7 @@ function Qrcode({ open, onClose, params }: IPayment) {
                 설치하세요!
               </NoWalletGuide>
               <WalletInstall>
-                <WalletBtn>설치하기</WalletBtn>
+                <WalletBtn onClick={getSignature}>설치하기</WalletBtn>
               </WalletInstall>
             </Wrapper>
             <CloseBtn onClick={closeModal}>닫기</CloseBtn>
