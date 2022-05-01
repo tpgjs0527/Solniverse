@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
@@ -7,31 +7,47 @@ import { isBrowser, isMobile } from "react-device-detect";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { encodeURL } from "@solana/pay";
-import { useRecoilValue } from "recoil";
-import { userInfoAtom } from "atoms";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { accessTokenAtom, userInfoAtom } from "atoms";
+import useMutation from "hooks/useMutation";
+
+export interface ITX {
+  result: string;
+  shopAddress: string;
+  txid: string;
+}
 
 function Payment() {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const [searchParams, setSearchParams] = useSearchParams();
   const [openModal, setOpenModal] = useState(false);
+  const [signature, setSignature] = useState("");
+  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
+  const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   const amount = searchParams.get("amount");
   const nickName = searchParams.get("nickName");
   const message = searchParams.get("message");
   const params = { amount, nickName, message };
+  const [txid, setTXID] = useState("");
+
+  const [getTXId, { data, loading }] = useMutation<any>(
+    `${process.env.REACT_APP_BASE_URL}/donation/send`
+  );
+
   const closeModal = () => {
     setOpenModal(false);
   };
   const onClick = async () => {
-    // pay버튼 누를 때 백으로 display name, message, platform
+    // pay버튼 누를 때 백으로  displayName, message, platform
     // soniverse.net/displayname/platform
     // soniverse.net/walletAddress
     // http://localhost:3000/api/donation/send
     // alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
-    if (isMobile) {
+    if (isMobile && txid) {
       // 스트리머 주소 받아오기
       const recipient = new PublicKey(
-        "RpigkMduJPjCobrBJXaK68kRLGTJ3UbEwxRgFDADFNC"
+        "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
       );
       const label = `${
         userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
@@ -39,7 +55,7 @@ function Payment() {
 
       const message = `${params.message}`;
       // 이 자리에는 txid값이 담겨야 한다. 100kb
-      const memo = `${params.message}`;
+      const memo = `${txid}`;
       // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
       const amount = new BigNumber(Number(`${params.amount}`));
       // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
@@ -66,6 +82,75 @@ function Payment() {
       setOpenModal(true);
     }
   };
+
+  const getSignature = async () => {
+    const reference = new PublicKey(`${userInfo.walletAddress}`);
+    const options = {};
+    const finality = "confirmed";
+    const signatures = await connection.getSignaturesForAddress(
+      reference,
+      options,
+      finality
+    );
+    console.log(signatures[0].signature);
+    console.log(signatures[0]);
+    setSignature(signatures[0].signature);
+  };
+
+  useEffect(() => {
+    getSignature();
+    getTXId({
+      displayName: nickName,
+      message: message,
+      platform: "",
+    });
+    console.log(getTXId, data, loading);
+    setTXID(data.txid);
+  }, [signature]);
+
+  useEffect(() => {
+    if (signature && isMobile) {
+      setTimeout(() => {
+        const interval = setInterval(async () => {
+          const reference = new PublicKey(`${userInfo.walletAddress}`);
+          const options = { until: `${signature}`, limit: 1000 };
+          console.log(options);
+          const finality = "confirmed";
+          const signatures = await connection.getSignaturesForAddress(
+            reference,
+            options,
+            finality
+          );
+          console.log(signatures);
+          for (let i = 0; i < signatures.length; i++) {
+            const transaction = await connection.getTransaction(
+              signatures[i].signature
+            );
+            if (transaction) {
+              for (
+                let j = 0;
+                j < transaction?.transaction.message.accountKeys.length;
+                j++
+              ) {
+                // 여기 주소 값은 recipient와 같아야 한다.
+                if (
+                  transaction?.transaction.message.accountKeys[j].toBase58() ===
+                  "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
+                ) {
+                  console.log("이 트랜잭션이 현재 진행된 결제입니다.");
+                  console.log(signatures[i].signature);
+                  clearInterval(interval);
+                  navigate("/payment/confirmed", {
+                    state: { signature: signatures[i].signature },
+                  });
+                }
+              }
+            }
+          }
+        }, 5000);
+      }, 1000);
+    }
+  }, [signature]);
 
   return (
     <Container>
@@ -106,8 +191,13 @@ function Payment() {
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>
-      {openModal && isBrowser && (
-        <Qrcode open={openModal} onClose={closeModal} params={params} />
+      {openModal && data && (
+        <Qrcode
+          open={openModal}
+          onClose={closeModal}
+          params={params}
+          txid={txid}
+        />
       )}
       {/* {isMobile && } */}
     </Container>
