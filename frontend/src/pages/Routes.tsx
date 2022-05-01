@@ -10,6 +10,7 @@ import Payment from "./donation/Payment";
 import Home from "./home/Home";
 import Account from "./my-info/Account";
 import { Message } from "./donation/Message";
+import Confirmed from "./donation/Confirmed";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -19,6 +20,7 @@ function Routes() {
       <Route path="/" element={<Home />} />
       <Route path="/donation" element={<Donation />} />
       <Route path="/payment" element={<Payment />} />
+      <Route path="/payment/confirmed" element={<Confirmed />} />
 
       {/* URL 직접 접근 제어 */}
       <Route
