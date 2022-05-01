@@ -8,7 +8,6 @@ const authControllerSwagger = {
       description: "",
       parameters: [],
       security: [{ bearerAuth: [] }],
-      produces: "application/json",
       responses: {
         [StatusCodes.OK]: {
           $ref: "#/components/schemas/success",
@@ -27,6 +26,7 @@ const authControllerSwagger = {
       tags: ["Auth"],
       summary:
         "WalletAddress와 signature를 request body로 받아 인증을 거쳐 jwt access token refresh token 반환",
+      security: [],
       requestBody: {
         description: "지갑주소(기본이 base58)와 signature(base58)을 받음.",
         content: {
@@ -99,6 +99,7 @@ const authControllerSwagger = {
           },
         },
       ],
+      security: [],
       responses: {
         [StatusCodes.OK]: {
           description:
@@ -137,6 +138,7 @@ const authControllerSwagger = {
           },
         },
       ],
+      security: [],
       responses: {
         [StatusCodes.OK]: {
           description: "공개 가능 유저 정보",
@@ -222,6 +224,7 @@ const authControllerSwagger = {
           },
         },
       ],
+      security: [],
       responses: {
         [StatusCodes.OK]: {
           description: "signMessage 반환",
@@ -257,7 +260,6 @@ const authControllerSwagger = {
       description: "",
       parameters: [],
       security: [{ bearerAuth: [] }],
-      produces: "application/json",
       responses: {
         [StatusCodes.OK]: {
           description: "userKey(길이: 32) 반환",
@@ -293,6 +295,7 @@ const authControllerSwagger = {
       tags: ["Auth"],
       summary: "액세스 토큰으로 트위치 연동을 요청함",
       description: "",
+      security: [{ bearerAuth: [] }],
       requestBody: {
         description: "twitch authorization code를 받음.",
         content: {
@@ -310,8 +313,6 @@ const authControllerSwagger = {
         },
         required: true,
       },
-      security: [{ bearerAuth: [] }],
-      produces: "application/json",
       responses: {
         [StatusCodes.OK]: {
           description: "변경된 공개 가능 유저 정보",
