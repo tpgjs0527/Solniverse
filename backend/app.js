@@ -10,6 +10,7 @@ const morganMiddleware = require("./config/morganMiddleware");
 
 const authRouter = require("./src/auth/auth.controller");
 const donationRouter = require("./src/donation/donation.controller");
+const { swaggerUi, swaggerConfig } = require("./src/swaggerConfig");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use(morganMiddleware); // 콘솔창에 통신결과 나오게 해주는 것
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerConfig));
 
 // 개발용
 app.use("/api/auth", authRouter);
