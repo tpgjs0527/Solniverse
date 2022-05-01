@@ -12,7 +12,6 @@ const {
 } = require("../common/base.response");
 const DonationRepository = require("./donation.repository");
 const donationRepository = new DonationRepository();
-
 const badeRequestResponse = new BaseResponse(BAD_REQUEST_RESPONSE);
 
 class DonationService {

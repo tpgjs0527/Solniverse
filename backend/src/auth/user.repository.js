@@ -41,12 +41,12 @@ class UserRepository {
    *
    * @param {string} userKey
    *
-   * @typedef {Object} User
-   * @property {import("mongoose").ObjectId} _id
-   * @returns {Promise<User>} User
+   * @typedef {import("mongoose").ObjectId} ObjectId
+   * @returns {Promise<ObjectId>} UserId
    */
-  async getUserByUserKey(userKey) {
-    return User.findOne({ userKey });
+  async getUserIdByUserKey(userKey) {
+    //Javascript 최적화되어 _id만 반환
+    return User.findOne({ userKey }).select("_id").lean();
   }
 
   /**
