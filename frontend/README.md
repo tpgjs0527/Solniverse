@@ -15,8 +15,6 @@ npm test
 npm run build
 ```
 
-
-
 ## Install
 
 ### Basic
@@ -92,7 +90,12 @@ npm i react-device-detect
 npm i react-mobile-store-button
 ```
 
+- socket.io
 
+```bash
+npm i socket.io-client
+npm i --save-dev @types/socket.io-client
+```
 
 ### Provider
 
@@ -125,4 +128,3 @@ npm i bignumber.js
 ```bas
 npm i qr-code-styling
 ```
-

@@ -9,6 +9,7 @@ import ServiceCenter from "./my-info/ServiceCenter";
 import Payment from "./donation/Payment";
 import Home from "./home/Home";
 import Account from "./my-info/Account";
+import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
 
 function Routes() {
@@ -58,6 +59,12 @@ function Routes() {
           ) : (
             <Navigate replace to="/" />
           )
+        }
+      />
+      <Route
+        path="/donation/alertbox/:uuid"
+        element={
+          userInfo.walletAddress ? <Message /> : <Navigate replace to="/" />
         }
       />
     </ReactRouterRoutes>
