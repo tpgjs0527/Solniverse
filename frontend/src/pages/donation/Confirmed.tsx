@@ -136,6 +136,10 @@ const ProgressWrapper = styled.div`
   width: 300px;
   height: 300px;
   position: relative;
+  @media screen and (max-width: 691px) {
+    width: 150px;
+    height: 150px;
+  }
 `;
 const ProgressText = styled.span`
   position: absolute;

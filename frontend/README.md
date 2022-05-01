@@ -90,6 +90,18 @@ npm i react-device-detect
 npm i react-mobile-store-button
 ```
 
+- color-interpolate
+
+```bash
+npm i color-interpolate
+```
+
+- react-circular-progressbar
+
+```bash
+npm i react-circular-progressbar
+```
+
 - socket.io
 
 ```bash

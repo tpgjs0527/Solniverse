@@ -19,9 +19,10 @@ interface IPayment {
     nickName: string | null;
     message: string | null;
   };
+  txid: string;
 }
 
-function Qrcode({ open, onClose, params }: IPayment) {
+function Qrcode({ open, onClose, params, txid }: IPayment) {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -61,7 +62,7 @@ function Qrcode({ open, onClose, params }: IPayment) {
     console.log(userInfo);
     // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
     const recipient = new PublicKey(
-      "RpigkMduJPjCobrBJXaK68kRLGTJ3UbEwxRgFDADFNC"
+      "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
     );
 
     const label = `${
@@ -69,7 +70,7 @@ function Qrcode({ open, onClose, params }: IPayment) {
     }`;
 
     const message = `${params.message}`;
-    const memo = `${params.message}`;
+    const memo = `${txid}`;
     // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
     const amount = new BigNumber(Number(`${params.amount}`));
     // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
@@ -160,16 +161,25 @@ function Qrcode({ open, onClose, params }: IPayment) {
           const transaction = await connection.getTransaction(
             signatures[i].signature
           );
-          if (
-            transaction?.transaction.message.accountKeys[1].toBase58() ===
-            "RpigkMduJPjCobrBJXaK68kRLGTJ3UbEwxRgFDADFNC"
-          ) {
-            console.log("이 트랜잭션이 현재 진행된 결제입니다.");
-            console.log(signatures[i].signature);
-            clearInterval(interval);
-            navigate("/payment/confirmed", {
-              state: { signature: signatures[i].signature },
-            });
+          if (transaction) {
+            for (
+              let j = 0;
+              j < transaction?.transaction.message.accountKeys.length;
+              j++
+            ) {
+              // 여기 주소 값은 recipient와 같아야 한다.
+              if (
+                transaction?.transaction.message.accountKeys[j].toBase58() ===
+                "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
+              ) {
+                console.log("이 트랜잭션이 현재 진행된 결제입니다.");
+                console.log(signatures[i].signature);
+                clearInterval(interval);
+                navigate("/payment/confirmed", {
+                  state: { signature: signatures[i].signature },
+                });
+              }
+            }
           }
         }
       }, 1000);
