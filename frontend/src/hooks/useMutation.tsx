@@ -4,16 +4,19 @@ interface UseMutationState<T> {
   loading: boolean;
   data?: T;
   error?: object;
+  accessToken?: string;
 }
 type UseMutationResult<T> = [(data: any) => void, UseMutationState<T>];
 
 export default function useMutation<T = any>(
-  url: string
+  url: string,
+  accessToken?: string
 ): UseMutationResult<T> {
   const [state, setSate] = useState<UseMutationState<T>>({
     loading: false,
     data: undefined,
     error: undefined,
+    accessToken,
   });
 
   function mutation(data: any) {
@@ -22,6 +25,7 @@ export default function useMutation<T = any>(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(data),
     })
