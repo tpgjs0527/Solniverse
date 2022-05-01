@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import useMutation from "hooks/useMutation";
 import { useRecoilState } from "recoil";
-import { userInfoAtom } from "atoms";
+import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import {
   clusterApiUrl,
@@ -12,6 +12,7 @@ import {
   LAMPORTS_PER_SOL,
   PublicKey,
 } from "@solana/web3.js";
+import useAuth from "hooks/useAuth";
 
 export interface IUser {
   result: string;
@@ -25,21 +26,19 @@ export interface IUser {
 function Account() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
+  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [balance, setBalance] = useState({
     usd: 0.0,
     sol: 0,
   });
-  const [isBalance, isSetBalance] = useState(true);
+  const [isLoadingGetSol, setIsLoadingGetSol] = useState(true);
 
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
+  const platform = searchParams.get("platform");
   const code = searchParams.get("code");
 
-  // request (twitch code 전송)
-  const [connectToTwitch, { data, loading }] = useMutation<IUser>(
-    `${process.env.REACT_APP_BASE_URL}/auth/oauth`
-  );
-
+  // 실시간 solana 가격 (USD)
   const getSolanaPrice = async () => {
     const response = await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`,
@@ -47,48 +46,76 @@ function Account() {
         method: "GET",
       }
     );
-
     const data = await response.json();
     return data.solana.usd;
   };
 
   // 지갑 잔액 가져오는 함수
-  const getBalance = async () => {
-    const connection = new Connection(clusterApiUrl("devnet"));
+  const getSol = async () => {
+    const connection = new Connection(clusterApiUrl("devnet")); // devnet 연결
     const publicKey = new PublicKey(userInfo.walletAddress);
 
+    // 지갑 잔액 가져오기
     const lamports = await connection.getBalance(publicKey).catch((err) => {
       console.error(`Error: ${err}`);
     });
 
     if (lamports) {
-      const sol = lamports / LAMPORTS_PER_SOL;
+      // 잔액이 0이 아닐 때
+      const sol = lamports / LAMPORTS_PER_SOL; // 0.000000001 단위로 처리
       return sol;
+    } else {
+      // 잔액이 0일 때
+      return lamports;
     }
   };
 
   // 페이지 들어오면 지갑 잔액 함수 실행
   useEffect(() => {
-    const getAsyncBalance = async () => {
-      const sol = await getBalance();
+    const getAsyncSol = async () => {
+      const sol = await getSol();
       const usdPrice = await getSolanaPrice();
 
-      if (sol && usdPrice) {
+      if (sol) {
         setBalance({
           sol,
           usd: Number((sol * usdPrice).toFixed(2)),
         });
-        isSetBalance(false);
+        setIsLoadingGetSol(false);
+      } else {
+        setIsLoadingGetSol(false);
       }
     };
-    getAsyncBalance();
+    getAsyncSol();
   }, []);
+
+  // 연동 버튼 클릭 시 Token 유효한지 확인 후 code 받으러
+  const onCheckToken = async (platform: string) => {
+    const newAccessToken = await useAuth(accessToken, userInfo.walletAddress);
+
+    if (newAccessToken) {
+      setAccessToken(newAccessToken);
+
+      // 매개변수 twitch일 경우
+      if (platform === "twitch") {
+        document.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}?platform=twitch&scope=`;
+      }
+    } else {
+      alert("문제 발생");
+    }
+  };
+
+  // request (twitch code 전송)
+  const [connectToTwitch, { data, loading }] = useMutation<IUser>(
+    `${process.env.REACT_APP_BASE_URL}/auth/oauth`,
+    accessToken
+  );
 
   // code 변경 시 실행
   useEffect(() => {
-    if (code) {
+    if (code && platform === "twitch") {
+      // twitch
       connectToTwitch({
-        walletAddress: userInfo.walletAddress,
         code: code,
       });
     }
@@ -97,7 +124,7 @@ function Account() {
   // data 변경 시 실행
   useEffect(() => {
     if (data?.user?.twitch) {
-      console.log(data);
+      // console.log(data);
       setUserInfo({
         ...userInfo,
         twitch: {
@@ -119,7 +146,7 @@ function Account() {
             <BoxTitle>Wallet</BoxTitle>
             <Card>
               <div>
-                {isBalance ? (
+                {isLoadingGetSol ? (
                   <SpinnerDiv>
                     <Spinner />
                   </SpinnerDiv>
@@ -175,11 +202,7 @@ function Account() {
                       </OauthProfile>
                     </HoverNoneDiv>
                   ) : (
-                    <HoverDiv
-                      onClick={() =>
-                        (document.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}&scope=`)
-                      }
-                    >
+                    <HoverDiv onClick={() => onCheckToken("twitch")}>
                       <Name>Twitch</Name>
                       <OauthConnect
                         viewBox="0 0 24 20"

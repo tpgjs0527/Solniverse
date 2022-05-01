@@ -1,6 +1,11 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { toggleThemeAtom, toggleSidebarAtom, userInfoAtom } from "atoms";
+import {
+  toggleThemeAtom,
+  toggleSidebarAtom,
+  userInfoAtom,
+  accessTokenAtom,
+} from "atoms";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import Profile from "components/Navbar/Profile";
 
@@ -9,6 +14,7 @@ export default function Header() {
   const [isDark, setIsDark] = useRecoilState(toggleThemeAtom);
   const setIsSidebar = useSetRecoilState(toggleSidebarAtom);
   const setUserInfo = useSetRecoilState(userInfoAtom);
+  const setAccessToken = useSetRecoilState(accessTokenAtom);
 
   // Active Link
   const donationHistoryMatch = useMatch("/donation-history/*");
@@ -97,6 +103,7 @@ export default function Header() {
                   walletAddress: "",
                   createdAt: "",
                 });
+                setAccessToken("");
               }
             }}
           >
