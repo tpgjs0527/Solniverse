@@ -9,7 +9,6 @@ const TransactionSchema = new Schema(
     platform: {
       type: String,
       default: "",
-      required: true,
       enum: platforms,
     },
     //처음 update 뒤에 다시 update하려고 하면 에러 발생

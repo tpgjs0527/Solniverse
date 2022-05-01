@@ -35,7 +35,6 @@ async function getUserOrCreate(walletAddress) {
  * @returns
  */
 async function updateTransactionWithoutDuplication(tx) {
-  console.log(tx);
   const meta = tx.meta;
   if (meta.err) return;
   try {

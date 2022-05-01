@@ -1,4 +1,5 @@
 const socketio = require("socket.io");
+const logger = require("./config/logger");
 const io = socketio();
 
 const UserRepository = require("./src/auth/user.repository");
@@ -24,7 +25,7 @@ io.on("connection", async function (socket) {
     /**
      * 연결 체크 완료
      */
-    console.log(`A user connected ${userId.toString()}`);
+    logger.info(`유저가 소켓 연결함: ${userId.toString()}`);
   } catch (err) {
     socket.disconnect(true);
   }

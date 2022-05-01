@@ -22,11 +22,12 @@ const donationService = new DonationService();
 router.post("/send", async function (req, res) {
   const displayName = req.body["displayName"],
     message = req.body["message"],
-    platform = req.body["platform"];
+    platform = req.body["platform"] || "";
   if (!platforms.includes(platform)) {
     const { statusCode, responseBody } = new BaseResponse(BAD_REQUEST_RESPONSE);
     res.statusCode = statusCode;
     res.send(responseBody);
+    return;
   }
   const { statusCode, responseBody } = await donationService.createTransaction(
     displayName,
