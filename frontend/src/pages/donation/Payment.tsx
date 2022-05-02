@@ -4,7 +4,12 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
 import { isBrowser, isMobile } from "react-device-detect";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  Connection,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { encodeURL } from "@solana/pay";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -97,17 +102,23 @@ function Payment() {
   //   setSignature(signatures[0].signature);
   // };
   useEffect(() => {
-    getTXId({
-      displayName: nickName,
-      message: message,
-      platform: "",
-    });
+    if (!data) {
+      getTXId({
+        displayName: nickName,
+        message: message,
+        platform: "",
+      });
+      console.log("첫 번째 랜더링입니다.");
+    }
   }, []);
+
   useEffect(() => {
     // getSignature();
     if (data) {
       setTXID(data.txid);
+      console.log("두 번째 랜더링입니다.");
     }
+    console.log("랜더링 가즈아");
   }, [data]);
   console.log(txid);
 

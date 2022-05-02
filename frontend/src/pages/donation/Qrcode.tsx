@@ -149,6 +149,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   useEffect(() => {
     setTimeout(() => main(), 100);
     getSignature();
+    console.log(txid);
   }, []);
 
   useEffect(() => {
