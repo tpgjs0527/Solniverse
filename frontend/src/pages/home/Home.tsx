@@ -1,5 +1,4 @@
 import { accessTokenAtom, userInfoAtom } from "atoms";
-import Layout from "components/Layout";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -12,14 +11,14 @@ import { getWallet } from "utils/getWallet";
 function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
-  const [isWallet, setWallet] = useState(false);
+  const [isWallet, setIsWallet] = useState(false);
   const navigate = useNavigate();
   const [UUID, setUUID] = useState("");
   // 기존에 지갑 있으면 연결 ㅇㅋ
   const checkIfWalletIsConnected = async () => {
     const data = await checkWallet();
     if (data && data.result === "success") {
-      setWallet(true);
+      setIsWallet(true);
       if (data.user.twitch) {
         setUserInfo({
           twitch: {
@@ -45,7 +44,7 @@ function Home() {
   const connectWallet = async () => {
     const data = await getWallet();
     if (data.result === "success") {
-      setWallet(true);
+      setIsWallet(true);
       if (data.user.twitch) {
         setUserInfo({
           twitch: {
@@ -82,17 +81,27 @@ function Home() {
 
   // 버튼 눌렀을 때, 권한인증하고 fetch요청해서 블러 해제
   const getUuid = async () => {
+    // accessToken
+
     const res = await (
-      await fetch(
-        `${process.env.REACT_APP_BASE_URL}/auth/userKey?walletAddress=${userInfo?.walletAddress}`
-      )
+      await fetch(`${process.env.REACT_APP_BASE_URL}/auth/userKey`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
     ).json();
+    console.log(res);
     setUUID(res.userKey);
     // ${process.env.REACT_APP_SOCKET_URL}/donation/alertbox/${res.userKey}
-    // navigate({
-    //   pathname: `/donation/alertbox/${res.userKey}`,
-    // });
+    navigate({
+      pathname: `/donation/alertbox/${res.userKey}`,
+    });
     console.log(res);
+  };
+
+  const enterMain = () => {
+    navigate("/main");
   };
   useEffect(() => {
     const onLoad = async () => {
@@ -103,10 +112,16 @@ function Home() {
   }, []);
   return (
     <Base>
-      <WalletBtn isWallet={isWallet} onClick={connectWallet}>
-        {!isWallet ? "지갑연결" : "연결완료"}
-      </WalletBtn>
-      <button onClick={getUuid}>go message</button>
+      <div>
+        <WalletBtn isWallet={isWallet} onClick={connectWallet}>
+          {!isWallet ? "지갑연결" : "연결완료"}
+        </WalletBtn>
+      </div>
+      <div>
+        <EnterBtn hidden={!isWallet} onClick={enterMain}>
+          입장하기
+        </EnterBtn>
+      </div>
     </Base>
   );
 }
@@ -131,14 +146,18 @@ const Base = styled.div`
   }
 
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+
   align-items: center;
   min-height: 100vh;
 `;
 
 const WalletBtn = styled.div<{ isWallet: boolean }>`
   width: 143px;
+  align-items: center;
   text-align: center;
+  margin-top: 140%;
+  margin-bottom: 10px;
   font-size: 19px;
   font-weight: 550;
   padding: 15px;
@@ -146,13 +165,30 @@ const WalletBtn = styled.div<{ isWallet: boolean }>`
   box-shadow: 4px 12px 30px 6px rgb(0 0 0 / 9%);
   border: none;
   cursor: ${(props) => (props.isWallet ? "" : "pointer")};
-  transition: transform ease-in 150ms;
+  transition: transform ease-in 200ms;
   background-color: ${(props) => (props.isWallet ? "#404144" : "#512da8")};
   color: ${(props) => (props.isWallet ? "#999" : "#fff")};
 
   &:hover {
-    transform: scale(1.05);
-    background-color: "#522da890";
+    transform: scale(1.03);
+    background-color: "#20134190";
   }
   transition: transform ease-in 170ms;
+`;
+
+const EnterBtn = styled.div`
+  width: 143px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 19px;
+  font-weight: 550;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 4px 12px 30px 6px rgb(0 0 0 / 9%);
+  border: none;
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+  }
+  transition: transform ease-in 150ms;
 `;
