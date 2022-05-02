@@ -178,7 +178,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
               // 여기 주소 값은 recipient와 같아야 한다.
               if (
                 transaction?.transaction.message.accountKeys[j].toBase58() ===
-                "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
+                `${params.walletAddress}`
               ) {
                 console.log("이 트랜잭션이 현재 진행된 결제입니다.");
                 console.log(signatures[i].signature);
