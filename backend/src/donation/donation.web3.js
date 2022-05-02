@@ -88,7 +88,7 @@ async function updateTransactionWithoutDuplication(tx) {
         displayName: txData.displayName,
         message: txData.message,
         paymentType: txData.paymentType,
-        amount: txData.amount,
+        amount,
       };
       io.to(updatedTx.receiveUserId.toString()).emit("donation", donation);
       logger.info(
@@ -100,7 +100,7 @@ async function updateTransactionWithoutDuplication(tx) {
         displayName: txData.displayName,
         message: txData.message,
         paymentType: txData.paymentType,
-        amount: txData.amount,
+        amount,
       };
       data = {
         ...data,

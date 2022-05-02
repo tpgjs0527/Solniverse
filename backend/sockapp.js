@@ -15,7 +15,7 @@ const sockapp = { io };
 io.on("connection", async function (socket) {
   const userKey = socket.handshake.query.userKey;
   try {
-    const userId = await userRepository.getUserIdByUserKey(userKey);
+    const { _id: userId } = await userRepository.getUserIdByUserKey(userKey);
     if (!userId) {
       socket.disconnect(true);
       return;
