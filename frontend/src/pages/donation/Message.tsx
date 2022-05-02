@@ -168,7 +168,7 @@ export const Message = () => {
   //   },
   // };
   useEffect(() => {
-    const socket = io(`https://solniverse.net?userKey=${uuid}`, {
+    const socket = io(`?userKey=${uuid}`, {
       transports: ["websocket", "polling"],
       reconnection: !0,
     });
