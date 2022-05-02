@@ -13,7 +13,8 @@ var swaggerConfig = {
   openapi: "3.0.1",
   info: {
     title: "DDD Server",
-    description: "TDDD Server API Docs.",
+    description:
+      "DDD Server API Docs. DDD API를 테스트하고 싶은 사람? 여기여기 모여라",
     termsOfService: "",
     contact: {
       name: "Redniche Github",
@@ -26,12 +27,12 @@ var swaggerConfig = {
     version: "1.0.0",
   },
   externalDocs: {
-    description: "Find out more about api",
+    description: "Find out more about api. API 설계에 대해서 더욱 자세히",
     url: "https://docs.google.com/spreadsheets/d/1qzjpPkPe-NFa5Q7LsGl0rv9DBEYfOHZ2lgwORTfclHk/edit#gid=0",
   },
   servers: [
     {
-      url: "http://localhost:3000/api",
+      url: "/api",
     },
   ],
   paths: {
