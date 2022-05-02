@@ -165,6 +165,10 @@ const SpinnerSt = styled.div`
   width: 300px;
   height: 300px;
   animation: ${spin} 1s linear infinite;
+  @media screen and (max-width: 691px) {
+    width: 150px;
+    height: 150px;
+  }
 `;
 
 export default Confirmed;
