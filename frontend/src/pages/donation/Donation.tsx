@@ -2,8 +2,16 @@ import styled from "styled-components";
 import Layout from "components/Layout";
 import banner from "../../../public/가로긴사진.png";
 import { createSearchParams, useNavigate, useParams } from "react-router-dom";
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+  clusterApiUrl,
+  Connection,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from "@solana/web3.js";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 
 interface IDonation {
   nickname: string;
@@ -15,6 +23,7 @@ function Donation() {
   const navigate = useNavigate();
   // const { displayName, platform } = useParams();
   // console.log(displayName, platform);
+  const userInfo = useRecoilValue(userInfoAtom);
   const { walletAddress } = useParams();
   console.log(walletAddress);
   const [nickName, setNickName] = useState("");
@@ -33,8 +42,9 @@ function Donation() {
     formState: { errors },
   } = useForm<IDonation>({ mode: "onBlur" });
 
-  const handleAmount = (value: any) => {
-    console.log(value);
+  const handleAmount = (e: any) => {
+    e.preventDefault();
+    setAmount(e.target.value);
   };
   const onClick = () => {
     // navigate({
@@ -47,17 +57,46 @@ function Donation() {
     });
     // alert("도네이션을 진행하겠습니다");
   };
-  console.log(nickName, amount, message);
+  console.log(nickName, amount, message, walletAddress);
+
+  const getSol = async () => {
+    const connection = new Connection(clusterApiUrl("devnet")); // devnet 연결
+    const publicKey = new PublicKey(userInfo.walletAddress);
+
+    // 지갑 잔액 가져오기
+    const lamports = await connection.getBalance(publicKey).catch((err) => {
+      console.error(`Error: ${err}`);
+    });
+
+    if (lamports) {
+      // 잔액이 0이 아닐 때
+      const sol = lamports / LAMPORTS_PER_SOL; // 0.000000001 단위로 처리
+      console.log(sol);
+      return sol;
+    } else {
+      // 잔액이 0일 때
+      return lamports;
+    }
+  };
+
+  useEffect(() => {
+    const getAsyncSol = async () => {
+      const sol = await getSol();
+      if (sol < amount) {
+        alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+        setAmount(0);
+      }
+    };
+    getAsyncSol();
+  }, [amount]);
   return (
     <Layout>
       <Container>
         <DonationWrapper>
           <CreatorWrapper>
-            <CreatorName>To. 후원하고자 하는 크리에이터</CreatorName>
+            <CreatorName>To. 메인메타님</CreatorName>
             <CreatorImage />
-            <CreatorContent>
-              후원하고자 하는 크리에이터가 지정한 문구
-            </CreatorContent>
+            <CreatorContent>❤메인메타 사랑해요❤</CreatorContent>
           </CreatorWrapper>
         </DonationWrapper>
         <DonationForm>
@@ -91,11 +130,12 @@ function Donation() {
                   setAmount(e.target.value);
                 },
               })}
-              value={amount}
+              value={`${amount} SOL`}
+              style={{ display: "flex", justifyContent: "space-between" }}
               placeholder="후원금액을 입력해주세요."
             />
           </DonatorWrapper>
-          <DonationWrapper>
+          <PriceButtonWrapper>
             <DonatePriceButton value="0.01" onClick={handleAmount}>
               0.01
             </DonatePriceButton>
@@ -117,10 +157,14 @@ function Donation() {
             <DonatePriceButton value="10" onClick={handleAmount}>
               10
             </DonatePriceButton>
-            <DonatePriceButton value="20" onClick={handleAmount}>
+            <DonatePriceButton
+              style={{ marginRight: "0px" }}
+              value="20"
+              onClick={handleAmount}
+            >
               20
             </DonatePriceButton>
-          </DonationWrapper>
+          </PriceButtonWrapper>
           <DonatorWrapper>
             <DonateMessage>후원메시지</DonateMessage>
             <MessageTextarea
@@ -184,17 +228,23 @@ const DonatorWrapper = styled.div`
   justify-content: space-between;
   margin-bottom: 24px;
 `;
+const PriceButtonWrapper = styled.div`
+  display: flex;
+  justify-content: right;
+  margin-bottom: 32px;
+`;
 
 const DonatePriceButton = styled.button`
-  width: 10%;
-  height: 40px;
+  width: 80px;
+  height: 30px;
   color: #ffffff;
   background-color: ${(props) => props.theme.ownColor};
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  margin-right: 8px;
 `;
 
 const DonatorName = styled.div``;
