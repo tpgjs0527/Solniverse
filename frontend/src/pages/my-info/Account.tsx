@@ -139,11 +139,11 @@ function Account() {
 
   return (
     <Layout>
-      <Title>Account</Title>
+      <Title>계정</Title>
       <Section>
         <BoxWrapper>
           <Box>
-            <BoxTitle>Wallet</BoxTitle>
+            <BoxTitle>지갑</BoxTitle>
             <Card>
               <div>
                 {isLoadingGetSol ? (
@@ -163,7 +163,7 @@ function Account() {
         </BoxWrapper>
         <BoxWrapper>
           <Box>
-            <BoxTitle>Connect</BoxTitle>
+            <BoxTitle>연결</BoxTitle>
             <Oauth1>
               <OauthImg
                 viewBox="0 0 48 48"
@@ -223,6 +223,18 @@ function Account() {
                 </>
               )}
             </Oauth1>
+          </Box>
+        </BoxWrapper>
+      </Section>
+      <Section>
+        <BoxWrapper>
+          <Box>
+            <BoxTitle>알림창</BoxTitle>
+          </Box>
+        </BoxWrapper>
+        <BoxWrapper>
+          <Box>
+            <BoxTitle>후원 링크</BoxTitle>
           </Box>
         </BoxWrapper>
       </Section>
