@@ -54,8 +54,8 @@ async function updateTransactionWithoutDuplication(tx) {
       getUserOrCreate(receiveWallet),
     ]);
 
-    let amount;
-    let paymentType;
+    var amount;
+    var paymentType;
     if (meta.postTokenBalances.length === 0) {
       amount = meta.postBalances[1] - meta.preBalances[1];
       paymentType = "sol";
