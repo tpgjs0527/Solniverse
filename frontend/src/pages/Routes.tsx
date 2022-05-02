@@ -18,7 +18,8 @@ function Routes() {
   return (
     <ReactRouterRoutes>
       <Route path="/" element={<Home />} />
-      <Route path="/donation" element={<Donation />} />
+      {/* <Route path="/donation/:displayName/:platform" element={<Donation />} /> */}
+      <Route path="/donation/:walletAddress" element={<Donation />} />
       <Route path="/payment" element={<Payment />} />
       <Route path="/payment/confirmed" element={<Confirmed />} />
 
