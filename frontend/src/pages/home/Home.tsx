@@ -106,6 +106,7 @@ function Home() {
       <WalletBtn isWallet={isWallet} onClick={connectWallet}>
         {!isWallet ? "지갑연결" : "연결완료"}
       </WalletBtn>
+      <button onClick={getUuid}>go message</button>
     </Base>
   );
 }

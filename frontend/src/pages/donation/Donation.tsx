@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Layout from "components/Layout";
 import banner from "../../../public/가로긴사진.png";
-import { createSearchParams, useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate, useParams } from "react-router-dom";
 import { MouseEventHandler, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -13,11 +13,19 @@ interface IDonation {
 
 function Donation() {
   const navigate = useNavigate();
-
+  // const { displayName, platform } = useParams();
+  // console.log(displayName, platform);
+  const { walletAddress } = useParams();
+  console.log(walletAddress);
   const [nickName, setNickName] = useState("");
   const [amount, setAmount] = useState(0);
   const [message, setMessage] = useState("");
-  const params = { amount: amount.toString(), nickName, message };
+  const params = {
+    amount: amount.toString(),
+    nickName,
+    message,
+    walletAddress: walletAddress!.toString(),
+  };
 
   const {
     register,

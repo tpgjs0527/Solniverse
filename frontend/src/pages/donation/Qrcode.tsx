@@ -18,6 +18,7 @@ interface IPayment {
     amount: string | null;
     nickName: string | null;
     message: string | null;
+    walletAddress: string | null;
   };
   txid: string;
 }
@@ -59,67 +60,70 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   };
 
   const main = async () => {
-    console.log(userInfo);
-    // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
-    const recipient = new PublicKey(
-      "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
-    );
+    if (txid) {
+      console.log(userInfo);
+      // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
+      const recipient = new PublicKey(`${params.walletAddress}`);
 
-    const label = `${
-      userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
-    }`;
+      const label = `${
+        userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+      }`;
 
-    const message = `${params.message}`;
-    const memo = `${txid}`;
-    // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
-    const amount = new BigNumber(Number(`${params.amount}`));
-    // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
-    const reference = new PublicKey(
-      "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
-    );
+      const message = `${params.message}`;
+      const memo = `${txid}`;
+      // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
+      const amount = new BigNumber(Number(`${params.amount}`));
+      // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
+      const reference = new PublicKey(
+        "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
+      );
 
-    const url = encodeURL({
-      recipient,
-      amount,
-      reference,
-      label,
-      message,
-      memo,
-    });
-    console.log(url);
+      const url = encodeURL({
+        recipient,
+        amount,
+        reference,
+        label,
+        message,
+        memo,
+      });
+      console.log(url);
 
-    const qrCode = createQR(url);
-    const QrCode = new QRCodeStyling({
-      width: 230,
-      height: 230,
-      type: "canvas",
-      data: `${qrCode._options.data}`,
-      image: `${process.env.PUBLIC_URL}/솔라나.png`,
-      dotsOptions: {
-        // color: "#4267b2",
-        gradient: {
-          type: "linear",
-          rotation: 90,
-          colorStops: [
-            { offset: 0, color: "#00ff55" },
-            { offset: 1, color: "#7808f8" },
-          ],
+      const qrCode = createQR(url);
+      const QrCode = new QRCodeStyling({
+        width: 230,
+        height: 230,
+        type: "canvas",
+        data: `${qrCode._options.data}`,
+        image: `${process.env.PUBLIC_URL}/솔라나.png`,
+        dotsOptions: {
+          // color: "#4267b2",
+          gradient: {
+            type: "linear",
+            rotation: 90,
+            colorStops: [
+              { offset: 0, color: "#00ff55" },
+              { offset: 1, color: "#7808f8" },
+            ],
+          },
+          type: "extra-rounded",
         },
-        type: "extra-rounded",
-      },
-      backgroundOptions: {
-        color: "#e9ebee",
-      },
-      imageOptions: {
-        crossOrigin: "anonymous",
-        margin: 10,
-      },
-    });
-    const element = document.getElementById("qr-code");
-    QrCode.append(element!);
-    // console.log(QrCode);
-    // console.log(typeof QrCode._container);
-    setMakeQR(QrCode);
+        backgroundOptions: {
+          color: "#e9ebee",
+        },
+        imageOptions: {
+          crossOrigin: "anonymous",
+          margin: 10,
+        },
+      });
+      const element = document.getElementById("qr-code");
+      QrCode.append(element!);
+      // console.log(QrCode);
+      // console.log(typeof QrCode._container);
+      setMakeQR(QrCode);
+    } else {
+      alert("결제정보가 잘못 입력됐습니다. 다시 후원해주세요.");
+      // navigate("/donation");
+    }
   };
   const closeModal = () => {
     setModalIsOpen(false);
@@ -134,9 +138,12 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       options,
       finality
     );
-    console.log(signatures[0].signature);
-    console.log(signatures[0]);
-    setSignature(signatures[0].signature);
+    if (signatures.length > 0) {
+      console.log(signatures[0].signature);
+      console.log(signatures[0]);
+      setSignature(signatures[0].signature);
+    } else {
+    }
   };
 
   useEffect(() => {
