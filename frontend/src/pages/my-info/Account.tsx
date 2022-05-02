@@ -32,6 +32,7 @@ function Account() {
     sol: 0,
   });
   const [isLoadingGetSol, setIsLoadingGetSol] = useState(true);
+  const [UUID, setUUID] = useState("");
 
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
@@ -99,6 +100,8 @@ function Account() {
       // 매개변수 twitch일 경우
       if (platform === "twitch") {
         document.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}?platform=twitch&scope=`;
+      } else if (platform === "alert") {
+        getUuid();
       }
     } else {
       alert("문제 발생");
@@ -137,13 +140,33 @@ function Account() {
     }
   }, [data, navigate]);
 
+  // 버튼 눌렀을 때, 권한인증하고 fetch요청해서 블러 해제
+  const getUuid = async () => {
+    // accessToken
+    const res = await (
+      await fetch(`${process.env.REACT_APP_BASE_URL}/auth/userKey`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+    ).json();
+
+    setUUID(res.userKey);
+    // ${process.env.REACT_APP_SOCKET_URL}/donation/alertbox/${res.userKey}
+    // navigate({
+    //   pathname: `/donation/alertbox/${res.userKey}`,
+    // });
+    console.log(res);
+  };
+
   return (
     <Layout>
-      <Title>Account</Title>
+      <Title>계정</Title>
       <Section>
         <BoxWrapper>
           <Box>
-            <BoxTitle>Wallet</BoxTitle>
+            <BoxTitle>지갑</BoxTitle>
             <Card>
               <div>
                 {isLoadingGetSol ? (
@@ -163,7 +186,7 @@ function Account() {
         </BoxWrapper>
         <BoxWrapper>
           <Box>
-            <BoxTitle>Connect</BoxTitle>
+            <BoxTitle>연결</BoxTitle>
             <Oauth1>
               <OauthImg
                 viewBox="0 0 48 48"
@@ -226,9 +249,69 @@ function Account() {
           </Box>
         </BoxWrapper>
       </Section>
+      <Section>
+        <BoxWrapper>
+          <Box>
+            <BoxTitle>알림창</BoxTitle>
+            <BoxDescription>
+              <BoxWarning>
+                방송 프로그램(OBS, Xsplit)에 적용하는 URL입니다. 타인에게
+                유출되면 악용될 수 있으니 주의하시기 바랍니다.
+              </BoxWarning>
+              <p>
+                아래 URL 주소를 사용하시는 방송 프로그램의 브라우저 소스에
+                추가해주세요.
+              </p>
+            </BoxDescription>
+            <UrlBox onClick={() => onCheckToken("alert")}>
+              <Url>{`https://solniverse.net/donation/alertbox/${UUID}`}</Url>
+            </UrlBox>
+          </Box>
+        </BoxWrapper>
+        <BoxWrapper>
+          <Box>
+            <BoxTitle>후원 링크</BoxTitle>
+            <Url>{`https://solniverse.net/donation/${userInfo.walletAddress}`}</Url>
+          </Box>
+        </BoxWrapper>
+      </Section>
     </Layout>
   );
 }
+
+const Url = styled.a`
+  word-break: break-all;
+`;
+
+const UrlBox = styled.div`
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid ${(props) => props.theme.subBoxColor};
+  height: 48px;
+  padding: 0 16px;
+  cursor: pointer;
+  /* &:hover {
+    background: black;
+  } */
+
+  @media screen and (min-width: 767px) {
+    height: 60px;
+  }
+`;
+
+const BoxWarning = styled.p`
+  color: #c23616;
+  margin-bottom: 6px;
+`;
+
+const BoxDescription = styled.div`
+  font-size: 14px;
+  letter-spacing: -0.03em;
+  color: ${(props) => props.theme.subTextColor};
+  margin-bottom: 12px;
+`;
 
 const OauthConnect = styled.svg`
   width: 24px;
