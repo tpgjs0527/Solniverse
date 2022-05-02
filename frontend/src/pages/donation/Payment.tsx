@@ -28,7 +28,9 @@ function Payment() {
   const amount = searchParams.get("amount");
   const nickName = searchParams.get("nickName");
   const message = searchParams.get("message");
-  const params = { amount, nickName, message };
+  const walletAddress = searchParams.get("walletAddress");
+  const params = { amount, nickName, message, walletAddress };
+
   const [txid, setTXID] = useState("");
 
   const [getTXId, { data, loading }] = useMutation<any>(
@@ -46,9 +48,7 @@ function Payment() {
     // alert("팬텀 월렛을 이용한 Solana Pay 진행할게용");
     if (isMobile && txid) {
       // 스트리머 주소 받아오기
-      const recipient = new PublicKey(
-        "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
-      );
+      const recipient = new PublicKey(`${walletAddress}`);
       const label = `${
         userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
       }`;
@@ -83,74 +83,79 @@ function Payment() {
     }
   };
 
-  const getSignature = async () => {
-    const reference = new PublicKey(`${userInfo.walletAddress}`);
-    const options = {};
-    const finality = "confirmed";
-    const signatures = await connection.getSignaturesForAddress(
-      reference,
-      options,
-      finality
-    );
-    console.log(signatures[0].signature);
-    console.log(signatures[0]);
-    setSignature(signatures[0].signature);
-  };
-
+  // const getSignature = async () => {
+  //   const reference = new PublicKey(`${userInfo.walletAddress}`);
+  //   const options = { limit: 1000 };
+  //   const finality = "confirmed";
+  //   const signatures = await connection.getSignaturesForAddress(
+  //     reference,
+  //     options,
+  //     finality
+  //   );
+  //   console.log(signatures[0].signature);
+  //   console.log(signatures[0]);
+  //   setSignature(signatures[0].signature);
+  // };
   useEffect(() => {
-    getSignature();
     getTXId({
       displayName: nickName,
       message: message,
       platform: "",
     });
-    console.log(getTXId, data, loading);
-    setTXID(data.txid);
-  }, [signature]);
-
+  }, []);
   useEffect(() => {
-    if (signature && isMobile) {
-      setTimeout(() => {
-        const interval = setInterval(async () => {
-          const reference = new PublicKey(`${userInfo.walletAddress}`);
-          const options = { until: `${signature}`, limit: 1000 };
-          console.log(options);
-          const finality = "confirmed";
-          const signatures = await connection.getSignaturesForAddress(
-            reference,
-            options,
-            finality
-          );
-          console.log(signatures);
-          for (let i = 0; i < signatures.length; i++) {
-            const transaction = await connection.getTransaction(
-              signatures[i].signature
-            );
-            if (transaction) {
-              for (
-                let j = 0;
-                j < transaction?.transaction.message.accountKeys.length;
-                j++
-              ) {
-                // 여기 주소 값은 recipient와 같아야 한다.
-                if (
-                  transaction?.transaction.message.accountKeys[j].toBase58() ===
-                  "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
-                ) {
-                  console.log("이 트랜잭션이 현재 진행된 결제입니다.");
-                  console.log(signatures[i].signature);
-                  clearInterval(interval);
-                  navigate("/payment/confirmed", {
-                    state: { signature: signatures[i].signature },
-                  });
-                }
-              }
-            }
-          }
-        }, 5000);
-      }, 1000);
+    // getSignature();
+    if (data) {
+      setTXID(data.txid);
     }
-  }, [signature]);
+  }, [data]);
+  console.log(txid);
+
+  // 모바일 진행할 떄 앱에서 빠져나온 후 결제 확인 알림 받는 방법 강구하기.
+
+  // useEffect(() => {
+  //   if (signature && isMobile) {
+  //     setTimeout(() => {
+  //       const interval = setInterval(async () => {
+  //         const reference = new PublicKey(`${userInfo.walletAddress}`);
+  //         const options = { until: `${signature}`, limit: 1000 };
+  //         console.log(options);
+  //         const finality = "confirmed";
+  //         const signatures = await connection.getSignaturesForAddress(
+  //           reference,
+  //           options,
+  //           finality
+  //         );
+  //         console.log(signatures);
+  //         for (let i = 0; i < signatures.length; i++) {
+  //           const transaction = await connection.getTransaction(
+  //             signatures[i].signature
+  //           );
+  //           if (transaction) {
+  //             for (
+  //               let j = 0;
+  //               j < transaction?.transaction.message.accountKeys.length;
+  //               j++
+  //             ) {
+  //               // 여기 주소 값은 recipient와 같아야 한다.
+  //               if (
+  //                 transaction?.transaction.message.accountKeys[j].toBase58() ===
+  //                 "FLouH8f4bCA2qowUcugFog4YNaRsGPjyV8q7UvvpNcYY"
+  //               ) {
+  //                 console.log("이 트랜잭션이 현재 진행된 결제입니다.");
+  //                 console.log(signatures[i].signature);
+  //                 clearInterval(interval);
+  //                 navigate("/payment/confirmed", {
+  //                   state: { signature: signatures[i].signature },
+  //                 });
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }, 5000);
+  //     }, 1000);
+  //   }
+  // }, [signature]);
 
   return (
     <Container>
@@ -168,7 +173,7 @@ function Payment() {
           <InfoWrapper>
             <Name>홀리냥</Name>
             <AccountTitle>Account</AccountTitle>
-            <Account>Pu674dikkyAAUotqgQUZMe5fHzsgnYwFKQEmjEx4oR8</Account>
+            <Account>{walletAddress}</Account>
           </InfoWrapper>
           <Title>Donate Information</Title>
           <TotalPriceWrapper>
@@ -191,7 +196,7 @@ function Payment() {
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>
-      {openModal && data && (
+      {openModal && txid && (
         <Qrcode
           open={openModal}
           onClose={closeModal}
