@@ -1,6 +1,6 @@
 import { getAccessToken } from "utils/getAccessToken";
 
-export default async function useAuth(
+export default async function checkToken(
   accessToken: string,
   walletAddress: string
 ) {

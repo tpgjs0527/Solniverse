@@ -21,4 +21,5 @@ const BackDrop = styled.div<{ isSidebar: Boolean }>`
   width: 100%;
   background: rgba(0, 0, 0, 0.7);
   display: ${(props) => (props.isSidebar ? "block" : "none")};
+  z-index: 1500;
 `;

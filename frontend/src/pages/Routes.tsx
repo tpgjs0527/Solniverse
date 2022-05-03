@@ -8,16 +8,15 @@ import NftReward from "pages/my-info/NftReward";
 import ServiceCenter from "./my-info/ServiceCenter";
 import Payment from "./donation/Payment";
 import Home from "./home/Home";
-import Account from "./my-info/Account";
 import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
+import Settings from "./my-info/Settings";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
 
   return (
     <ReactRouterRoutes>
-      <Route path="/" element={<Home />} />
       {/* <Route path="/donation/:displayName/:platform" element={<Donation />} /> */}
       <Route path="/donation/:walletAddress" element={<Donation />} />
       <Route path="/payment" element={<Payment />} />
@@ -25,15 +24,21 @@ function Routes() {
 
       {/* URL 직접 접근 제어 */}
       <Route
+        path="/"
+        element={
+          userInfo.walletAddress ? <Navigate replace to="/main" /> : <Home />
+        }
+      />
+      <Route
         path="/main"
         element={
           userInfo.walletAddress ? <Main /> : <Navigate replace to="/" />
         }
       />
       <Route
-        path="/account"
+        path="/settings/*"
         element={
-          userInfo.walletAddress ? <Account /> : <Navigate replace to="/" />
+          userInfo.walletAddress ? <Settings /> : <Navigate replace to="/" />
         }
       />
       <Route
