@@ -248,4 +248,5 @@ const Nav = styled.div`
   top: 0;
   background: ${(props) => props.theme.bgColor};
   border-bottom: 1px solid ${(props) => props.theme.borderColor};
+  z-index: 1000;
 `;
