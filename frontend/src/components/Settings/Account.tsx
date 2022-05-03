@@ -101,9 +101,6 @@ function Account() {
       if (platform === "twitch") {
         document.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}?platform=twitch&scope=`;
       }
-      // else if (platform === "alert") {
-      //   getUuid();
-      // }
     } else {
       alert("문제 발생");
     }
@@ -137,7 +134,7 @@ function Account() {
           profileImageUrl: data.user.twitch.profileImageUrl,
         },
       });
-      navigate(`/account`, { replace: true });
+      navigate(`/settings`, { replace: true });
     }
   }, [data, navigate]);
 
