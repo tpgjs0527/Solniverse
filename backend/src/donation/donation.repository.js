@@ -86,7 +86,11 @@ class DonationRepository {
    * @returns {Promise<Tx>} tx
    */
   async getLatestTransaction() {
-    return Transaction.findOne().sort({ block: -1 }).limit(1);
+    return Transaction.findOne()
+      .sort({ block: -1 })
+      .limit(1)
+      .where("block")
+      .ne(null);
   }
 
   /**
