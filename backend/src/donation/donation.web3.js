@@ -43,10 +43,11 @@ async function getUsdPerSol() {
   }
 }
 
-getUsdPerSol(); //서버 부팅시 usdPerSol를 업데이트
 /**
+ * 서버 부팅시 usdPerSol를 업데이트
  * 10분마다 usdPerSol를 업데이트 하도록 하는 구문
  */
+getUsdPerSol();
 setInterval(getUsdPerSol, 1000 * 60 * 10);
 
 const fromTokenAccountGlobal = (async () => {
@@ -59,42 +60,67 @@ const fromTokenAccountGlobal = (async () => {
 })();
 
 /**
- * Transaction의 metadata를 받아 amount, paymentType, decimal의 정제된 데이터를 반환.
- * @param {*} meta
+ * 이전 금액과 나중 sol의 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
+ * amount, paymentType, decimal을 반환한다.
+ *
+ * @param {number} preBalance
+ * @param {number} postBalance
  * @returns
  */
-function getPostProcessDataFromTx(meta) {
-  const senderPreBal = meta.preTokenBalances[1];
-  if (!senderPreBal) {
-    return {
-      amount: meta.postBalances[1] - meta.preBalances[1],
-      paymentType: "sol",
-      decimal: SOL_DECIMAL, // 원시타입이므로 Pass By Value
-    };
-  } else if (meta.preTokenBalances[1].mint === USDC_TOKEN) {
-    const senderPreToken = senderPreBal.uiTokenAmount;
-    return {
-      amount:
-        meta.postTokenBalances[1].uiTokenAmount.amount - senderPreToken.amount,
-      paymentType: "usdc",
-      decimal: 10 ** senderPreToken.decimals,
-    };
-  } else {
-    throw `Invalid token type: ${meta.preTokenBalances[1].mint}`;
-  }
+function getDataFromBanlance(preBalance, postBalance) {
+  return {
+    amount: postBalance - preBalance,
+    paymentType: "sol",
+    decimal: SOL_DECIMAL, // 원시타입이므로 Pass By Value
+  };
+}
+
+/**
+ * 이전 금액과 나중 토큰 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
+ * amount, paymentType, decimal을 반환한다.
+ *
+ * @param {number} preTokenBalance
+ * @param {number} postTokenBalance
+ * @param {string} symbol
+ * @returns
+ */
+function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
+  const senderPreToken = preTokenBalance.uiTokenAmount;
+  return {
+    amount: postTokenBalance.uiTokenAmount.amount - senderPreToken.amount,
+    paymentType: symbol,
+    decimal: 10 ** senderPreToken.decimals,
+  };
 }
 
 /**
  * 트랜잭션을 받아 중복 없이 업데이트 하는 함수
  *
- * @param {*} tx
+ * @param {Object} tx
+ * @param {Object} tx.transaction
+ * @param {Object} tx.transaction.
+ * @param {Array<string>} tx.transaction.signatures
+ * @param {Array} tx.meta.preBalances
+ * @param {Array} tx.meta.postBalances
+ * @param {Array} tx.meta.preTokenBalances
+ * @param {Array} tx.meta.postTokenBalances
+ * @param {Array<string>} tx.meta.logMessages
+ * @param {Object} tx.meta.err
  * @returns
  */
 async function updateTransactionWithoutDuplication(tx) {
-  const meta = tx.meta;
-  if (meta.err) return;
+  if (tx.meta.err) return;
   try {
-    const transaction = tx.transaction;
+    const {
+      transaction,
+      meta: {
+        preBalances = [],
+        postBalances = [],
+        preTokenBalances = [],
+        postTokenBalances = [],
+        logMessages = [],
+      },
+    } = tx;
 
     // sendWallet과 receiveWallet을 알아냄
     const { sendWallet, receiveWallet } =
@@ -107,12 +133,19 @@ async function updateTransactionWithoutDuplication(tx) {
       getUserOrCreate(receiveWallet.toString()),
     ]);
 
-    const { amount, paymentType, decimal } = getPostProcessDataFromTx(meta);
+    const senderPreTokenBalance = preTokenBalances.at(1);
+    const { amount, paymentType, decimal } = !senderPreTokenBalance
+      ? getDataFromBanlance(preBalances.at(1), postBalances.at(1))
+      : getDataFromTokenBanlance(
+          senderPreTokenBalance,
+          postTokenBalances.at(1),
+          getSymbolByTokenAddress(senderPreTokenBalance.mint),
+        );
 
+    const txSignature = transaction.signatures.at(0);
     // txio 도큐먼트에 삽입할 데이터
     var data = {
-      /**@type {string} data */
-      txSignature: transaction.signatures[0],
+      txSignature,
       /**@type {"sol"|"usdc"} */
       paymentType,
       amount,
@@ -123,7 +156,7 @@ async function updateTransactionWithoutDuplication(tx) {
     };
 
     // txid를 얻어냄.
-    const txid = getTxid(meta);
+    const txid = getTxid(logMessages.at(1));
 
     //트랜잭션이 있는지 검사
     const txData = await donationRepository.getTransactionById(txid);
@@ -139,7 +172,12 @@ async function updateTransactionWithoutDuplication(tx) {
         paymentType,
         amount,
       };
-      alertAndSendSnv(decimal, donation, sendWallet, updatedTx);
+      alertAndSendSnv(
+        decimal,
+        donation,
+        sendWallet.toString(),
+        updatedTx.sendUserId.toString(),
+      );
       logger.info(
         `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${updatedTx}`,
       );
@@ -158,7 +196,12 @@ async function updateTransactionWithoutDuplication(tx) {
       };
       //트랜잭션 추가 및 io.to
       const createdTx = await donationRepository.createTransaction(data);
-      alertAndSendSnv(decimal, donation, sendWallet, createdTx);
+      alertAndSendSnv(
+        decimal,
+        donation,
+        sendWallet.toString(),
+        createdTx.sendUserId.toString(),
+      );
       logger.info(
         `updateTransactionWithoutDuplication 새 데이터 삽입: ${createdTx}`,
       );
@@ -168,14 +211,29 @@ async function updateTransactionWithoutDuplication(tx) {
     logger.error(
       `updateTransactionWithoutDuplication 에러 발생: error=${err}}`,
     );
-    return;
+  }
+}
+
+/**
+ * Token주소를 받아 symbol이나 type을 반환하는 함수
+ *
+ * @param {string} tokenAddress
+ * @returns
+ */
+function getSymbolByTokenAddress(tokenAddress) {
+  console.log(tokenAddress);
+  switch (tokenAddress) {
+    case USDC_TOKEN:
+      return "usdc";
+    default:
+      throw "Invalid token type";
   }
 }
 
 /**
  * Transaction 객체를 받아 Sendwallet과 ReceiveWallet PublicKey를 반환한다.
  *
- * @param {*} transaction
+ * @param {Object} transaction
  *
  * @returns
  */
@@ -211,11 +269,10 @@ async function getUserOrCreate(walletAddress) {
 
 /**
  * Transaction의 metadata를 받아 txid를 반환한다.
- * @param {*} meta
+ * @param {string} memo
  * @returns {Types.ObjectId} txid
  */
-function getTxid(meta) {
-  const memo = meta.logMessages[1];
+function getTxid(memo) {
   return new Types.ObjectId(
     // eslint-disable-next-line quotes
     memo.substring(memo.indexOf('"') + 1, memo.length - 1),
@@ -223,33 +280,53 @@ function getTxid(meta) {
 }
 
 /**
+ * 정보들을 받아 알림과 sendwallet에 SNV 토큰을 전송하는 순수 함수.
+ * 외부적 종속성이 없음. 내부적 종속 = sendSnvToken
+ * sendSnvToken는 PublicKey 타입을 참조 전달 받음.
  *
  * @param {number} decimal 액수 십진수 곰셈 값
- * @param {number} donation 도네이션 알림 객체
- * @param {PublicKey} sendWallet
- * @param {Object} txDocument
+ * @param {Object} donation 도네이션 객체
+ * @param {string} donation.displayName 도네이션 알림 객체
+ * @param {string} donation.message 도네이션 알림 객체
+ * @param {string} donation.paymentType 도네이션 알림 객체
+ * @param {number} donation.amount 도네이션 알림 객체
+ * @param {string} sendWallet
+ * @param {string} receiveUserId
+ *
+ * @returns {void}
  */
-function alertAndSendSnv(decimal, donation, sendWallet, txDocument) {
-  const amount = donation.amount; // 원시타입
+function alertAndSendSnv(
+  decimal,
+  { displayName = "", message = "", paymentType = "", amount = 0 } = {},
+  sendWallet,
+  receiveUserId,
+) {
   (async () => {
+    const toWallet = new web3.PublicKey(sendWallet);
     try {
       const pointAmount =
-        (decimal == SOL_DECIMAL ? await getUsdFromSol(amount) : amount) * 10;
-      sendSnvToken(sendWallet, pointAmount);
+        (paymentType == "sol" ? await getUsdFromSol(amount) : amount) * 10;
+      sendSnvToken(toWallet, pointAmount);
     } catch (err) {
       logger.error(
-        `SNV Transfer 에러 발생: to=${sendWallet.toString()} error=${err}`,
+        `SNV Transfer 에러 발생: to=${toWallet.toString()} error=${err}`,
       );
     }
   })();
+  amount = amount / decimal;
 
-  donation.amount = amount / decimal;
-
-  io.to(txDocument.receiveUserId.toString()).emit("donation", donation);
+  io.to(receiveUserId).emit("donation", {
+    displayName,
+    message,
+    paymentType,
+    amount,
+  });
 }
 
 /**
- * Solana Amount를 입력받아 USD 환산 값을 반환.
+ * Solana Amount를 입력받아 USD 환산 값을 반환하는 함수.
+ * 전역변수 usdPerSol에 의존성을 가짐.
+ *
  * @param {number} amount
  * @returns {Promise<number>} usdAmount
  */
@@ -339,11 +416,12 @@ async function recoverTransaction() {
     const transactions = await connection.getSignaturesForAddress(shopWallet, {
       until: tx.txSignature,
     });
-    for (let tran of transactions) {
-      if (tran.err) continue;
-      const transaction = await connection.getTransaction(tran.signature);
-      updateTransactionWithoutDuplication(transaction);
-    }
+    transactions
+      .filter(({ err }) => !err)
+      .map(async ({ signature }) => {
+        const transaction = await connection.getTransaction(signature);
+        updateTransactionWithoutDuplication(transaction);
+      });
   } catch (err) {
     logger.error(`recoverTransaction 에러 발생: error=${err}`);
   }
