@@ -96,7 +96,6 @@ function Home() {
           <Spinner />
         </Loading>
       ) : null}
-
       <Box1></Box1>
       <Box2>
         <TextArea>
@@ -105,7 +104,7 @@ function Home() {
             입장하기
           </WalletBtn>
           <Box1 style={{ visibility: "hidden" }}>
-            <WalletConnectButton></WalletConnectButton>
+            <WalletConnectButton />
           </Box1>
         </TextArea>
       </Box2>
