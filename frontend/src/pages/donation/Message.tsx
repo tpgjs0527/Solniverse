@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import styled, { keyframes } from "styled-components";
-import AOS from "aos";
-import "aos/dist/aos.css";
+
 interface IDonation {
   displayName: string;
   message: string;
@@ -18,7 +17,6 @@ export const Message = () => {
   const [start, setStart] = useState(false);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    AOS.init();
     const socket = io(`https://solniverse.net?userKey=${uuid}`, {
       transports: ["websocket", "polling"],
       reconnection: !0,
