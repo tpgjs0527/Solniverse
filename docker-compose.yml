@@ -12,5 +12,7 @@ services:
     # [인증서 파일 저장 경로]:/var/www/html
     volumes:
       - /home/ubuntu/docker-volume/ssl2:/var/www/html
-      - /home/ubuntu/log:/var/log/nginx 
+      - /home/ubuntu/log:/var/log/nginx
+    networks:
+      - elk
     container_name: "frontend"
