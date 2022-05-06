@@ -21,6 +21,7 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import {
+  WalletConnectButton,
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
@@ -217,8 +218,8 @@ function Payment() {
           <ButtonWrapper>
             <Button onClick={onClick}>Pay</Button>
           </ButtonWrapper>
-          <ButtonWrapper>
-            <WalletMultiButton />
+          <ButtonWrapper style={{ visibility: "hidden" }}>
+            <WalletConnectButton />
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>

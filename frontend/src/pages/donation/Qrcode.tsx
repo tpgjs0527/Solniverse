@@ -329,8 +329,15 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
                 이후 표시된 전송 정보를 확인 후 보내기 버튼 클릭
               </ManualContent>
             </ManualSeries>
+            <ManualSeries>
+              <ManualNumber>4️⃣</ManualNumber>
+              <ManualContent>
+                앱 없이 크롬 확장 프로그램으로 결제하시려면 아래 바로 결제
+                버튼을 눌러주세요.
+              </ManualContent>
+            </ManualSeries>
             <ExtensionWrapper>
-              <ExtensionButton onClick={sendTX}>익스텐션</ExtensionButton>
+              <ExtensionButton onClick={sendTX}>바로결제</ExtensionButton>
             </ExtensionWrapper>
           </ManualWrapper>
           <QRWrapper>
@@ -349,8 +356,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             <WalletBtn onClick={getSignature}>설치하기</WalletBtn>
           </WalletInstall>
         </Wrapper>
-        <WalletMultiButton />
         <CloseBtn onClick={closeModal}>닫기</CloseBtn>
+        {/* <Container style={{ margin: "0px", visibility: "hidden" }}>
+          <WalletMultiButton />
+        </Container> */}
       </Container>
     </Modal>
   );
@@ -414,8 +423,22 @@ const ManualNumber = styled.div`
   margin-right: 8px;
 `;
 const ManualContent = styled.div``;
-const ExtensionWrapper = styled.div``;
-const ExtensionButton = styled.button``;
+const ExtensionWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+const ExtensionButton = styled.button`
+  background-color: ${(props) => props.theme.ownColor};
+  width: 50%;
+  height: 30px;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 16px;
+`;
 const QRWrapper = styled.div`
   width: 45%;
   /* display: flex;
