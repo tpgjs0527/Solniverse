@@ -11,6 +11,7 @@ import Home from "./home/Home";
 import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
+import { Service } from "./home/Service";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -29,6 +30,7 @@ function Routes() {
           userInfo.walletAddress ? <Navigate replace to="/main" /> : <Home />
         }
       />
+      <Route path="/service" element={<Service />} />
       <Route
         path="/main"
         element={
