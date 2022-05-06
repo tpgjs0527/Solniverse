@@ -25,7 +25,7 @@ const App: FC = () => {
       <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
         <GlobalStyle />
         <Routes />
-        <WalletMultiButton />
+        {/* <WalletMultiButton /> */}
       </ThemeProvider>
     </Context>
   );

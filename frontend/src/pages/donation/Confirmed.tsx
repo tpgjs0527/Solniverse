@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import interpolate from "color-interpolate";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import styled, { keyframes } from "styled-components";
-import Spinner from "components/Spinner";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 // interface IState {
 //   state: { signature: string };
@@ -108,14 +108,14 @@ function Confirmed() {
   // 뒤로 가기 방지 코드
   useEffect(() => {
     const preventGoBack = () => {
-      history.pushState(null, "", location.href);
+      window.history.pushState(null, "", window.location.href);
       if (status === "Finalized") {
         alert("이미 결제 완료된 도네이션입니다.");
       } else {
         alert("결제 중인 도네이션입니다.");
       }
     };
-    history.pushState(null, "", location.href);
+    window.history.pushState(null, "", window.location.href);
     window.addEventListener("popstate", preventGoBack);
 
     return () => {

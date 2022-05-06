@@ -261,10 +261,11 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           { reference, memo }
         );
         console.log(transaction);
+        // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
         const response = await sendTransaction(transaction, connection);
         console.log(response);
 
-        await connection.confirmTransaction(signature, "processed");
+        // await connection.confirmTransaction(signature, "processed");
 
         // part 2
         // let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
@@ -348,6 +349,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             <WalletBtn onClick={getSignature}>설치하기</WalletBtn>
           </WalletInstall>
         </Wrapper>
+        <WalletMultiButton />
         <CloseBtn onClick={closeModal}>닫기</CloseBtn>
       </Container>
     </Modal>
