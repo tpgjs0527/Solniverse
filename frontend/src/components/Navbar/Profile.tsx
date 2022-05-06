@@ -1,8 +1,7 @@
-import { accessTokenAtom, toggleSidebarAtom, userInfoAtom } from "atoms";
+import { toggleSidebarAtom, userInfoAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { getAccessToken } from "utils/getAccessToken";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -10,12 +9,12 @@ export default function Profile() {
   const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
 
   return (
-    <Container
+    <ProfileDiv
       onClick={() => {
         if (isSidebar) {
           setIsSidebar((prev) => !prev);
         }
-        navigate(`/account`);
+        navigate(`/settings`);
       }}
       sidebarStyle={isSidebar}
     >
@@ -56,9 +55,45 @@ export default function Profile() {
         </defs>
       </PhantomIcon>
       <Nickname sidebarStyle={isSidebar}>{userInfo.walletAddress}</Nickname>
-    </Container>
+    </ProfileDiv>
   );
 }
+
+// const Item = styled.li`
+//   line-height: 40px;
+//   font-weight: 500;
+//   letter-spacing: -0.5px;
+//   text-align: center;
+//   cursor: pointer;
+//   &:hover {
+//     color: ${(props) => props.theme.ownColor};
+//   }
+// `;
+
+// const Item1 = styled.li`
+//   line-height: 40px;
+//   font-weight: 500;
+//   letter-spacing: -0.5px;
+//   text-align: center;
+//   cursor: pointer;
+//   border-bottom: 1px solid ${(props) => props.theme.borderColor};
+//   &:hover {
+//     color: ${(props) => props.theme.ownColor};
+//   }
+// `;
+
+// const Dropdowns = styled.ul`
+//   position: absolute;
+//   top: 45px;
+//   left: -10px;
+//   /* padding: 11px 0 13px; */
+//   border-bottom-left-radius: 10px;
+//   border-bottom-right-radius: 10px;
+//   min-width: 142px;
+//   background: ${(props) => props.theme.bgColor};
+//   border: 1px solid ${(props) => props.theme.borderColor};
+//   display: ${(props) => (props.sidebarStyle ? "flex" : "none")};
+// `;
 
 const Nickname = styled.div<{ sidebarStyle: boolean }>`
   font-weight: 700;
@@ -75,7 +110,7 @@ const PhantomIcon = styled.svg<{ sidebarStyle: boolean }>`
   height: ${(props) => (props.sidebarStyle ? "28px" : "18px")};
 `;
 
-const Container = styled.div<{ sidebarStyle: boolean }>`
+const ProfileDiv = styled.div<{ sidebarStyle: boolean }>`
   min-width: 152px;
   display: flex;
   align-items: center;
@@ -90,3 +125,11 @@ const Container = styled.div<{ sidebarStyle: boolean }>`
     display: ${(props) => (props.sidebarStyle ? "flex" : "none")};
   }
 `;
+
+// const Parents = styled.div<{ sidebarStyle: boolean }>`
+//   position: relative;
+
+//   @media screen and (max-width: 1023px) {
+//     display: ${(props) => (props.sidebarStyle ? "flex" : "none")};
+//   }
+// `;
