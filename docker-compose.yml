@@ -13,3 +13,8 @@ services:
     volumes:
       - /home/ubuntu/docker-volume/ssl2:/var/www/html
       - /home/ubuntu/log:/var/log/nginx
+    networks:
+      - elk
+networks:
+  elk:
+    driver: bridge
