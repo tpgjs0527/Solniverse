@@ -12,11 +12,11 @@ class GraphRepository {
 
   /**
    * 받는사람의 id를 확인하여 트랙잭션 리스트를 가져온다
-   * @param {string} _id
+   * @param {string} receiveUserId
    * @returns {Promise<transaction|null>} transaction|null
    */
-  async receive(_id) {
-    return Transaction.find({ receiveUserId: _id })
+  async getTransactionsByRecieveUserId(receiveUserId) {
+    return Transaction.find({ receiveUserId })
       .populate("receiveUserId", "walletAddress twitch")
       .populate("sendUserId", "walletAddress twitch")
       .lean();
@@ -24,11 +24,11 @@ class GraphRepository {
 
   /**
    * 보낸사람의 id를 확인하여 트랙잭션 리스트를 가져온다
-   * @param {string} _id
+   * @param {string} sendUserId
    * @returns {Promise<transaction|null>} transaction|null
    */
-  async give(_id) {
-    return Transaction.find({ sendUserId: _id })
+  async getTransactionBySendUserId(sendUserId) {
+    return Transaction.find({ sendUserId })
       .populate("receiveUserId", "walletAddress twitch")
       .populate("sendUserId", "walletAddress twitch")
       .lean();

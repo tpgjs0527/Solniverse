@@ -35,10 +35,11 @@ class AuthService {
    * @param {string} walletAddress
    * @returns response
    */
-  async receive(walletAddress) {
+  async getRecieveList(walletAddress) {
     const { _id } = await userRepository.getUserByWalletAddress(walletAddress);
 
-    const transaction = await transactionRepository.receive(_id);
+    const transaction =
+      await transactionRepository.getTransactionsByRecieveUserId(_id);
     if (!transaction) return notFoundResponse;
 
     let res = new BaseResponse(SUCCESS_RESPONSE),
@@ -52,10 +53,12 @@ class AuthService {
    * @param {string} walletAddress
    * @returns response
    */
-  async give(walletAddress) {
+  async getSendList(walletAddress) {
     const { _id } = await userRepository.getUserByWalletAddress(walletAddress);
 
-    const transaction = await transactionRepository.give(_id);
+    const transaction = await transactionRepository.getTransactionBySendUserId(
+      _id,
+    );
     if (!transaction) return notFoundResponse;
 
     let res = new BaseResponse(SUCCESS_RESPONSE),

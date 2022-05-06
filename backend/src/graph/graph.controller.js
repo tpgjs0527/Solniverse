@@ -10,7 +10,7 @@ const graphService = new GraphService();
 router.get("/receive/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
 
-  const { statusCode, responseBody } = await graphService.receive(
+  const { statusCode, responseBody } = await graphService.getRecieveList(
     walletAddress,
   );
 
@@ -26,7 +26,9 @@ router.get("/receive/:walletAddress", async function (req, res) {
 router.post("/give/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
 
-  const { statusCode, responseBody } = await graphService.give(walletAddress);
+  const { statusCode, responseBody } = await graphService.getSendList(
+    walletAddress,
+  );
 
   //res send
   res.statusCode = statusCode;
