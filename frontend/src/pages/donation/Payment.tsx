@@ -15,6 +15,16 @@ import { encodeURL } from "@solana/pay";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import {
+  WalletConnectButton,
+  WalletModalProvider,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
 
 export interface ITX {
   result: string;
@@ -35,7 +45,10 @@ function Payment() {
   const message = searchParams.get("message");
   const walletAddress = searchParams.get("walletAddress");
   const params = { amount, nickName, message, walletAddress };
-
+  const wallets = [new PhantomWalletAdapter()];
+  const [connectWallet, setConnectWallet] = useState(true);
+  const endPoint = clusterApiUrl("devnet");
+  console.log(wallets);
   const [txid, setTXID] = useState("");
 
   const [getTXId, { data, loading }] = useMutation<any>(
@@ -204,6 +217,9 @@ function Payment() {
           </TotalPriceWrapper>
           <ButtonWrapper>
             <Button onClick={onClick}>Pay</Button>
+          </ButtonWrapper>
+          <ButtonWrapper style={{ visibility: "hidden" }}>
+            <WalletConnectButton />
           </ButtonWrapper>
         </PaymentWrapper>
       </Wrapper>

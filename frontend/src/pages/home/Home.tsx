@@ -1,3 +1,9 @@
+import {
+  WalletConnectButton,
+  WalletModalButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+import { Button } from "@solana/wallet-adapter-react-ui/lib/types/Button";
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
@@ -95,9 +101,11 @@ function Home() {
       <Box2>
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
+          {/* <WalletConnectButton onClick={connectWallet}> */}
           <WalletBtn isWallet={isWallet} onClick={connectWallet}>
             입장하기
           </WalletBtn>
+          {/* </WalletConnectButton> */}
         </TextArea>
       </Box2>
       <Box3>
@@ -160,6 +168,7 @@ const Loading = styled.div`
     display: none;
   }
 `;
+
 const Box1 = styled.div`
   width: 530px;
   height: 625px;

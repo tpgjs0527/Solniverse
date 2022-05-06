@@ -1,8 +1,16 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Modal from "react-modal";
 // import { Modal } from "react-responsive-modal";
-import { createQR, encodeURL } from "@solana/pay";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { createQR, createTransaction, encodeURL, parseURL } from "@solana/pay";
+import {
+  clusterApiUrl,
+  Connection,
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import * as web3 from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import QRCodeStyling from "qr-code-styling";
 import styled from "styled-components";
@@ -10,6 +18,21 @@ import { BrowserView, isMobile, MobileView } from "react-device-detect";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { Navigate, useNavigate, useNavigationType } from "react-router-dom";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import {
+  ConnectionProvider,
+  useConnection,
+  useWallet,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import {
+  WalletModalProvider,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+import { WalletError } from "@solana/wallet-adapter-base";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { getProvider } from "utils/getProvider";
+import { getWallet } from "utils/getWallet";
 
 interface IPayment {
   open: any;
@@ -26,11 +49,23 @@ interface IPayment {
 function Qrcode({ open, onClose, params, txid }: IPayment) {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
-  const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+  const connections = new Connection(clusterApiUrl("devnet"), "confirmed");
 
   const [modalIsOpen, setModalIsOpen] = useState(open);
   const [makeQR, setMakeQR] = useState({});
   const [signature, setSignature] = useState("");
+  const [connectWallet, setConnectWallet] = useState(false);
+  const [txURL, setTXURL] = useState<any>();
+  const { publicKey, wallet, connect, connecting, connected, sendTransaction } =
+    useWallet();
+
+  // const wallets = [new PhantomWalletAdapter()];
+  const wallets = useMemo(
+    () => (connectWallet ? [new PhantomWalletAdapter()] : []),
+    [connectWallet]
+  );
+  // const wallets = [new PhantomWalletAdapter()];
+  const endPoint = clusterApiUrl("devnet");
 
   const mobileStyle = {
     content: {
@@ -61,7 +96,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
 
   const main = async () => {
     if (txid) {
-      console.log(userInfo);
       // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
       const recipient = new PublicKey(`${params.walletAddress}`);
 
@@ -86,12 +120,14 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         message,
         memo,
       });
-      console.log(url);
+      setTXURL(url);
 
       const qrCode = createQR(url);
+      // const qrCodeSize = Number(`${message.length >= 30 ? 250 : 230}`);
+      const qrCodeSize = 230;
       const QrCode = new QRCodeStyling({
-        width: 230,
-        height: 230,
+        width: qrCodeSize,
+        height: qrCodeSize,
         type: "canvas",
         data: `${qrCode._options.data}`,
         image: `${process.env.PUBLIC_URL}/솔라나.png`,
@@ -117,8 +153,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       });
       const element = document.getElementById("qr-code");
       QrCode.append(element!);
-      // console.log(QrCode);
-      // console.log(typeof QrCode._container);
+
       setMakeQR(QrCode);
     } else {
       alert("결제정보가 잘못 입력됐습니다. 다시 후원해주세요.");
@@ -133,23 +168,26 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
     const reference = new PublicKey(`${userInfo.walletAddress}`);
     const options = {};
     const finality = "confirmed";
-    const signatures = await connection.getSignaturesForAddress(
+    const signatures = await connections.getSignaturesForAddress(
       reference,
       options,
       finality
     );
     if (signatures.length > 0) {
-      console.log(signatures[0].signature);
-      console.log(signatures[0]);
       setSignature(signatures[0].signature);
     } else {
     }
   };
 
+  const onError = useCallback(
+    (error: WalletError) =>
+      alert(error.message ? `${error.name} : ${error.message}` : error.name),
+    []
+  );
+
   useEffect(() => {
     setTimeout(() => main(), 100);
     getSignature();
-    console.log(txid);
   }, []);
 
   useEffect(() => {
@@ -157,16 +195,16 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       const interval = setInterval(async () => {
         const reference = new PublicKey(`${userInfo.walletAddress}`);
         const options = { until: `${signature}`, limit: 1000 };
-        console.log(options);
+
         const finality = "confirmed";
-        const signatures = await connection.getSignaturesForAddress(
+        const signatures = await connections.getSignaturesForAddress(
           reference,
           options,
           finality
         );
-        console.log(signatures);
+
         for (let i = 0; i < signatures.length; i++) {
-          const transaction = await connection.getTransaction(
+          const transaction = await connections.getTransaction(
             signatures[i].signature
           );
           if (transaction) {
@@ -180,8 +218,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
                 transaction?.transaction.message.accountKeys[j].toBase58() ===
                 `${params.walletAddress}`
               ) {
-                console.log("이 트랜잭션이 현재 진행된 결제입니다.");
-                console.log(signatures[i].signature);
                 clearInterval(interval);
                 navigate("/payment/confirmed", {
                   state: { signature: signatures[i].signature },
@@ -194,66 +230,138 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
     }
   }, [signature]);
 
+  // const getPhantomProvider = async () => {
+  //   const re = await getWallet();
+
+  // };
+  // getPhantomProvider();
+  const { connection } = useConnection();
+
+  const sendTX = async () => {
+    setConnectWallet(true);
+    try {
+      if (txURL) {
+        const provider = getProvider();
+        console.log(provider);
+        console.log(provider?.publicKey);
+        provider?.on("connect", (publicKey: PublicKey) => {});
+        const res = await provider?.connect();
+        console.log(res?.publicKey.toBase58());
+
+        const { recipient, amount, reference, memo } = parseURL(txURL);
+        const publicKey = new PublicKey(userInfo.walletAddress);
+        console.log(publicKey);
+
+        // part 1
+        const transaction = await createTransaction(
+          connection,
+          publicKey!,
+          recipient,
+          amount!,
+          { reference, memo }
+        );
+        console.log(transaction);
+        // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
+        const response = await sendTransaction(transaction, connection);
+        console.log(response);
+
+        // await connection.confirmTransaction(signature, "processed");
+
+        // part 2
+        // let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+        // let transaction = new web3.Transaction().add(
+        //   web3.SystemProgram.transfer({
+        //     fromPubkey: publicKey,
+        //     toPubkey: recipient,
+        //     lamports: web3.LAMPORTS_PER_SOL,
+        //   })
+        // );
+        // transaction.feePayer = publicKey;
+        // const anyTransaction: any = transaction
+        // anyTransaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash
+
+        // let blockhashObj = await connection.getRecentBlockhash();
+        // transaction.recentBlockhash = await blockhashObj.blockhash;
+
+        // let signed = await provider?.signTransaction(transaction);
+        // let signature = await connection.sendRawTransaction(
+        //   signed!.serialize()
+        // );
+        // await connection.confirmTransaction(signature);
+      }
+    } catch (error) {
+      console.error(error);
+      console.log(error);
+    }
+  };
+
   return (
-    <Container>
-      <BrowserView>
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={() => closeModal()}
-          style={desktopStyle}
-        >
-          {/* <Modal open={modalIsOpen} onClose={() => closeModal()} center> */}
-          <Container>
-            <TitleWrapper
-              style={{ backgroundColor: "#eeeeee", padding: "4px" }}
-            >
-              <PageName>Phantom Wallet 결제</PageName>
-              <OurLogo>
-                <SVGLogo />
-                Solniverse
-              </OurLogo>
-            </TitleWrapper>
-            <Wrapper>
-              <ManualWrapper>
-                <ManualName>Phantom wallet 결제 방법</ManualName>
-                <ManualSeries>
-                  <ManualNumber>1️⃣</ManualNumber>
-                  <ManualContent>Phantom Wallet 앱 실행</ManualContent>
-                </ManualSeries>
-                <ManualSeries>
-                  <ManualNumber>2️⃣</ManualNumber>
-                  <ManualContent>
-                    측 상단 QR코드 메뉴 선택 후 오른쪽의 QR코드를 스캔하세요.
-                  </ManualContent>
-                </ManualSeries>
-                <ManualSeries>
-                  <ManualNumber>3️⃣</ManualNumber>
-                  <ManualContent>
-                    이후 표시된 전송 정보를 확인 후 보내기 버튼 클릭
-                  </ManualContent>
-                </ManualSeries>
-              </ManualWrapper>
-              <QRWrapper>
-                <QRCodeName>QR코드</QRCodeName>
-                <QRCodeWrapper>
-                  <QRCode id="qr-code"></QRCode>
-                </QRCodeWrapper>
-              </QRWrapper>
-            </Wrapper>
-            <Wrapper>
-              <NoWalletGuide>
-                스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
-                설치하세요!
-              </NoWalletGuide>
-              <WalletInstall>
-                <WalletBtn onClick={getSignature}>설치하기</WalletBtn>
-              </WalletInstall>
-            </Wrapper>
-            <CloseBtn onClick={closeModal}>닫기</CloseBtn>
-          </Container>
-        </Modal>
-      </BrowserView>
-    </Container>
+    <Modal
+      isOpen={modalIsOpen}
+      onRequestClose={() => closeModal()}
+      style={desktopStyle}
+    >
+      {/* <Modal open={modalIsOpen} onClose={() => closeModal()} center> */}
+      <Container>
+        <TitleWrapper style={{ backgroundColor: "#eeeeee", padding: "4px" }}>
+          <PageName>Phantom Wallet 결제</PageName>
+          <OurLogo>
+            <SVGLogo />
+            Solniverse
+          </OurLogo>
+        </TitleWrapper>
+        <Wrapper>
+          <ManualWrapper>
+            <ManualName>Phantom wallet 결제 방법</ManualName>
+            <ManualSeries>
+              <ManualNumber>1️⃣</ManualNumber>
+              <ManualContent>Phantom Wallet 앱 실행</ManualContent>
+            </ManualSeries>
+            <ManualSeries>
+              <ManualNumber>2️⃣</ManualNumber>
+              <ManualContent>
+                측 상단 QR코드 메뉴 선택 후 오른쪽의 QR코드를 스캔하세요.
+              </ManualContent>
+            </ManualSeries>
+            <ManualSeries>
+              <ManualNumber>3️⃣</ManualNumber>
+              <ManualContent>
+                이후 표시된 전송 정보를 확인 후 보내기 버튼 클릭
+              </ManualContent>
+            </ManualSeries>
+            <ManualSeries>
+              <ManualNumber>4️⃣</ManualNumber>
+              <ManualContent>
+                앱 없이 크롬 확장 프로그램으로 결제하시려면 아래 바로 결제
+                버튼을 눌러주세요.
+              </ManualContent>
+            </ManualSeries>
+            <ExtensionWrapper>
+              <ExtensionButton onClick={sendTX}>바로결제</ExtensionButton>
+            </ExtensionWrapper>
+          </ManualWrapper>
+          <QRWrapper>
+            <QRCodeName>QR코드</QRCodeName>
+            <QRCodeWrapper>
+              <QRCode id="qr-code"></QRCode>
+            </QRCodeWrapper>
+          </QRWrapper>
+        </Wrapper>
+        <Wrapper>
+          <NoWalletGuide>
+            스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
+            설치하세요!
+          </NoWalletGuide>
+          <WalletInstall>
+            <WalletBtn onClick={getSignature}>설치하기</WalletBtn>
+          </WalletInstall>
+        </Wrapper>
+        <CloseBtn onClick={closeModal}>닫기</CloseBtn>
+        {/* <Container style={{ margin: "0px", visibility: "hidden" }}>
+          <WalletMultiButton />
+        </Container> */}
+      </Container>
+    </Modal>
   );
 }
 
@@ -315,6 +423,22 @@ const ManualNumber = styled.div`
   margin-right: 8px;
 `;
 const ManualContent = styled.div``;
+const ExtensionWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+const ExtensionButton = styled.button`
+  background-color: ${(props) => props.theme.ownColor};
+  width: 50%;
+  height: 30px;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 16px;
+`;
 const QRWrapper = styled.div`
   width: 45%;
   /* display: flex;

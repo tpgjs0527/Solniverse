@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import interpolate from "color-interpolate";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import styled, { keyframes } from "styled-components";
-import Spinner from "components/Spinner";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 // interface IState {
 //   state: { signature: string };
@@ -50,6 +50,7 @@ function Confirmed() {
   const requiredConfirmations = 32;
   const [confirmations, setConfirmations] = useState<Confirmations>(0);
   const [status, setStatus] = useState("Confirmed");
+  const [isBlocking, setIsBlocking] = useState(false);
   const progress = useMemo(
     () => confirmations / requiredConfirmations,
     [confirmations, requiredConfirmations]
@@ -104,6 +105,24 @@ function Confirmed() {
       }, 1000);
     }
   }, [state]);
+  // 뒤로 가기 방지 코드
+  useEffect(() => {
+    const preventGoBack = () => {
+      window.history.pushState(null, "", window.location.href);
+      if (status === "Finalized") {
+        alert("이미 결제 완료된 도네이션입니다.");
+      } else {
+        alert("결제 중인 도네이션입니다.");
+      }
+    };
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", preventGoBack);
+
+    return () => {
+      window.removeEventListener("popstate", preventGoBack);
+    };
+  }, [status]);
+
   return (
     <Container>
       <Wrapper>
