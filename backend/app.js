@@ -10,6 +10,7 @@ const morganMiddleware = require("./config/morganMiddleware");
 
 const authRouter = require("./src/auth/auth.controller");
 const donationRouter = require("./src/donation/donation.controller");
+const graphRouter = require("./src/graph/graph.controller");
 const { swaggerUi, swaggerConfig } = require("./src/swaggerConfig");
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerConfig));
 // 개발용
 app.use("/api/auth", authRouter);
 app.use("/api/donation", donationRouter);
+app.use("/api/graph", graphRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res) {
