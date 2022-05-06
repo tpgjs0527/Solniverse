@@ -109,8 +109,10 @@ function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
  * @returns
  */
 async function updateTransactionWithoutDuplication(tx) {
-  if (tx.meta.err) return;
   try {
+    if (!tx.meta || tx.meta.err) {
+      throw `Tx가 잘못됨 tx=${tx}`;
+    }
     const {
       transaction,
       meta: {
@@ -176,7 +178,7 @@ async function updateTransactionWithoutDuplication(tx) {
         decimal,
         donation,
         sendWallet.toString(),
-        updatedTx.sendUserId.toString(),
+        updatedTx.receiveUserId.toString(),
       );
       logger.info(
         `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${updatedTx}`,
@@ -200,7 +202,7 @@ async function updateTransactionWithoutDuplication(tx) {
         decimal,
         donation,
         sendWallet.toString(),
-        createdTx.sendUserId.toString(),
+        createdTx.receiveUserId.toString(),
       );
       logger.info(
         `updateTransactionWithoutDuplication 새 데이터 삽입: ${createdTx}`,
@@ -305,7 +307,8 @@ function alertAndSendSnv(
     const toWallet = new web3.PublicKey(sendWallet);
     try {
       const pointAmount =
-        (paymentType == "sol" ? await getUsdFromSol(amount) : amount) * 10;
+        ((paymentType == "sol" ? await getUsdFromSol(amount) : amount) | 0) *
+        10;
       sendSnvToken(toWallet, pointAmount);
     } catch (err) {
       logger.error(
@@ -315,6 +318,9 @@ function alertAndSendSnv(
   })();
   amount = amount / decimal;
 
+  logger.info(
+    `Donation 알림 전송 to=${receiveUserId} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
+  );
   io.to(receiveUserId).emit("donation", {
     displayName,
     message,
@@ -396,8 +402,20 @@ async function sendSnvToken(toWallet, amount) {
  * @param {*} context
  */
 function logCallback(context) {
+  if (context.err) {
+    logger.error(`logCallback 에러 발생: error=${context.error}`);
+    return;
+  }
   connection
     .getTransaction(context.signature)
+    .catch(() =>
+      connection
+        .getTransaction(context.signature)
+        .catch((err) =>
+          logger.error(`getTransaction 2 번 에러 발생: error=${err}`),
+        )
+        .then(updateTransactionWithoutDuplication),
+    )
     .then(updateTransactionWithoutDuplication);
 }
 

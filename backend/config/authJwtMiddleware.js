@@ -14,6 +14,7 @@ const authJwtMiddleware = (req, res, next) => {
         BAD_REQUEST_RESPONSE,
       );
       res.status(statusCode).send(responseBody);
+      return;
     }
 
     const result = verify(token); // token 검증
