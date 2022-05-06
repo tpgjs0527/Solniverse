@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Layout from "components/Layout";
-import banner from "../../../public/가로긴사진.png";
 import { createSearchParams, useNavigate, useParams } from "react-router-dom";
 import { MouseEventHandler, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
