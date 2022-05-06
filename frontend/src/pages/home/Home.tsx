@@ -1,20 +1,25 @@
-import { accessTokenAtom, userInfoAtom } from "atoms";
+import { userInfoAtom } from "atoms";
+import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useMatch, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { checkWallet } from "utils/checkWallet";
-import { getAccessToken } from "utils/getAccessToken";
-import { getTokens } from "utils/getTokens";
+
 import { getWallet } from "utils/getWallet";
+// import picture1 from "../../styles/1.png";
+// import picture2 from "../../styles/2.png";
 
 function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
-  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [isWallet, setIsWallet] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const homeMatch = useMatch("/");
+  const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
-  const [UUID, setUUID] = useState("");
-  // 기존에 지갑 있으면 연결 ㅇㅋ
+
+  // 기존에 지갑 있으면 연결함
   const checkIfWalletIsConnected = async () => {
     const data = await checkWallet();
     if (data && data.result === "success") {
@@ -36,8 +41,8 @@ function Home() {
           createdAt: data.user.createdAt,
         });
       }
+      navigate("/main");
     } else {
-      alert("지갑을 연결해주세요");
     }
   };
   // 지갑연결
@@ -62,47 +67,12 @@ function Home() {
           createdAt: data.user.createdAt,
         });
       }
+      navigate("/main");
     } else {
       alert("지갑연결이 실패했습니다");
     }
   };
 
-  // refreshToken과 accessToken받기
-  const getToken = async () => {
-    const res = await getTokens(userInfo?.walletAddress);
-    setAccessToken(res);
-  };
-  // accessToken 재발급
-  const reGetToken = async () => {
-    console.log(accessToken, "before");
-    const res = await getAccessToken(userInfo?.walletAddress);
-    setAccessToken(res);
-  };
-
-  // 버튼 눌렀을 때, 권한인증하고 fetch요청해서 블러 해제
-  const getUuid = async () => {
-    // accessToken
-
-    const res = await (
-      await fetch(`${process.env.REACT_APP_BASE_URL}/auth/userKey`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    ).json();
-    console.log(res);
-    setUUID(res.userKey);
-    // ${process.env.REACT_APP_SOCKET_URL}/donation/alertbox/${res.userKey}
-    navigate({
-      pathname: `/donation/alertbox/${res.userKey}`,
-    });
-    console.log(res);
-  };
-
-  const enterMain = () => {
-    navigate("/main");
-  };
   useEffect(() => {
     const onLoad = async () => {
       await checkIfWalletIsConnected();
@@ -110,57 +80,204 @@ function Home() {
     window.addEventListener("load", onLoad);
     return () => window.removeEventListener("load", onLoad);
   }, []);
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 2000);
+  }, []);
   return (
-    <Base>
-      <div>
-        <WalletBtn isWallet={isWallet} onClick={connectWallet}>
-          {!isWallet ? "지갑연결" : "연결완료"}
-        </WalletBtn>
-      </div>
-      <div>
-        <EnterBtn hidden={!isWallet} onClick={enterMain}>
-          입장하기
-        </EnterBtn>
-      </div>
-    </Base>
+    <Main>
+      {isLoading ? (
+        <Loading>
+          <Spinner />
+        </Loading>
+      ) : null}
+
+      <Box1></Box1>
+      <Box2>
+        <TextArea>
+          WELCOME <br /> SOLNIVERSE <br />
+          <WalletBtn isWallet={isWallet} onClick={connectWallet}>
+            입장하기
+          </WalletBtn>
+        </TextArea>
+      </Box2>
+      <Box3>
+        <Container>
+          <Logo>
+            <img src="" alt="" />
+          </Logo>
+          <Menu>
+            <ul>
+              <li>
+                <Link to={"/"}>Home</Link>
+              </li>
+              <li>
+                <Link to={"/service"}>Service</Link>
+              </li>
+            </ul>
+          </Menu>
+        </Container>
+      </Box3>
+    </Main>
   );
 }
 
 export default Home;
 
-const Base = styled.div`
-  margin: 0 auto;
-  padding: 60px 24px 172px;
-  max-width: 364px;
+export const Main = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
+`;
 
-  @media screen and (min-width: 767px) {
-    max-width: 630px;
-    padding: 60px 0 172px;
-  }
-  @media screen and (min-width: 1024px) {
-    padding-top: 72px;
-    max-width: 952px;
-  }
-  @media screen and (min-width: 1439px) {
-    max-width: 1296px;
-  }
+const anim = keyframes`
+    from {
+        bottom: -100%;
+      }
+      to {
+        bottom: 0%;
+      }
+`;
+const anim2 = keyframes`
+  from {
+        left: 30%;
+        width: 530px;
+      }
+      to {
+        width: 0px;
+        left: 50%;
+      }
+`;
 
+const Loading = styled.div`
+  /* position: absolute; */
   display: flex;
-  flex-direction: column;
-
+  justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  margin-top: 50%;
+  /* margin-top: 45vh; */
+  @media screen and (min-width: 1000px) {
+    display: none;
+  }
+`;
+const Box1 = styled.div`
+  width: 530px;
+  height: 625px;
+  background-image: url("1.png");
+  position: absolute;
+  bottom: -100%;
+  left: 30%;
+  animation: ${anim} 2s forwards, ${anim2} 3s forwards 2.5s;
+  @media screen and (max-width: 1000px) {
+    display: none;
+  }
+
+  &:after {
+    content: "";
+    position: absolute;
+    width: 530px;
+    height: 625px;
+    background-image: url("2.png");
+    left: 0px;
+    z-index: -1;
+  }
+`;
+
+const Box2 = styled.div`
+  width: auto;
+  height: auto;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  color: white;
+  font-size: 8em;
+  font-weight: 500;
+  line-height: 130px;
+  position: absolute;
+  color: ${(props) => props.theme.textColor};
+  top: 250px;
+  left: 100px;
+  overflow: hidden;
+  @media screen and (max-width: 800px) {
+    font-size: 6em;
+    line-height: 90px;
+    left: 80px;
+  }
+  @media screen and (max-width: 550px) {
+    font-size: 4em;
+    line-height: 90px;
+    left: 80px;
+  }
+`;
+
+const anim3 = keyframes`
+    from {
+          left: -100%;
+        }
+        to {
+          left: 0%;
+        }
+`;
+const TextArea = styled.div`
+  position: relative;
+  left: -100%;
+  color: black;
+  animation: ${anim3} 2s forwards 3s;
+`;
+const Box3 = styled.div`
+  overflow: hidden;
+`;
+const anim4 = keyframes`
+    from {
+          top: -100%;
+        }
+        to {
+          top: 0%;
+        }
+`;
+const Container = styled.div`
+  width: 100%;
+  position: absolute;
+  top: -100%;
+  animation: ${anim4} 2s forwards 2.5s;
+`;
+
+export const Logo = styled.div`
+  float: left;
+  margin-left: 100px;
+  margin-top: 20px;
+  img {
+    width: 50px;
+  }
+`;
+export const Menu = styled.div`
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: black;
+
+  letter-spacing: 2px;
+  margin-right: 150px;
+  margin-top: 20px;
+  float: right;
+  ul {
+    list-style: none;
+    li {
+      display: inline-block;
+      margin-left: 100px;
+    }
+  }
 `;
 
 const WalletBtn = styled.div<{ isWallet: boolean }>`
   width: 143px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
   align-items: center;
   text-align: center;
-  margin-top: 140%;
-  margin-bottom: 10px;
+
   font-size: 19px;
   font-weight: 550;
   padding: 15px;
+
   border-radius: 8px;
   box-shadow: 4px 12px 30px 6px rgb(0 0 0 / 9%);
   border: none;
@@ -174,21 +291,4 @@ const WalletBtn = styled.div<{ isWallet: boolean }>`
     background-color: "#20134190";
   }
   transition: transform ease-in 170ms;
-`;
-
-const EnterBtn = styled.div`
-  width: 143px;
-  text-align: center;
-  margin-bottom: 10px;
-  font-size: 19px;
-  font-weight: 550;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 4px 12px 30px 6px rgb(0 0 0 / 9%);
-  border: none;
-  &:hover {
-    cursor: pointer;
-    transform: scale(1.05);
-  }
-  transition: transform ease-in 150ms;
 `;
