@@ -23,7 +23,8 @@ function SetDonation() {
 
     if (newAccessToken) {
       setAccessToken(newAccessToken);
-      const uuid = await getUuid(accessToken);
+
+      const uuid = await getUuid(newAccessToken);
       setUUID(uuid);
       setIsLoadingUUID(false);
     } else {
@@ -155,7 +156,6 @@ const BoxTitle = styled.p`
 `;
 
 const Box = styled.div`
-  /* height: 350px; */
   padding: 25px 24px;
   border-radius: 14px;
   box-shadow: 4px 12px 30px 6px rgb(0 0 0 / 9%);
@@ -172,8 +172,9 @@ const BoxWrapper = styled.div`
 `;
 
 const Section = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  padding-top: 12px;
 `;
 
 export default SetDonation;
