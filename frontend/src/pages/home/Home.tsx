@@ -101,11 +101,12 @@ function Home() {
       <Box2>
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
-          {/* <WalletConnectButton onClick={connectWallet}> */}
           <WalletBtn isWallet={isWallet} onClick={connectWallet}>
             입장하기
           </WalletBtn>
-          {/* </WalletConnectButton> */}
+          <Box1 style={{ visibility: "hidden" }}>
+            <WalletConnectButton></WalletConnectButton>
+          </Box1>
         </TextArea>
       </Box2>
       <Box3>
