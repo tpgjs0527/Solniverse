@@ -44,8 +44,8 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <Outlet />
           {children}
+          <Outlet />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

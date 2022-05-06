@@ -94,7 +94,7 @@ function Donation() {
       <Container>
         <DonationWrapper>
           <CreatorWrapper>
-            {/* <WalletMultiButton /> */}
+            <WalletMultiButton />
             <CreatorName>To. 메인메타님</CreatorName>
             <CreatorImage />
             <CreatorContent>❤메인메타 사랑해요❤</CreatorContent>

@@ -218,9 +218,9 @@ function Payment() {
           <ButtonWrapper>
             <Button onClick={onClick}>Pay</Button>
           </ButtonWrapper>
-          <ButtonWrapper style={{ visibility: "hidden" }}>
-            <WalletConnectButton />
-          </ButtonWrapper>
+          {/* <ButtonWrapper style={{ visibility: "hidden" }}> */}
+          <WalletConnectButton />
+          {/* </ButtonWrapper> */}
         </PaymentWrapper>
       </Wrapper>
       {openModal && txid && (
