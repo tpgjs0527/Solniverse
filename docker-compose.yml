@@ -13,3 +13,14 @@ services:
     volumes:
       - /home/ubuntu/docker-volume/ssl2:/var/www/html
     container_name: "frontend"
+
+  backend:
+    image: backend-nodejs
+    build:
+      context: backend/
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - /home/ubuntu/docker-volume/ssl2:/var/www/html
+    container_name: "backend"

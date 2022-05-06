@@ -1,25 +1,32 @@
 const createError = require("http-errors");
 const express = require("express");
+require("dotenv").config();
 const path = require("path");
 const helmet = require("helmet");
 const cors = require("cors");
 const cookie = require("cookie-parser");
 global.logger || (global.logger = require("./config/logger")); // → 전역에서 사용
 const morganMiddleware = require("./config/morganMiddleware");
-require("dotenv").config();
 
 const authRouter = require("./src/auth/auth.controller");
 const donationRouter = require("./src/donation/donation.controller");
+const { swaggerUi, swaggerConfig } = require("./src/swaggerConfig");
 
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://www.solniverse.net/", /localhost:*/],
+    credentials: true,
+  }),
+);
 app.use(cookie());
 app.use(morganMiddleware); // 콘솔창에 통신결과 나오게 해주는 것
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerConfig));
 
 // 개발용
 app.use("/api/auth", authRouter);
@@ -38,5 +45,7 @@ app.use(function (err, req, res) {
 
   res.status(err.status || 500);
 });
+
+require("./src/donation/donation.web3");
 
 module.exports = app;

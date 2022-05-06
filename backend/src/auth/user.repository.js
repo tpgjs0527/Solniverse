@@ -20,18 +20,11 @@ class UserRepository {
   async createUserByWalletAddress(walletAddress) {
     //생성
     const user = new User({
-      wallet_address: walletAddress,
+      walletAddress,
       nonce: crypto.randomBytes(16).toString("base64"),
     });
 
-    return user
-      .save()
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    return user.save();
   }
 
   /**
@@ -40,13 +33,20 @@ class UserRepository {
    * @returns {Promise<user|null>} user|null
    */
   async getUserByWalletAddress(walletAddress) {
-    return User.findOne({ wallet_address: walletAddress })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    return User.findOne({ walletAddress }).then((res) => res);
+  }
+
+  /**
+   * UserKey로 유저를 찾아냄. Read
+   *
+   * @param {string} userKey
+   *
+   * @typedef {import("mongoose").ObjectId} ObjectId
+   * @returns {Promise<ObjectId>} UserId
+   */
+  async getUserIdByUserKey(userKey) {
+    //Javascript 최적화되어 _id만 반환
+    return User.findOne({ userKey }).select("_id").lean();
   }
 
   /**
@@ -56,17 +56,20 @@ class UserRepository {
    */
   async updateNonceByWalletAddress(walletAddress) {
     // Nonce 업데이트
-    const result = User.updateOne(
-      { wallet_address: walletAddress },
-      { nonce: crypto.randomBytes(16).toString("base64") }
-    )
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
-    return result;
+    return User.updateOne(
+      { walletAddress },
+      { nonce: crypto.randomBytes(16).toString("base64") },
+    );
+  }
+
+  /**
+   * WalletAddress로 유저 Twtich 정보를 업데이트 시킴.
+   * @param {string} walletAddress
+   * @param {string} twitchInfo
+   * @returns
+   */
+  async updateTwitchInfoByWalletAddress(walletAddress, twitchInfo) {
+    return User.updateOne({ walletAddress }, { twitch: twitchInfo });
   }
 }
 

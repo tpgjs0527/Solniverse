@@ -1,21 +1,24 @@
-const { Schema, model, Types } = require("mongoose");
+const { Schema } = require("mongoose");
+const { v4, v5 } = require("uuid");
 
 const UserSchema = new Schema(
   {
     twitch: {
       id: { type: String, required: false },
-      display_name: { type: String, required: false },
-      profile_image_url: { type: String, required: false },
+      displayName: { type: String, required: false },
+      profileImageUrl: { type: String, required: false },
       oauth: {
-        access_token: { type: String, required: false },
-        refresh_token: { type: String, required: false },
-        type: String,
+        accessToken: { type: String, required: false },
+        refreshToken: { type: String, required: false },
+        type: Object,
         required: false,
       },
+      type: Object,
+      default: undefined,
       required: false,
     },
 
-    wallet_address: { type: String, required: true, unique: true },
+    walletAddress: { type: String, required: true, unique: true },
     nonce: { type: String, required: true },
     authority: {
       type: String,
@@ -23,14 +26,20 @@ const UserSchema = new Schema(
       required: true,
       enum: ["normal", "admin"],
     },
+    userKey: { type: String, immutable: true, unique: true },
     enabled: { type: Boolean, required: false },
   },
 
   {
     // createdat, updatedat
     timestamps: true,
-  }
+  },
 );
+
+UserSchema.pre("save", function (next) {
+  this.userKey = v5(this.get("walletAddress"), v4()).replace(/-/g, "");
+  next();
+});
 
 module.exports = UserSchema;
 // module.exports = mongoose.model("User", UserSchema);

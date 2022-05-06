@@ -10,16 +10,10 @@ class RefreshTokenRepository {
    */
   async upsertRefreshTokenByWalletAddress(token, walletAddress) {
     return RefreshToken.updateOne(
-      { wallet_address: walletAddress },
+      { walletAddress },
       { token },
-      { upsert: true }
-    )
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+      { upsert: true },
+    );
   }
 
   /**
@@ -29,13 +23,7 @@ class RefreshTokenRepository {
    * @returns
    */
   async findRefreshTokenByWalletAddress(walletAddress) {
-    return RefreshToken.findOne({ wallet_address: walletAddress })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    return RefreshToken.findOne({ walletAddress });
   }
 }
 module.exports = RefreshTokenRepository;

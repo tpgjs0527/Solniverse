@@ -13,7 +13,7 @@ module.exports = {
     // access token 발급
     const payload = {
       // access token에 들어갈 payload
-      wallet_address: user.wallet_address,
+      walletAddress: user.walletAddress,
       authority: user.authority,
     };
 
@@ -35,7 +35,7 @@ module.exports = {
       decoded = jwt.verify(token, secret);
       return {
         ok: true,
-        wallet_address: decoded.wallet_address,
+        walletAddress: decoded.walletAddress,
         authority: decoded.authority,
       };
     } catch (err) {
@@ -56,7 +56,7 @@ module.exports = {
     try {
       const decoded = jwt.decode(token);
       return {
-        wallet_address: decoded.wallet_address,
+        walletAddress: decoded.walletAddress,
         authority: decoded.authority,
       };
     } catch (err) {
@@ -69,36 +69,44 @@ module.exports = {
 
   /**
    * WalletAddress를 받아 refresh 토큰을 가져오거나 만료됐다면 발급 및 저장
+   * 백엔드에서 갱신 및 조회를 사용하므로 async await를 사용한다.
+   *
    * @param {string} walletAddress
    * @returns
    */
   refresh: async (walletAddress) => {
     // 현재 refresh token이 만료되지 않았다면 반환
-    const currentToken =
-      await refreshTokenRepository.findRefreshTokenByWalletAddress(
-        walletAddress
-      );
     try {
-      jwt.verify(currentToken, secret);
-      return currentToken;
-    } catch (err) {
-      //만료됐다면 새로 발급
-      const token = jwt.sign({}, secret, {
-        // refresh token은 payload 없이 발급
-        algorithm: "HS256",
-        expiresIn: "14d",
-      });
-      // refresh token 저장
-      await refreshTokenRepository.upsertRefreshTokenByWalletAddress(
-        token,
-        walletAddress
-      );
-      return token;
+      const currentToken =
+        await refreshTokenRepository.findRefreshTokenByWalletAddress(
+          walletAddress,
+        );
+      try {
+        jwt.verify(currentToken, secret);
+        return currentToken;
+      } catch (err) {
+        //만료됐다면 새로 발급
+        const token = jwt.sign({}, secret, {
+          // refresh token은 payload 없이 발급
+          algorithm: "HS256",
+          expiresIn: "14d",
+        });
+        // refresh token 저장
+        await refreshTokenRepository.upsertRefreshTokenByWalletAddress(
+          token,
+          walletAddress,
+        );
+        return token;
+      }
+    } catch (error) {
+      return;
     }
   },
 
   /**
    * RefreshToken과 walletAddress를 받아 리프레시 토큰 검증.
+   * 백엔드에서 조회를 사용하므로 async await를 사용한다.
+   *
    * @param {string} token
    * @param {string} walletAddress
    * @returns
