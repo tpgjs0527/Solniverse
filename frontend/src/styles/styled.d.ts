@@ -11,5 +11,6 @@ declare module "styled-components" {
     subTextColor: string;
     borderColor: string;
     boxColor: string;
+    subBoxColor: string;
   }
 }

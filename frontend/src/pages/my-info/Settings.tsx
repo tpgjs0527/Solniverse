@@ -6,41 +6,41 @@ import {
   useMatch,
   useNavigate,
 } from "react-router-dom";
-import Give from "components/DonationHistory/Give";
-import Receive from "components/DonationHistory/Receive";
+import Account from "components/Settings/Account";
+import SetDonation from "components/Settings/Donation";
 
-function DonationHistory() {
+function Settings() {
   const navigate = useNavigate();
 
   // Active Link
-  const giveMatch = useMatch("/donation-history");
-  const receiveMatch = useMatch("/donation-history/receive");
+  const accountMatch = useMatch("/settings");
+  const donationMatch = useMatch("/settings/donation");
 
   return (
     <Layout>
-      <Title>후원 내역</Title>
+      <Title>계정</Title>
       <Section>
         <Wrapper>
           <Tabs>
             <Tab
-              isActive={giveMatch !== null}
-              onClick={() => navigate(`/donation-history`)}
+              isActive={accountMatch !== null}
+              onClick={() => navigate(`/settings`)}
             >
-              후원한 내역
+              계정 상세
             </Tab>
             <Tab
-              isActive={receiveMatch !== null}
-              onClick={() => navigate(`/donation-history/receive`)}
+              isActive={donationMatch !== null}
+              onClick={() => navigate(`/settings/donation`)}
             >
-              후원받은 내역
+              후원 설정
             </Tab>
           </Tabs>
         </Wrapper>
 
         <TabComponent>
           <ReactRouterRoutes>
-            <Route path="" element={<Give />} />
-            <Route path="/receive" element={<Receive />} />
+            <Route path="" element={<Account />} />
+            <Route path="/donation" element={<SetDonation />} />
           </ReactRouterRoutes>
         </TabComponent>
       </Section>
@@ -87,4 +87,4 @@ const Title = styled.div`
   font-weight: 700;
 `;
 
-export default DonationHistory;
+export default Settings;
