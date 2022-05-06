@@ -16,18 +16,19 @@ import {
 } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { clusterApiUrl } from "@solana/web3.js";
+import { Outlet } from "react-router-dom";
 
 const App: FC = () => {
   const isDark = useRecoilValue(toggleThemeAtom);
 
   return (
-    <Context>
-      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+      <Context>
         <GlobalStyle />
         <Routes />
-        {/* <WalletMultiButton /> */}
-      </ThemeProvider>
-    </Context>
+        {/* <Content /> */}
+      </Context>
+    </ThemeProvider>
   );
 };
 
@@ -35,14 +36,17 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
   const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-  const wallets = useMemo(() => [new PhantomWalletAdapter()], [network]);
+  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
   useEffect(() => {
     console.log(wallets);
   }, [wallets]);
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
+        <WalletModalProvider>
+          <Outlet />
+          {children}
+        </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

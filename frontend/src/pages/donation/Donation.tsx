@@ -11,6 +11,7 @@ import {
 } from "@solana/web3.js";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface IDonation {
   nickname: string;
@@ -93,6 +94,7 @@ function Donation() {
       <Container>
         <DonationWrapper>
           <CreatorWrapper>
+            {/* <WalletMultiButton /> */}
             <CreatorName>To. 메인메타님</CreatorName>
             <CreatorImage />
             <CreatorContent>❤메인메타 사랑해요❤</CreatorContent>

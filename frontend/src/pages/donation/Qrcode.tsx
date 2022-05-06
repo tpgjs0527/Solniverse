@@ -357,9 +357,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           </WalletInstall>
         </Wrapper>
         <CloseBtn onClick={closeModal}>닫기</CloseBtn>
-        {/* <Container style={{ margin: "0px", visibility: "hidden" }}>
+        <Container style={{ margin: "0px", visibility: "hidden" }}>
           <WalletMultiButton />
-        </Container> */}
+        </Container>
       </Container>
     </Modal>
   );
