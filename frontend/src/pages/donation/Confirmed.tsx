@@ -80,7 +80,7 @@ function Confirmed() {
       }),
     [interpolated, value]
   );
-  console.log(state);
+
   useEffect(() => {
     if (state) {
       const interval = setInterval(async () => {
