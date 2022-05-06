@@ -16,3 +16,6 @@ services:
     networks:
       - elk
     container_name: "frontend"
+networks:
+  elk:
+    driver: bridge
