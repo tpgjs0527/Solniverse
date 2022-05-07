@@ -1,3 +1,4 @@
+import { useLocalStorage } from "@solana/wallet-adapter-react";
 import {
   WalletConnectButton,
   WalletModalButton,
@@ -21,6 +22,7 @@ function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [autoConnect, setAutoConnect] = useLocalStorage("autoconnect", false);
   const homeMatch = useMatch("/");
   const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
@@ -53,6 +55,7 @@ function Home() {
   };
   // 지갑연결
   const connectWallet = async () => {
+    setAutoConnect(true);
     const data = await getWallet();
     if (data.result === "success") {
       setIsWallet(true);
@@ -100,12 +103,9 @@ function Home() {
       <Box2>
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
-          <WalletBtn isWallet={isWallet} onClick={connectWallet}>
+          <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
             입장하기
-          </WalletBtn>
-          <Box1 style={{ visibility: "hidden" }}>
-            <WalletConnectButton />
-          </Box1>
+          </WalletMultiBtn>
         </TextArea>
       </Box2>
       <Box3>
@@ -275,7 +275,7 @@ export const Menu = styled.div`
   }
 `;
 
-const WalletBtn = styled.div<{ isWallet: boolean }>`
+const WalletMultiBtn = styled(WalletConnectButton)<{ isWallet: boolean }>`
   width: 143px;
   height: 50px;
   display: flex;
