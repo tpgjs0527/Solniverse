@@ -22,6 +22,7 @@ import {
 } from "@solana/wallet-adapter-react";
 import {
   WalletConnectButton,
+  WalletModalButton,
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
@@ -218,9 +219,9 @@ function Payment() {
           <ButtonWrapper>
             <Button onClick={onClick}>Pay</Button>
           </ButtonWrapper>
-          {/* <ButtonWrapper style={{ visibility: "hidden" }}> */}
-          <WalletConnectButton />
-          {/* </ButtonWrapper> */}
+          {/* <ButtonWrapper style={{ visibility: "hidden" }}>
+          <WalletModalButton />
+          </ButtonWrapper> */}
         </PaymentWrapper>
       </Wrapper>
       {openModal && txid && (

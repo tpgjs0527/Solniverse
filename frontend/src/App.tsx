@@ -20,14 +20,28 @@ import { Outlet } from "react-router-dom";
 
 const App: FC = () => {
   const isDark = useRecoilValue(toggleThemeAtom);
-
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const autoConnect = localStorage.getItem("autoconnect");
+  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
+  useEffect(() => {
+    if (wallets) {
+      console.log(wallets);
+    }
+  }, [wallets]);
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <Context>
-        <GlobalStyle />
-        <Routes />
-        {/* <Content /> */}
-      </Context>
+      {/* <Context> */}
+      <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect={false}>
+          <WalletModalProvider>
+            <GlobalStyle />
+            <Routes />
+            <Outlet />
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+      {/* </Context> */}
     </ThemeProvider>
   );
 };

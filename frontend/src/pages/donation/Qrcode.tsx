@@ -26,6 +26,7 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import {
+  WalletModalButton,
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
@@ -241,13 +242,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
     setConnectWallet(true);
     try {
       if (txURL) {
-        const provider = getProvider();
-        console.log(provider);
-        console.log(provider?.publicKey);
-        provider?.on("connect", (publicKey: PublicKey) => {});
-        const res = await provider?.connect();
-        console.log(res?.publicKey.toBase58());
-
         const { recipient, amount, reference, memo } = parseURL(txURL);
         const publicKey = new PublicKey(userInfo.walletAddress);
         console.log(publicKey);
@@ -358,7 +352,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         </Wrapper>
         <CloseBtn onClick={closeModal}>닫기</CloseBtn>
         {/* <Container style={{ margin: "0px", visibility: "hidden" }}> */}
-        <WalletMultiButton />
+        <WalletModalButton />
         {/* </Container> */}
       </Container>
     </Modal>
