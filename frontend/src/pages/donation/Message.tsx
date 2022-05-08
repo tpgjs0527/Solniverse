@@ -32,9 +32,8 @@ export const Message = () => {
   ]);
   console.log(test);
   const [visible, setVisible] = useState(false);
-  // const refQueue = useRef(test);
+
   const refQueue = useMemo(() => test, [test]);
-  const [message, setMessage] = useState<IMessage>();
 
   useEffect(() => {
     const socket = io(`${URL}?userKey=${uuid}`, {
@@ -92,12 +91,6 @@ export const Message = () => {
       setStart(true);
       setVisible(true);
       let donation = refQueue[0];
-      setMessage({
-        displayName: donation.displayName,
-        message: donation.message,
-        paymentType: donation.paymentType,
-        amount: donation.amount,
-      });
 
       console.log(donation);
       console.log("시작");
