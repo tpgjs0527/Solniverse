@@ -1,3 +1,10 @@
+import { useLocalStorage } from "@solana/wallet-adapter-react";
+import {
+  WalletConnectButton,
+  WalletModalButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+import { Button } from "@solana/wallet-adapter-react-ui/lib/types/Button";
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
@@ -15,6 +22,7 @@ function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [autoConnect, setAutoConnect] = useLocalStorage("autoconnect", false);
   const homeMatch = useMatch("/");
   const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
@@ -47,6 +55,7 @@ function Home() {
   };
   // 지갑연결
   const connectWallet = async () => {
+    setAutoConnect(true);
     const data = await getWallet();
     if (data.result === "success") {
       setIsWallet(true);
@@ -90,14 +99,13 @@ function Home() {
           <Spinner />
         </Loading>
       ) : null}
-
       <Box1></Box1>
       <Box2>
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
-          <WalletBtn isWallet={isWallet} onClick={connectWallet}>
+          <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
             입장하기
-          </WalletBtn>
+          </WalletMultiBtn>
         </TextArea>
       </Box2>
       <Box3>
@@ -160,6 +168,7 @@ const Loading = styled.div`
     display: none;
   }
 `;
+
 const Box1 = styled.div`
   width: 530px;
   height: 625px;
@@ -266,7 +275,7 @@ export const Menu = styled.div`
   }
 `;
 
-const WalletBtn = styled.div<{ isWallet: boolean }>`
+const WalletMultiBtn = styled(WalletConnectButton)<{ isWallet: boolean }>`
   width: 143px;
   height: 50px;
   display: flex;

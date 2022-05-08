@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Layout from "components/Layout";
-import banner from "../../../public/가로긴사진.png";
 import { createSearchParams, useNavigate, useParams } from "react-router-dom";
 import { MouseEventHandler, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -12,6 +11,7 @@ import {
 } from "@solana/web3.js";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface IDonation {
   nickname: string;
@@ -94,6 +94,7 @@ function Donation() {
       <Container>
         <DonationWrapper>
           <CreatorWrapper>
+            <WalletMultiButton />
             <CreatorName>To. 메인메타님</CreatorName>
             <CreatorImage />
             <CreatorContent>❤메인메타 사랑해요❤</CreatorContent>

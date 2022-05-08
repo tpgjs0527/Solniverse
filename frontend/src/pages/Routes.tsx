@@ -1,4 +1,9 @@
-import { Routes as ReactRouterRoutes, Route, Navigate } from "react-router-dom";
+import {
+  Routes as ReactRouterRoutes,
+  Route,
+  Navigate,
+  BrowserRouter as Router,
+} from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import Main from "pages/my-info/Main";
