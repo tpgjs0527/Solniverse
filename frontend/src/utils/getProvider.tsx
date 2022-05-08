@@ -24,8 +24,8 @@ interface PhantomProvider {
 export const getProvider = (): PhantomProvider | undefined => {
   const UA = checkMobile();
   if (isMobile) {
-    window.location.href = "solana:";
-    return;
+    // window.location.href = "solana:";
+    // window.location.href = "https://phantom.app/ul/v1/connect";
   } else {
     if ("solana" in window) {
       const anyWindow: any = window;
@@ -35,8 +35,8 @@ export const getProvider = (): PhantomProvider | undefined => {
       }
     }
   }
-
-  if (isMobile) {
+  const confirmation = window.confirm("Phantom wallet 앱을 설치하시겠습니까?");
+  if (isMobile && confirmation) {
     if (UA === "ios") {
       window.location.href =
         "https://apps.apple.com/kr/app/phantom-solana-wallet/id1598432977";
@@ -44,7 +44,7 @@ export const getProvider = (): PhantomProvider | undefined => {
       window.location.href =
         "https://play.google.com/store/apps/details?id=app.phantom";
     }
-  } else {
+  } else if (!isMobile) {
     window.open("https://phantom.app/", "_blank");
   }
 };

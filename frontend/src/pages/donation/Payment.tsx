@@ -27,6 +27,7 @@ import {
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
 import { getProvider } from "utils/getProvider";
+import nacl from "tweetnacl";
 
 export interface ITX {
   result: string;
@@ -60,7 +61,7 @@ function Payment() {
   const closeModal = () => {
     setOpenModal(false);
   };
-  const onClick = async () => {
+  const onClick = () => {
     // pay버튼 누를 때 백으로  displayName, message, platform
     // soniverse.net/displayname/platform
     // soniverse.net/walletAddress
@@ -97,6 +98,7 @@ function Payment() {
         message,
         memo,
       });
+      console.log(url);
       window.location.href = url;
     } else {
       setOpenModal(true);
@@ -118,6 +120,7 @@ function Payment() {
   // };
   useEffect(() => {
     const provider = getProvider();
+    console.log(nacl.box.keyPair().publicKey);
     // console.log(provider);
     // provider?.on("connect", (publicKey: PublicKey) => {});
     // if (provider) {

@@ -12,6 +12,8 @@ import {
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { getProvider } from "utils/getProvider";
+import { isMobile } from "react-device-detect";
 
 interface IDonation {
   nickname: string;
@@ -95,6 +97,7 @@ function Donation() {
     getAsyncSol();
   }, [amount]);
   console.log(type);
+
   return (
     <Layout>
       <Container>
