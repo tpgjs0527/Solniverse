@@ -221,7 +221,7 @@ const Col = styled.div`
   align-items: center;
   margin: 0 auto;
   height: 60px;
-  padding: 0 24px;
+  padding: 0 0px;
   max-width: 364px;
 
   @media screen and (min-width: 767px) {

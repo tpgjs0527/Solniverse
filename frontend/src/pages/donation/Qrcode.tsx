@@ -121,6 +121,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         message,
         memo,
       });
+      console.log(url);
       setTXURL(url);
 
       const qrCode = createQR(url);
@@ -323,16 +324,20 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
                 이후 표시된 전송 정보를 확인 후 보내기 버튼 클릭
               </ManualContent>
             </ManualSeries>
-            <ManualSeries>
-              <ManualNumber>4️⃣</ManualNumber>
-              <ManualContent>
-                앱 없이 크롬 확장 프로그램으로 결제하시려면 아래 바로 결제
-                버튼을 눌러주세요.
-              </ManualContent>
-            </ManualSeries>
-            <ExtensionWrapper>
-              <ExtensionButton onClick={sendTX}>바로결제</ExtensionButton>
-            </ExtensionWrapper>
+            {isMobile ? null : (
+              <>
+                <ManualSeries>
+                  <ManualNumber>4️⃣</ManualNumber>
+                  <ManualContent>
+                    앱 없이 크롬 확장 프로그램으로 결제하시려면 아래 바로 결제
+                    버튼을 눌러주세요.
+                  </ManualContent>
+                </ManualSeries>
+                <ExtensionWrapper>
+                  <ExtensionButton onClick={sendTX}>바로결제</ExtensionButton>
+                </ExtensionWrapper>
+              </>
+            )}
           </ManualWrapper>
           <QRWrapper>
             <QRCodeName>QR코드</QRCodeName>

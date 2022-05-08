@@ -26,6 +26,7 @@ import {
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
+import { getProvider } from "utils/getProvider";
 
 export interface ITX {
   result: string;
@@ -116,6 +117,13 @@ function Payment() {
   //   setSignature(signatures[0].signature);
   // };
   useEffect(() => {
+    const provider = getProvider();
+    // console.log(provider);
+    // provider?.on("connect", (publicKey: PublicKey) => {});
+    // if (provider) {
+    //   provider?.connect();
+    // }
+
     if (!data) {
       getTXId({
         displayName: nickName,
@@ -219,9 +227,6 @@ function Payment() {
           <ButtonWrapper>
             <Button onClick={onClick}>Pay</Button>
           </ButtonWrapper>
-          {/* <ButtonWrapper style={{ visibility: "hidden" }}>
-          <WalletModalButton />
-          </ButtonWrapper> */}
         </PaymentWrapper>
       </Wrapper>
       {openModal && txid && (
@@ -239,6 +244,10 @@ function Payment() {
 const Container = styled.div`
   margin: 32px 64px;
   min-width: 400px;
+  @media screen and (max-width: 691px) {
+    margin: 8px;
+    min-width: 0px;
+  }
 `;
 
 const PageName = styled.div`
