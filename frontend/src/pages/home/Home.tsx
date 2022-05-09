@@ -22,7 +22,6 @@ function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [autoConnect, setAutoConnect] = useLocalStorage("autoconnect", false);
   const homeMatch = useMatch("/");
   const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
@@ -55,7 +54,6 @@ function Home() {
   };
   // 지갑연결
   const connectWallet = async () => {
-    setAutoConnect(true);
     const data = await getWallet();
     if (data.result === "success") {
       setIsWallet(true);
@@ -88,7 +86,7 @@ function Home() {
     };
     window.addEventListener("load", onLoad);
     return () => window.removeEventListener("load", onLoad);
-  }, []);
+  });
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
@@ -104,7 +102,8 @@ function Home() {
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
           <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
-            입장하기
+            <Wrapper onClick={connectWallet}>입장하기</Wrapper>
+            {/* 입장하기 */}
           </WalletMultiBtn>
         </TextArea>
       </Box2>
@@ -137,6 +136,8 @@ export const Main = styled.div`
   position: absolute;
   overflow: hidden;
 `;
+
+const Wrapper = styled.div``;
 
 const anim = keyframes`
     from {

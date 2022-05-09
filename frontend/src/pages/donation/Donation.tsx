@@ -12,6 +12,8 @@ import {
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { getProvider } from "utils/getProvider";
+import { isMobile } from "react-device-detect";
 
 interface IDonation {
   nickname: string;
@@ -28,6 +30,7 @@ function Donation() {
   console.log(walletAddress);
   const [nickName, setNickName] = useState("");
   const [amount, setAmount] = useState(0);
+  const [type, setType] = useState("SOL");
   const [message, setMessage] = useState("");
   const params = {
     amount: amount.toString(),
@@ -79,6 +82,10 @@ function Donation() {
     }
   };
 
+  const onSubmit = (e: any) => {
+    setType(e.target.value);
+  };
+
   useEffect(() => {
     const getAsyncSol = async () => {
       const sol = await getSol();
@@ -89,12 +96,13 @@ function Donation() {
     };
     getAsyncSol();
   }, [amount]);
+  console.log(type);
+
   return (
     <Layout>
       <Container>
         <DonationWrapper>
           <CreatorWrapper>
-            <WalletMultiButton />
             <CreatorName>To. 메인메타님</CreatorName>
             <CreatorImage />
             <CreatorContent>❤메인메타 사랑해요❤</CreatorContent>
@@ -102,39 +110,51 @@ function Donation() {
         </DonationWrapper>
         <DonationForm>
           <DonatorWrapper>
-            <DonatorName>후원닉네임</DonatorName>
-            <Input
-              {...register("nickname", {
-                required: "필수 입력정보입니다.",
-                pattern: {
-                  value: /^[가-힣a-zA-Z0-9]{2,15}$/,
-                  message:
-                    "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
-                },
-                onChange: (e) => {
-                  setNickName(e.target.value);
-                },
-              })}
-              placeholder="후원닉네임을 입력해주세요."
-            />
+            <DonateNameWrapper>
+              <DonateInputName>후원닉네임</DonateInputName>
+            </DonateNameWrapper>
+            <DonateInputWrapper>
+              <Input
+                {...register("nickname", {
+                  required: "필수 입력정보입니다.",
+                  pattern: {
+                    value: /^[가-힣a-zA-Z0-9]{2,15}$/,
+                    message:
+                      "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
+                  },
+                  onChange: (e) => {
+                    setNickName(e.target.value);
+                  },
+                })}
+                placeholder="후원닉네임을 입력해주세요."
+              />
+            </DonateInputWrapper>
           </DonatorWrapper>
           <DonatorWrapper>
-            <DonatePrice>후원금액</DonatePrice>
-            <Input
-              {...register("amount", {
-                required: "필수 입력정보입니다.",
-                pattern: {
-                  value: /^[0-9]*$/,
-                  message: "숫자만 입력 가능합니다.",
-                },
-                onChange: (e) => {
-                  setAmount(e.target.value);
-                },
-              })}
-              value={`${amount} SOL`}
-              style={{ display: "flex", justifyContent: "space-between" }}
-              placeholder="후원금액을 입력해주세요."
-            />
+            <DonateNameWrapper>
+              <DonateInputName>후원금액</DonateInputName>
+            </DonateNameWrapper>
+            <DonateInputWrapper>
+              <Input
+                {...register("amount", {
+                  required: "필수 입력정보입니다.",
+                  pattern: {
+                    value: /^[0-9]*$/,
+                    message: "숫자만 입력 가능합니다.",
+                  },
+                  onChange: (e) => {
+                    setAmount(e.target.value);
+                  },
+                })}
+                value={`${amount}`}
+                style={{ display: "flex", justifyContent: "space-between" }}
+                placeholder="후원금액을 입력해주세요."
+              />
+              <Select onChange={onSubmit}>
+                <Option value="SOL">SOL</Option>
+                <Option value="USDC">USDC</Option>
+              </Select>
+            </DonateInputWrapper>
           </DonatorWrapper>
           <PriceButtonWrapper>
             <DonatePriceButton value="0.01" onClick={handleAmount}>
@@ -167,22 +187,28 @@ function Donation() {
             </DonatePriceButton>
           </PriceButtonWrapper>
           <DonatorWrapper>
-            <DonateMessage>후원메시지</DonateMessage>
-            <MessageTextarea
-              {...register("message", {
-                required: "필수 입력정보입니다.",
-                onChange: (e) => {
-                  setMessage(e.target.value);
-                },
-              })}
-              placeholder="후원메시지를 작성해주세요."
-            />
+            <DoateMessageWrapper>
+              <DonateMessageName>후원메시지</DonateMessageName>
+            </DoateMessageWrapper>
+            <DonateInputWrapper>
+              <MessageTextarea
+                {...register("message", {
+                  required: "필수 입력정보입니다.",
+                  onChange: (e) => {
+                    setMessage(e.target.value);
+                  },
+                })}
+                placeholder="후원메시지를 작성해주세요."
+              />
+            </DonateInputWrapper>
           </DonatorWrapper>
         </DonationForm>
         <DonationWrapper>
           <DonatorWrapper>
             <TotalPrice>Total</TotalPrice>
-            <TotalUSDC>{amount} SOL</TotalUSDC>
+            <TotalUSDC>
+              {amount} {type}
+            </TotalUSDC>
           </DonatorWrapper>
         </DonationWrapper>
         <DonationWrapper>
@@ -198,6 +224,9 @@ function Donation() {
 
 const Container = styled.div`
   margin-top: 32px;
+  @media screen and (max-width: 691px) {
+    margin-top: 16px;
+  }
 `;
 
 const DonationWrapper = styled.div`
@@ -213,9 +242,15 @@ const CreatorWrapper = styled.div``;
 const CreatorName = styled.div`
   font-size: 32px;
   font-weight: bold;
+  @media screen and (max-width: 691px) {
+    font-size: 24px;
+  }
 `;
 const CreatorContent = styled.div`
-  font-size: 20px;
+  font-size: 24px;
+  @media screen and (max-width: 691px) {
+    font-size: 18px;
+  }
 `;
 const CreatorImage = styled.img.attrs({
   src: `${process.env.PUBLIC_URL}/헤이.png`,
@@ -228,29 +263,13 @@ const DonatorWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 24px;
-`;
-const PriceButtonWrapper = styled.div`
-  display: flex;
-  justify-content: right;
-  margin-bottom: 32px;
+  @media screen and (max-width: 691px) {
+    margin-bottom: 12px;
+  }
 `;
 
-const DonatePriceButton = styled.button`
-  width: 80px;
-  height: 30px;
-  color: #ffffff;
-  background-color: ${(props) => props.theme.ownColor};
-  border: none;
-  border-radius: 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-right: 8px;
-`;
-
-const DonatorName = styled.div``;
-const Input = styled.input`
-  width: 80%;
+const Select = styled.select`
+  width: 30%;
   height: 40px;
   border-radius: 4px;
   /* border-width: 1px; */
@@ -260,23 +279,131 @@ const Input = styled.input`
   color: ${(props) => props.theme.subTextColor};
   background-color: ${(props) => props.theme.boxColor};
   /* font-weight: bold; */
+  margin-left: 4px;
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
 `;
-const DonatePrice = styled.div``;
-const DonateMessage = styled.div``;
-const MessageTextarea = styled.textarea`
+const Option = styled.option`
+  width: 30%;
+  height: 40px;
+  border-radius: 4px;
+  /* border-width: 1px; */
+  /* border-color: whitesmoke; */
+  border: 1px solid ${(props) => props.theme.borderColor};
+  font-size: 16px;
+  color: ${(props) => props.theme.subTextColor};
+  background-color: ${(props) => props.theme.boxColor};
+  /* font-weight: bold; */
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
+`;
+
+const PriceButtonWrapper = styled.div`
+  display: flex;
+  justify-content: right;
+  margin-bottom: 32px;
+`;
+
+const DonatePriceButton = styled.button`
+  width: 20%;
+  height: 30px;
+  color: #ffffff;
+  background-color: ${(props) => props.theme.ownColor};
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 8px;
+  @media screen and (max-width: 691px) {
+    font-size: 12px;
+    margin-right: 4px;
+  }
+`;
+
+const DonateInputName = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  width: 100%;
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
+`;
+const DoateMessageWrapper = styled.div`
+  display: flex;
+  margin-top: 3px;
+  font-size: 16px;
+  width: 20%;
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
+`;
+
+const DonateMessageName = styled.div`
+  font-size: 16px;
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+    margin-top: 3px;
+  }
+`;
+const DonateNameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  width: 20%;
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
+`;
+const DonateInputWrapper = styled.div`
   width: 80%;
+  display: flex;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  height: 40px;
+  border-radius: 4px;
+  /* border-width: 1px; */
+  /* border-color: whitesmoke; */
+  border: 1px solid ${(props) => props.theme.borderColor};
+  font-size: 16px;
+  color: ${(props) => props.theme.subTextColor};
+  background-color: ${(props) => props.theme.boxColor};
+  /* font-weight: bold; */
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
+`;
+const MessageTextarea = styled.textarea`
+  width: 100%;
   height: 100px;
   border-radius: 4px;
   border: 1px solid ${(props) => props.theme.borderColor};
   font-size: 16px;
   color: ${(props) => props.theme.subTextColor};
   background-color: ${(props) => props.theme.boxColor};
+  @media screen and (max-width: 691px) {
+    font-size: 14px;
+  }
 `;
 
-const TotalPrice = styled.div``;
+const TotalPrice = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  @media screen and (max-width: 691px) {
+    font-size: 16px;
+  }
+`;
 const TotalUSDC = styled.div`
   font-size: 24px;
   font-weight: bold;
+  @media screen and (max-width: 691px) {
+    font-size: 20px;
+  }
 `;
 
 const ButtonWrapper = styled.div`
