@@ -102,8 +102,7 @@ function Home() {
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
           <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
-            <Wrapper onClick={connectWallet}>입장하기</Wrapper>
-            {/* 입장하기 */}
+            입장하기
           </WalletMultiBtn>
         </TextArea>
       </Box2>
@@ -276,7 +275,7 @@ export const Menu = styled.div`
   }
 `;
 
-const WalletMultiBtn = styled(WalletConnectButton)<{ isWallet: boolean }>`
+const WalletMultiBtn = styled.button<{ isWallet: boolean }>`
   width: 143px;
   height: 50px;
   display: flex;
