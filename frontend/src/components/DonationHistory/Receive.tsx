@@ -4,9 +4,10 @@ import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import { useRecoilValue } from "recoil";
 import { toggleThemeAtom, userInfoAtom } from "atoms";
-import { fetchReceivedDonation } from "utils/fetcher";
+import { fetchReceive } from "utils/fetcher";
 import { useQuery } from "react-query";
 import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
+import Spinner from "components/Spinner";
 
 interface IRecord {
   x: number;
@@ -48,11 +49,11 @@ interface IResponse {
 function Receive() {
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
-  const [isGraph, setIsGraph] = useState(false);
 
+  // [BE] 후원받은 목록
   const { isLoading, data } = useQuery<IResponse>(
     ["receive", userInfo.walletAddress],
-    () => fetchReceivedDonation(userInfo.walletAddress!)
+    () => fetchReceive(userInfo.walletAddress!)
     // {
     //   refetchInterval: 5000,
     // }
@@ -171,71 +172,119 @@ function Receive() {
       <Gragh>
         <Chart options={state} series={state.series} type="line" />
       </Gragh>
+
       <List>
-        <Table>
-          <ul>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-20 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-22 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-22 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-26 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-20 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-          </ul>
-        </Table>
+        {isLoading ? (
+          <SpinnerDiv>
+            <Spinner />
+          </SpinnerDiv>
+        ) : (
+          <>
+            {data?.transaction && data?.transaction?.length > 0 ? (
+              <Table>
+                <ul>
+                  {data?.transaction?.map((el) => (
+                    <Element key={el.block}>
+                      <Top>
+                        <span>{el.displayName}</span>
+                      </Top>
+                      <Mid>
+                        {/* UTC -> 한국 시간 */}
+                        <span>{new Date(el.blockTime).toLocaleString()}</span>
+                        <span>
+                          {el.paymentType === "sol"
+                            ? el.amount / LAMPORTS_PER_SOL + " SOL"
+                            : el.amount + " USDC"}
+                        </span>
+                      </Mid>
+                      <div>
+                        <Message>{`"${el.message}"`}</Message>
+                      </div>
+                      <Bot>
+                        <Tx
+                          onClick={() =>
+                            window.open(
+                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet`, // devnet
+                              "_blank"
+                            )
+                          }
+                        >
+                          Transaction details
+                        </Tx>
+                      </Bot>
+                    </Element>
+                  ))}
+                </ul>
+              </Table>
+            ) : (
+              <Empty>후원받은 내역이 없습니다.</Empty>
+            )}
+          </>
+        )}
       </List>
     </Container>
   );
 }
 
+const Message = styled.p`
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media screen and (min-width: 767px) {
+    max-width: 350px;
+  }
+  @media screen and (min-width: 1024px) {
+    max-width: 650px;
+  }
+  @media screen and (min-width: 1439px) {
+    max-width: 350px;
+  }
+`;
+
+const Tx = styled.span`
+  cursor: pointer;
+`;
+
+const Bot = styled.div`
+  color: ${(props) => props.theme.ownColor};
+`;
+
+const Mid = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Top = styled.div`
+  font-weight: 600;
+  margin-bottom: 3px;
+`;
+
 const Element = styled.li`
+  display: flex;
+  flex-direction: column;
   padding: 16px 24px;
   font-size: 14px;
   letter-spacing: -0.5px;
   border-bottom: 1px solid ${(props) => props.theme.bgColor};
+`;
+
+const SpinnerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+const Empty = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: ${(props) => props.theme.borderColor};
+  color: ${(props) => props.theme.subTextColor};
 `;
 
 const Table = styled.div`
@@ -243,8 +292,8 @@ const Table = styled.div`
 `;
 
 const List = styled.div`
-  max-height: 400px;
-  overflow-y: scroll;
+  height: 400px;
+  overflow-y: auto;
 `;
 
 const Gragh = styled.div`

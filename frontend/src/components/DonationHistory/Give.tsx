@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import { useRecoilValue } from "recoil";
 import { toggleThemeAtom, userInfoAtom } from "atoms";
-
-import { fetchReceivedDonation } from "utils/fetcher";
 import { useQuery } from "react-query";
+import { fetchGive } from "utils/fetcher";
+import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
+import Spinner from "components/Spinner";
 
 interface IRecord {
   x: number;
@@ -19,35 +20,43 @@ interface IData {
   usdc: Record<number, IRecord>;
 }
 
-interface IResponse {
+interface IUser {
+  twitch?: {
+    displayName: string;
+  };
+  walletAddress: string;
+  _id: string;
+}
+
+interface ITransaction {
+  amount: number;
+  block: number;
+  blockTime: number;
   displayName: string;
   message: string;
   platform?: string;
   paymentType: string;
-  amount: number;
-  block: number;
-  blockTime: number;
-  receiveUserId: string;
-  sendUserId: string;
+  receiveUserId: IUser;
+  sendUserId: IUser;
   txSignature: string;
+}
+
+interface IResponse {
+  result: string;
+  transaction: ITransaction[];
 }
 
 function Give() {
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
 
-  // const { isLoading, data: res } = useQuery<any>(
-  //   ["receive", userInfo.walletAddress],
-  //   () => fetchReceivedDonation(userInfo.walletAddress!)
-  //   // {
-  //   //   refetchInterval: 5000,
-  //   // }
-  // );
+  // [BE] 후원한 목록
+  const { isLoading, data } = useQuery<IResponse>(
+    ["give", userInfo.walletAddress],
+    () => fetchGive(userInfo.walletAddress!)
+  );
 
-  // console.log(res);
-
-  const tmp: Array<IResponse> = [];
-  const data: IData = { sol: {}, usdc: {} };
+  const graphData: IData = { sol: {}, usdc: {} };
 
   const state: ApexOptions = {
     theme: {
@@ -82,11 +91,17 @@ function Give() {
         title: {
           text: "SOL", // 좌
         },
+        labels: {
+          formatter: (value) => value.toFixed(2),
+        },
       },
       {
         opposite: true,
         title: {
           text: "USDC", // 우
+        },
+        labels: {
+          formatter: (value) => value.toFixed(0),
         },
       },
     ],
@@ -110,65 +125,44 @@ function Give() {
     series: [],
   };
 
-  useEffect(() => {
-    const initDate = 1643641200000; //2022년 1월 1일
-    const nowDate = 1651762800000; //2022년 5월 5일
-
-    ////////////더미 데이터 초기화 (백엔드에서 이런식의 전체 데이터를 보내줌)
-    for (let i = 0; i < 100; i++) {
-      tmp.push({
-        displayName: "gdgd",
-        message: "gdgd",
-        paymentType: Math.floor(Math.random() * 10) ? "sol" : "usdc",
-        amount: Math.floor(Math.random() * 100000 - 1) + 1,
-        block: 131444440,
-        blockTime:
-          Math.floor(Math.random() * (nowDate - initDate + 1)) + initDate,
-        receiveUserId: "626e9c4f5c24a7fca07783fe",
-        sendUserId: "626e9c4f5c24a7fca0778400",
-        txSignature:
-          "3BTwVopjGeyH1yyWCTLyDwXVyUuUBqpiistbC5CjJUhvqLnnuUSQepo12udbZW8p4njDF9zGkqy88fpjPGBH15Lb",
-      });
+  // 그래프에 들어갈 data 추가
+  const setGraphData = (type: string, key: number, amount: number) => {
+    if (!graphData[type][key]) {
+      graphData[type][key] = {
+        x: key,
+        y: amount,
+      };
+    } else {
+      graphData[type][key].y += amount;
     }
+  };
 
-    //오름차순 정렬
-    tmp.sort((a, b) => {
-      return a.blockTime - b.blockTime;
-    });
-    //////////// 여기까지 백엔드에서 보내주는 데이터
+  // backend response (data) 받아오면 실행
+  useEffect(() => {
+    if (data) {
+      data?.transaction?.map((el) => {
+        const key = new Date(el.blockTime).setHours(12, 0, 0, 0);
 
-    tmp.map((t) => {
-      const key = new Date(t.blockTime).setHours(0, 0, 0, 0);
-      if (!data[t.paymentType][key]) {
-        data[t.paymentType][key] = { x: key, y: t.amount };
-      } else {
-        data[t.paymentType][key].y += t.amount;
-      }
-    });
-    // console.log(data);
-    ApexCharts.exec("realtime", "updateSeries", [
-      {
-        name: "SOL",
-        data: Object.values(data.sol),
-      },
-      {
-        name: "USDC",
-        data: Object.values(data.usdc),
-      },
-    ]);
-    // window.setInterval(() => {
-    //     getNewSeries(lastDate, {
-    //         min: 10,
-    //         max: 10000,
-    //     });
+        if (el.paymentType === "sol") {
+          const amount = el.amount / LAMPORTS_PER_SOL;
+          setGraphData("sol", key, amount);
+        } else {
+          setGraphData("usdc", key, el.amount);
+        }
+      });
 
-    //     ApexCharts.exec('realtime', 'updateSeries', [
-    //         {
-    //             data: data,
-    //         },
-    //     ]);
-    // }, 1000);
-  }, []);
+      ApexCharts.exec("realtime", "updateSeries", [
+        {
+          name: "SOL",
+          data: Object.values(graphData.sol),
+        },
+        {
+          name: "USDC",
+          data: Object.values(graphData.usdc),
+        },
+      ]);
+    }
+  }, [data, graphData]);
 
   return (
     <Container>
@@ -176,70 +170,121 @@ function Give() {
         <Chart options={state} series={state.series} type="line" />
       </Gragh>
       <List>
-        <Table>
-          <ul>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-20 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-22 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-22 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-26 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-20 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-          </ul>
-        </Table>
+        {isLoading ? (
+          <SpinnerDiv>
+            <Spinner />
+          </SpinnerDiv>
+        ) : (
+          <>
+            {data?.transaction && data?.transaction?.length > 0 ? (
+              <Table>
+                <ul>
+                  {data?.transaction?.map((el) => (
+                    <Element key={el.block}>
+                      <Top>
+                        <span>
+                          {el.receiveUserId.twitch
+                            ? el.receiveUserId.twitch.displayName
+                            : el.receiveUserId.walletAddress}
+                        </span>
+                      </Top>
+                      <Mid>
+                        {/* UTC -> 한국 시간 */}
+                        <span>{new Date(el.blockTime).toLocaleString()}</span>
+                        <span>
+                          {el.paymentType === "sol"
+                            ? el.amount / LAMPORTS_PER_SOL + " SOL"
+                            : el.amount + " USDC"}
+                        </span>
+                      </Mid>
+                      <div>
+                        <Message>{`"${el.message}"`}</Message>
+                      </div>
+                      <Bot>
+                        <Tx
+                          onClick={() =>
+                            window.open(
+                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet`, // devnet
+                              "_blank"
+                            )
+                          }
+                        >
+                          Transaction details
+                        </Tx>
+                      </Bot>
+                    </Element>
+                  ))}
+                </ul>
+              </Table>
+            ) : (
+              <Empty>후원한 내역이 없습니다.</Empty>
+            )}
+          </>
+        )}
       </List>
     </Container>
   );
 }
 
+const Message = styled.p`
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media screen and (min-width: 767px) {
+    max-width: 350px;
+  }
+  @media screen and (min-width: 1024px) {
+    max-width: 650px;
+  }
+  @media screen and (min-width: 1439px) {
+    max-width: 350px;
+  }
+`;
+
+const Tx = styled.span`
+  cursor: pointer;
+`;
+
+const Bot = styled.div`
+  color: ${(props) => props.theme.ownColor};
+`;
+
+const Mid = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Top = styled.div`
+  font-weight: 600;
+  margin-bottom: 3px;
+`;
+
 const Element = styled.li`
+  display: flex;
+  flex-direction: column;
   padding: 16px 24px;
   font-size: 14px;
   letter-spacing: -0.5px;
   border-bottom: 1px solid ${(props) => props.theme.bgColor};
+`;
+
+const SpinnerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+const Empty = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: ${(props) => props.theme.borderColor};
+  color: ${(props) => props.theme.subTextColor};
 `;
 
 const Table = styled.div`
@@ -247,8 +292,8 @@ const Table = styled.div`
 `;
 
 const List = styled.div`
-  max-height: 400px;
-  overflow-y: scroll;
+  height: 400px;
+  overflow-y: auto;
 `;
 
 const Gragh = styled.div`
