@@ -1,6 +1,6 @@
+import { useSocket } from "hooks/useSocket";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import io from "socket.io-client";
 import styled, { keyframes } from "styled-components";
 
 export interface IMessage {
@@ -9,7 +9,6 @@ export interface IMessage {
   paymentType: string;
   amount: number;
 }
-const URL = process.env.REACT_APP_SOCKET_URL;
 
 export const Message = () => {
   const params = useParams<{ uuid: string }>();
@@ -30,21 +29,19 @@ export const Message = () => {
       amount: 0.2,
     },
   ]);
-  console.log(test);
   const [visible, setVisible] = useState(false);
-
   const refQueue = useMemo(() => test, [test]);
+  const [socket, disconnectSocket] = useSocket(uuid);
+  useEffect(() => {
+    return () => {
+      console.log("disconnect socket", uuid);
+      disconnectSocket();
+    };
+  }, [disconnectSocket, uuid]);
 
   useEffect(() => {
-    const socket = io(`${URL}?userKey=${uuid}`, {
-      transports: ["websocket", "polling"],
-      reconnection: !0,
-    });
-    socket.connect();
-    console.log("socket 연결 완료");
-    socket.on("donation", (data: IMessage) => {
+    socket?.on("donation", (data: IMessage) => {
       console.log(data);
-
       setQueue((currentQueue) => [
         ...currentQueue,
         {
@@ -59,16 +56,11 @@ export const Message = () => {
         setStart(true);
       }
     });
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  }, [socket, queue]);
 
   useEffect(() => {
     if (queue.length) {
-      let donation = queue[0];
       setVisible(!true);
-      console.log(donation);
       let donate = setInterval(() => {
         setVisible(true);
         // splice는 상태값 변경할 때 잘 안쓴다고 함!
@@ -86,15 +78,10 @@ export const Message = () => {
   }, [queue]);
 
   useEffect(() => {
-    console.log(test);
     if (refQueue.length > 0) {
       setStart(true);
       setVisible(true);
-      let donation = refQueue[0];
 
-      console.log(donation);
-      console.log("시작");
-      // splice는 상태값 변경할 때 잘 안쓴다고 함!
       setTimeout(() => {
         setVisible(false);
       }, 3000);
@@ -106,7 +93,6 @@ export const Message = () => {
       setStart(false);
       return;
     }
-    console.log("랜더링");
   }, [refQueue]);
 
   return (

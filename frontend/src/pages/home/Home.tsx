@@ -1,57 +1,19 @@
-import { useLocalStorage } from "@solana/wallet-adapter-react";
-import {
-  WalletConnectButton,
-  WalletModalButton,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-import { Button } from "@solana/wallet-adapter-react-ui/lib/types/Button";
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMatch, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
-import { checkWallet } from "utils/checkWallet";
 
 import { getWallet } from "utils/getWallet";
-// import picture1 from "../../styles/1.png";
-// import picture2 from "../../styles/2.png";
 
 function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const homeMatch = useMatch("/");
-  const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
 
-  // 기존에 지갑 있으면 연결함
-  const checkIfWalletIsConnected = async () => {
-    const data = await checkWallet();
-    if (data && data.result === "success") {
-      setIsWallet(true);
-      if (data.user.twitch) {
-        setUserInfo({
-          twitch: {
-            id: data.user.twitch.id,
-            displayName: data.user.twitch.displayName,
-            profileImageUrl: data.user.twitch.profileImageUrl,
-          },
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      } else {
-        setUserInfo({
-          ...userInfo,
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      }
-      navigate("/main");
-    } else {
-    }
-  };
   // 지갑연결
   const connectWallet = async () => {
     const data = await getWallet();
@@ -81,14 +43,7 @@ function Home() {
   };
 
   useEffect(() => {
-    const onLoad = async () => {
-      await checkIfWalletIsConnected();
-    };
-    window.addEventListener("load", onLoad);
-    return () => window.removeEventListener("load", onLoad);
-  });
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
+    setTimeout(() => setIsLoading(false), 1000);
   }, []);
   return (
     <Main>
@@ -136,8 +91,6 @@ export const Main = styled.div`
   overflow: hidden;
 `;
 
-const Wrapper = styled.div``;
-
 const anim = keyframes`
     from {
         bottom: -100%;
@@ -158,12 +111,10 @@ const anim2 = keyframes`
 `;
 
 const Loading = styled.div`
-  /* position: absolute; */
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 50%;
-  /* margin-top: 45vh; */
   @media screen and (min-width: 1000px) {
     display: none;
   }
@@ -176,7 +127,7 @@ const Box1 = styled.div`
   position: absolute;
   bottom: -100%;
   left: 30%;
-  animation: ${anim} 2s forwards, ${anim2} 3s forwards 2.5s;
+  animation: ${anim} 1.3s forwards, ${anim2} 2s forwards 1.2s;
   @media screen and (max-width: 1000px) {
     display: none;
   }
@@ -229,7 +180,7 @@ const TextArea = styled.div`
   position: relative;
   left: -100%;
   color: black;
-  animation: ${anim3} 2s forwards 3s;
+  animation: ${anim3} 1.5s forwards 1.3s;
 `;
 const Box3 = styled.div`
   overflow: hidden;
@@ -246,7 +197,7 @@ const Container = styled.div`
   width: 100%;
   position: absolute;
   top: -100%;
-  animation: ${anim4} 2s forwards 2.5s;
+  animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
 export const Logo = styled.div`
