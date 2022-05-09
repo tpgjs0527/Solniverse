@@ -30,16 +30,16 @@ const App = () => {
   }, [wallets]);
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      {/* <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider> */}
+          <WalletModalProvider> 
       <Routes />
       <GlobalStyle />
       <Outlet />
       {/* <WalletMultiButton /> */}
-      {/* </WalletModalProvider>
+      </WalletModalProvider>
         </WalletProvider>
-      </ConnectionProvider> */}
+      </ConnectionProvider> 
     </ThemeProvider>
   );
 };
