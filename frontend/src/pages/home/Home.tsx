@@ -80,13 +80,14 @@ function Home() {
     }
   };
 
-  useEffect(() => {
-    const onLoad = async () => {
-      await checkIfWalletIsConnected();
-    };
-    window.addEventListener("load", onLoad);
-    return () => window.removeEventListener("load", onLoad);
-  });
+  // useEffect(() => {
+  //   const onLoad = async () => {
+  //     await checkIfWalletIsConnected();
+  //   };
+  //   window.addEventListener("load", onLoad);
+  //   return () => window.removeEventListener("load", onLoad);
+  // });
+
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
