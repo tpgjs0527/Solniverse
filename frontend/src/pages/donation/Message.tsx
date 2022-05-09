@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import styled, { keyframes } from "styled-components";
@@ -32,9 +32,8 @@ export const Message = () => {
   ]);
   console.log(test);
   const [visible, setVisible] = useState(false);
-  // const refQueue = useRef(test);
+
   const refQueue = useMemo(() => test, [test]);
-  const [message, setMessage] = useState<IMessage>();
 
   useEffect(() => {
     const socket = io(`${URL}?userKey=${uuid}`, {
@@ -90,22 +89,18 @@ export const Message = () => {
     console.log(test);
     if (refQueue.length > 0) {
       setStart(true);
+      setVisible(true);
       let donation = refQueue[0];
-      setMessage({
-        displayName: donation.displayName,
-        message: donation.message,
-        paymentType: donation.paymentType,
-        amount: donation.amount,
-      });
 
       console.log(donation);
       console.log("시작");
-      // setVisible(true);
       // splice는 상태값 변경할 때 잘 안쓴다고 함!
       setTimeout(() => {
+        setVisible(false);
+      }, 3000);
+      setTimeout(() => {
         setTest(refQueue.filter((value, i) => i !== 0));
-        // setVisible(false);
-      }, 1000);
+      }, 7000);
     }
     if (refQueue.length === 0) {
       setStart(false);
@@ -117,37 +112,42 @@ export const Message = () => {
   return (
     <>
       {start && refQueue.length > 0 ? (
-        <>
-          <Test visible={visible}>{refQueue[0].message}</Test>
-          <div>dfdsf</div>
-        </>
+        <Test visible={visible}>
+          <div>
+            <Name>{refQueue[0].displayName}</Name>님
+            <Money>
+              {refQueue[0].amount}
+              {refQueue[0].paymentType}
+            </Money>
+            감사합니다!
+          </div>
+          <div>{refQueue[0].message}</div>
+        </Test>
       ) : null}
-
-      <Test visible={visible}>안녕하세요</Test>
     </>
   );
 };
 
 const fadeIn = keyframes`
-  0% {
+from {
+
     opacity: 0;
   }
-  60%{
-    opacity: 0.7;
-  }
-  100% {
+
+  to {
+    
     opacity: 1;
   }
 `;
 
 const fadeOut = keyframes`
-  0% {
+from {
+
     opacity: 1;
   }
-  50%{
-    opacity: 0.7;
-  }
-  100% {
+
+  to {
+    
     opacity: 0;
   }
 `;
@@ -159,11 +159,17 @@ const Test = styled.div<{ visible: boolean }>`
   align-items: center;
   min-height: 100vh;
   color: white;
-  font-size: 120px;
+  font-size: 80px;
   font-weight: 500;
-  /* visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-
-  animation: ${(props) => (props.visible ? fadeIn : fadeOut)} 1s ease-out;
-  transition: visibility 1.5s ease-out; */
+  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
+  animation: ${(props) => (props.visible ? fadeIn : fadeOut)} 3s ease-out;
+  transition: visibility 1.5s ease-out;
   text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000;
+`;
+const Name = styled.span`
+  color: ${(props) => props.theme.ownColor};
+`;
+const Money = styled(Name)`
+  margin-left: 20px;
+  margin-right: 30px;
 `;
