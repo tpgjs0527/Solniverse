@@ -36,6 +36,7 @@
     "react-hook-form": "^7.29.0",
     "react-mobile-store-button": "^0.0.6",
     "react-modal": "^3.15.1",
+    "react-query": "^3.39.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
     "recoil": "^0.6.1",

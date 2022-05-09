@@ -158,10 +158,9 @@ function Main() {
 }
 
 const Icon = styled.div`
-  margin-top: 14px;
-  margin-bottom: 30px;
+  margin: 14px 0;
   width: 92px;
-  height: 63px;
+  height: 92px;
 `;
 
 const ColContent = styled.span`
@@ -174,7 +173,6 @@ const ColTitle = styled.span`
   font-weight: 600;
   letter-spacing: -0.5px;
   color: ${(props) => props.theme.subTextColor};
-  /* color: #7f8fa6; */
 `;
 
 const Col = styled.div`

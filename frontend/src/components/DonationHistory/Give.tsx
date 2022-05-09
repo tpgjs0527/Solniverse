@@ -1,210 +1,181 @@
 import { useEffect, useState } from "react";
-import ApexCharts from "react-apexcharts";
 import styled from "styled-components";
+import { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts";
+import { useRecoilValue } from "recoil";
+import { toggleThemeAtom, userInfoAtom } from "atoms";
 
-interface ICoin {
-  block?: number;
+import { fetchReceivedDonation } from "utils/fetcher";
+import { useQuery } from "react-query";
+
+interface IRecord {
+  x: number;
+  y: number;
+}
+
+interface IData {
+  [index: string]: Record<number, IRecord>;
+  sol: Record<number, IRecord>;
+  usdc: Record<number, IRecord>;
+}
+
+interface IResponse {
+  displayName: string;
+  message: string;
+  platform?: string;
+  paymentType: string;
   amount: number;
-  blockTime: string;
+  block: number;
+  blockTime: number;
+  receiveUserId: string;
+  sendUserId: string;
+  txSignature: string;
 }
 
 function Give() {
-  const [usdc, setUsdc] = useState<ICoin[]>([]);
-  const [sol, setSol] = useState<ICoin[]>([]);
+  const isDark = useRecoilValue(toggleThemeAtom);
+  const userInfo = useRecoilValue(userInfoAtom);
 
-  const tmp = [
-    {
-      message: "깽",
-      paymentType: "sol",
-      amount: 10000000,
-      block: 131444440,
-      blockTime: "1651470975000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+  // const { isLoading, data: res } = useQuery<any>(
+  //   ["receive", userInfo.walletAddress],
+  //   () => fetchReceivedDonation(userInfo.walletAddress!)
+  //   // {
+  //   //   refetchInterval: 5000,
+  //   // }
+  // );
+
+  // console.log(res);
+
+  const tmp: Array<IResponse> = [];
+  const data: IData = { sol: {}, usdc: {} };
+
+  const state: ApexOptions = {
+    theme: {
+      mode: isDark ? "dark" : "light",
     },
-    {
-      message: "후원",
-      paymentType: "usdc",
-      amount: 100,
-      block: 131444441,
-      blockTime: "1651470975000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+    chart: {
+      id: "realtime",
+      height: 350,
+      type: "line",
+      toolbar: {
+        show: true, // 확대, 축소, 저장 등
+      },
+      background: "transparent", // 그래프 배경색
     },
-    {
-      message: "후원",
-      paymentType: "usdc",
-      amount: 200,
-      block: 131444442,
-      blockTime: "1651571977000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+    // dataLabels: {
+    //   enabled: false,  // 선에 y 데이터 값 표시
+    // },
+    stroke: {
+      curve: "smooth", // 선 모양 (곡선)
+      width: 4, // 선 너비
     },
-    {
-      message: "후원",
-      paymentType: "usdc",
-      amount: 200,
-      block: 131444443,
-      blockTime: "1651571977000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+    // title: {
+    //   text: "Dynamic Updating Chart",
+    //   align: "left",
+    // },
+    xaxis: {
+      type: "datetime",
+      axisBorder: { show: false }, // x축 하단 테두리
     },
-  ];
-
-  // const d = String(new Date(Number(tmp[2].blockTime)));
-  console.log(String(new Date(Number(tmp[2].blockTime))).substring(4, 15));
-
-  // console.log(new Date(Number(tmp[2].blockTime)));
-
-  const Calc = () => {
-    tmp.map((t) => {
-      console.log(t.blockTime);
-      if (t.paymentType === "usdc") {
-        console.log(t);
-
-        setUsdc((prev) => [
-          ...prev,
-          {
-            amount: t.amount,
-            blockTime: t.blockTime,
-          },
-        ]);
-      } else {
-        setSol((prev) => [
-          ...prev,
-          {
-            amount: t.amount,
-            blockTime: t.blockTime,
-          },
-        ]);
-      }
-    });
+    yaxis: [
+      {
+        title: {
+          text: "SOL", // 좌
+        },
+      },
+      {
+        opposite: true,
+        title: {
+          text: "USDC", // 우
+        },
+      },
+    ],
+    markers: {
+      // 점
+      size: 3,
+    },
+    tooltip: {
+      // 차트 영역 위로 마우스를 가져갈 때 해당 데이터 표시
+      shared: false,
+      intersect: true, // 마우스를 해당 위치에 정확히 올린 경우에만 표시
+      x: {
+        show: true, // 윗부분에 x값 추가 표시
+      },
+    },
+    legend: {
+      // 범례
+      horizontalAlign: "center", // 위치
+      offsetX: 50, // 범례 간 간격
+    },
+    series: [],
   };
 
   useEffect(() => {
-    Calc();
-  }, []);
+    const initDate = 1643641200000; //2022년 1월 1일
+    const nowDate = 1651762800000; //2022년 5월 5일
 
-  console.log(usdc);
-  console.log(sol);
+    ////////////더미 데이터 초기화 (백엔드에서 이런식의 전체 데이터를 보내줌)
+    for (let i = 0; i < 100; i++) {
+      tmp.push({
+        displayName: "gdgd",
+        message: "gdgd",
+        paymentType: Math.floor(Math.random() * 10) ? "sol" : "usdc",
+        amount: Math.floor(Math.random() * 100000 - 1) + 1,
+        block: 131444440,
+        blockTime:
+          Math.floor(Math.random() * (nowDate - initDate + 1)) + initDate,
+        receiveUserId: "626e9c4f5c24a7fca07783fe",
+        sendUserId: "626e9c4f5c24a7fca0778400",
+        txSignature:
+          "3BTwVopjGeyH1yyWCTLyDwXVyUuUBqpiistbC5CjJUhvqLnnuUSQepo12udbZW8p4njDF9zGkqy88fpjPGBH15Lb",
+      });
+    }
+
+    //오름차순 정렬
+    tmp.sort((a, b) => {
+      return a.blockTime - b.blockTime;
+    });
+    //////////// 여기까지 백엔드에서 보내주는 데이터
+
+    tmp.map((t) => {
+      const key = new Date(t.blockTime).setHours(0, 0, 0, 0);
+      if (!data[t.paymentType][key]) {
+        data[t.paymentType][key] = { x: key, y: t.amount };
+      } else {
+        data[t.paymentType][key].y += t.amount;
+      }
+    });
+    // console.log(data);
+    ApexCharts.exec("realtime", "updateSeries", [
+      {
+        name: "SOL",
+        data: Object.values(data.sol),
+      },
+      {
+        name: "USDC",
+        data: Object.values(data.usdc),
+      },
+    ]);
+    // window.setInterval(() => {
+    //     getNewSeries(lastDate, {
+    //         min: 10,
+    //         max: 10000,
+    //     });
+
+    //     ApexCharts.exec('realtime', 'updateSeries', [
+    //         {
+    //             data: data,
+    //         },
+    //     ]);
+    // }, 1000);
+  }, []);
 
   return (
     <Container>
       <Gragh>
-        <ApexCharts
-          series={[
-            {
-              name: "USDC",
-              type: "line",
-              data: [0, 100, 200, 600],
-            },
-            {
-              name: "SOL",
-              type: "line",
-              data: [4, 0, 1, 0],
-            },
-          ]}
-          options={{
-            theme: {
-              mode: "light",
-            },
-            // title: {
-            //   text: "Traffic Sources",
-            // },
-            chart: {
-              toolbar: {
-                show: true, // 확대, 축소, 저장 등
-              },
-              background: "transparent", // 그래프 배경색
-            },
-            // grid: { show: true }, // y축 구분선
-            stroke: {
-              curve: "smooth", // 선 모양 (곡선)
-              width: 4, // 선 너비
-            },
-            // fill: {
-            //   colors: ["00a8ff"], // 선 색
-            // },
-            yaxis: [
-              {
-                title: {
-                  text: "USDC", // 좌
-                },
-              },
-              {
-                opposite: true,
-                title: {
-                  text: "SOL", // 우
-                },
-              },
-            ],
-            xaxis: {
-              axisBorder: { show: false }, // x축 하단 테두리
-              axisTicks: { show: true }, // x축 눈금
-              labels: { show: true },
-              // categories: tmp?.map((t) => new Date(Number(t.blockTime))),
-            },
-          }}
-        />
+        <Chart options={state} series={state.series} type="line" />
       </Gragh>
-      <Gragh>
-        <ApexCharts
-          series={[
-            {
-              name: "USDC",
-              type: "line",
-              data: [0, 100, 200, 600],
-            },
-            {
-              name: "SOL",
-              type: "line",
-              data: [4, 0, 1, 0],
-            },
-          ]}
-          options={{
-            theme: {
-              mode: "light",
-            },
-            // title: {
-            //   text: "Traffic Sources",
-            // },
-            chart: {
-              toolbar: {
-                show: true, // 확대, 축소, 저장 등
-              },
-              background: "transparent", // 그래프 배경색
-            },
-            // grid: { show: true }, // y축 구분선
-            stroke: {
-              curve: "smooth", // 선 모양 (곡선)
-              width: 4, // 선 너비
-            },
-            // fill: {
-            //   colors: ["00a8ff"], // 선 색
-            // },
-            yaxis: [
-              {
-                title: {
-                  text: "USDC", // 좌
-                },
-              },
-              {
-                opposite: true,
-                title: {
-                  text: "SOL", // 우
-                },
-              },
-            ],
-            xaxis: {
-              axisBorder: { show: false }, // x축 하단 테두리
-              axisTicks: { show: true }, // x축 눈금
-              labels: { show: true },
-              // categories: tmp?.map((t) => new Date(Number(t.blockTime))),
-            },
-          }}
-        />
-      </Gragh>
-      {/* <List>
+      <List>
         <Table>
           <ul>
             <Element>
@@ -259,7 +230,7 @@ function Give() {
             </Element>
           </ul>
         </Table>
-      </List> */}
+      </List>
     </Container>
   );
 }
@@ -272,29 +243,27 @@ const Element = styled.li`
 `;
 
 const Table = styled.div`
-  width: 100%;
   background: ${(props) => props.theme.borderColor};
 `;
 
 const List = styled.div`
-  width: 100%;
   max-height: 400px;
   overflow-y: scroll;
 `;
 
 const Gragh = styled.div`
-  width: 100%;
-  max-height: 400px;
+  @media screen and (min-width: 767px) {
+    width: 630px;
+  }
 `;
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  /* grid-gap: 30px; */
 
-  @media screen and (min-width: 1024px) {
-    flex-direction: row;
+  @media screen and (min-width: 1439px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 `;
 
