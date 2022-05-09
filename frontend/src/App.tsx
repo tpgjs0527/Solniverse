@@ -4,16 +4,13 @@ import GlobalStyle from "styles/GlobalStyle";
 import Routes from "pages/Routes";
 import { useRecoilValue } from "recoil";
 import { toggleThemeAtom } from "atoms";
-import React, { FC, ReactNode, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
-import {
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { clusterApiUrl } from "@solana/web3.js";
 import { Outlet } from "react-router-dom";
@@ -30,16 +27,15 @@ const App = () => {
   }, [wallets]);
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-    <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider> 
-      <Routes />
-      <GlobalStyle />
-      <Outlet />
-      {/* <WalletMultiButton /> */}
-      </WalletModalProvider>
+      <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect={false}>
+          <WalletModalProvider>
+            <Routes />
+            <GlobalStyle />
+            <Outlet />
+          </WalletModalProvider>
         </WalletProvider>
-      </ConnectionProvider> 
+      </ConnectionProvider>
     </ThemeProvider>
   );
 };

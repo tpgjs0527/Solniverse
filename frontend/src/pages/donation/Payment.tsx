@@ -1,31 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import ReactDOM from "react-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
-import { isBrowser, isMobile } from "react-device-detect";
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  LAMPORTS_PER_SOL,
-} from "@solana/web3.js";
+import { isMobile } from "react-device-detect";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { encodeURL } from "@solana/pay";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import {
-  WalletConnectButton,
-  WalletModalButton,
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
 import { getProvider } from "utils/getProvider";
 import nacl from "tweetnacl";
 
