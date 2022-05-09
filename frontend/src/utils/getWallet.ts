@@ -1,4 +1,3 @@
-import { useWallet } from "@solana/wallet-adapter-react";
 import { getProvider } from "./getProvider";
 
 // 지갑연결해서 해당 리턴값 반환

@@ -15,22 +15,8 @@ export const Message = () => {
   const { uuid } = params;
   const [queue, setQueue] = useState<IMessage[]>([]);
   const [start, setStart] = useState(true);
-  const [test, setTest] = useState([
-    {
-      displayName: "하이루",
-      message: "테스트입니다1",
-      paymentType: "sol",
-      amount: 0.1,
-    },
-    {
-      displayName: "하이루",
-      message: "테스트입니다2",
-      paymentType: "sol",
-      amount: 0.2,
-    },
-  ]);
   const [visible, setVisible] = useState(false);
-  const refQueue = useMemo(() => test, [test]);
+  const refQueue = useMemo(() => queue, [queue]);
   const [socket, disconnectSocket] = useSocket(uuid);
   useEffect(() => {
     return () => {
@@ -56,29 +42,11 @@ export const Message = () => {
         setStart(true);
       }
     });
-  }, [socket, queue]);
-
-  useEffect(() => {
-    if (queue.length) {
-      setVisible(!true);
-      let donate = setInterval(() => {
-        setVisible(true);
-        // splice는 상태값 변경할 때 잘 안쓴다고 함!
-        const newQueue = queue.filter((value, i) => i !== 0);
-        setQueue((currentValue) => newQueue);
-        clearInterval(donate);
-      }, 5000);
-      setVisible(!false);
-      if (queue.length === 0) {
-        setStart(false);
-        return;
-      }
-      console.log(queue);
-    }
-  }, [queue]);
+  }, [socket]);
 
   useEffect(() => {
     if (refQueue.length > 0) {
+      console.log(refQueue);
       setStart(true);
       setVisible(true);
 
@@ -86,7 +54,7 @@ export const Message = () => {
         setVisible(false);
       }, 3000);
       setTimeout(() => {
-        setTest(refQueue.filter((value, i) => i !== 0));
+        setQueue(refQueue.filter((value, i) => i !== 0));
       }, 7000);
     }
     if (refQueue.length === 0) {

@@ -1,6 +1,5 @@
 import { getProvider } from "./getProvider";
 import base58 from "bs58";
-import { getWallet } from "./getWallet";
 
 // signature 전달해서 refresthToken 및 accessToken 받기
 
