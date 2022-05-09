@@ -88,7 +88,7 @@ function Home() {
     return () => window.removeEventListener("load", onLoad);
   });
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
+    setTimeout(() => setIsLoading(false), 1000);
   }, []);
   return (
     <Main>
@@ -101,10 +101,10 @@ function Home() {
       <Box2>
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
-          <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
-            <Wrapper onClick={connectWallet}>입장하기</Wrapper>
-            {/* 입장하기 */}
-          </WalletMultiBtn>
+          {/* <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}> */}
+          <Wrapper onClick={connectWallet}>입장하기</Wrapper>
+          {/* 입장하기 */}
+          {/* </WalletMultiBtn> */}
         </TextArea>
       </Box2>
       <Box3>
@@ -177,7 +177,7 @@ const Box1 = styled.div`
   position: absolute;
   bottom: -100%;
   left: 30%;
-  animation: ${anim} 2s forwards, ${anim2} 3s forwards 2.5s;
+  animation: ${anim} 1.3s forwards, ${anim2} 2s forwards 1.2s;
   @media screen and (max-width: 1000px) {
     display: none;
   }
@@ -230,7 +230,7 @@ const TextArea = styled.div`
   position: relative;
   left: -100%;
   color: black;
-  animation: ${anim3} 2s forwards 3s;
+  animation: ${anim3} 1.5s forwards 1.3s;
 `;
 const Box3 = styled.div`
   overflow: hidden;
@@ -247,7 +247,7 @@ const Container = styled.div`
   width: 100%;
   position: absolute;
   top: -100%;
-  animation: ${anim4} 2s forwards 2.5s;
+  animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
 export const Logo = styled.div`

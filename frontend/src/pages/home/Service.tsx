@@ -6,7 +6,7 @@ import { Logo, Main, Menu } from "./Home";
 export const Service = () => {
   return (
     <Main>
-      <Container>
+      <NavBar>
         <Logo>
           <img src="" alt="" />
         </Logo>
@@ -20,13 +20,16 @@ export const Service = () => {
             </li>
           </ul>
         </Menu>
-      </Container>
+      </NavBar>
+      <Article></Article>
     </Main>
   );
 };
 
-const Container = styled.div`
+const NavBar = styled.div`
   width: 100%;
   position: absolute;
   top: 0%;
 `;
+
+const Article = styled.div``;
