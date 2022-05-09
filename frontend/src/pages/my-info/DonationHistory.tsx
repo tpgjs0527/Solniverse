@@ -8,6 +8,8 @@ import {
 } from "react-router-dom";
 import Give from "components/DonationHistory/Give";
 import Receive from "components/DonationHistory/Receive";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 
 function DonationHistory() {
   const navigate = useNavigate();

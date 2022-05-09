@@ -1,300 +1,314 @@
-import { useEffect, useState } from "react";
-import ApexCharts from "react-apexcharts";
+import { useEffect } from "react";
 import styled from "styled-components";
+import { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts";
+import { useRecoilValue } from "recoil";
+import { toggleThemeAtom, userInfoAtom } from "atoms";
+import { useQuery } from "react-query";
+import { fetchGive } from "utils/fetcher";
+import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
+import Spinner from "components/Spinner";
 
-interface ICoin {
-  block?: number;
+interface IRecord {
+  x: number;
+  y: number;
+}
+
+interface IData {
+  [index: string]: Record<number, IRecord>;
+  sol: Record<number, IRecord>;
+  usdc: Record<number, IRecord>;
+}
+
+interface IUser {
+  twitch?: {
+    displayName: string;
+  };
+  walletAddress: string;
+  _id: string;
+}
+
+interface ITransaction {
   amount: number;
-  blockTime: string;
+  block: number;
+  blockTime: number;
+  displayName: string;
+  message: string;
+  platform?: string;
+  paymentType: string;
+  receiveUserId: IUser;
+  sendUserId: IUser;
+  txSignature: string;
+}
+
+interface IResponse {
+  result: string;
+  transaction: ITransaction[];
 }
 
 function Give() {
-  const [usdc, setUsdc] = useState<ICoin[]>([]);
-  const [sol, setSol] = useState<ICoin[]>([]);
+  const isDark = useRecoilValue(toggleThemeAtom);
+  const userInfo = useRecoilValue(userInfoAtom);
 
-  const tmp = [
-    {
-      message: "깽",
-      paymentType: "sol",
-      amount: 10000000,
-      block: 131444440,
-      blockTime: "1651470975000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+  // [BE] 후원한 목록
+  const { isLoading, data } = useQuery<IResponse>(
+    ["give", userInfo.walletAddress],
+    () => fetchGive(userInfo.walletAddress!)
+  );
+
+  const graphData: IData = { sol: {}, usdc: {} };
+
+  const state: ApexOptions = {
+    theme: {
+      mode: isDark ? "dark" : "light",
     },
-    {
-      message: "후원",
-      paymentType: "usdc",
-      amount: 100,
-      block: 131444441,
-      blockTime: "1651470975000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+    chart: {
+      id: "realtime",
+      height: 350,
+      type: "line",
+      toolbar: {
+        show: true, // 확대, 축소, 저장 등
+      },
+      background: "transparent", // 그래프 배경색
     },
-    {
-      message: "후원",
-      paymentType: "usdc",
-      amount: 200,
-      block: 131444442,
-      blockTime: "1651571977000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+    // dataLabels: {
+    //   enabled: false,  // 선에 y 데이터 값 표시
+    // },
+    stroke: {
+      curve: "smooth", // 선 모양 (곡선)
+      width: 4, // 선 너비
     },
-    {
-      message: "후원",
-      paymentType: "usdc",
-      amount: 200,
-      block: 131444443,
-      blockTime: "1651571977000",
-      receiveUserId: "받는 지갑주소",
-      sendUserId: "보내는 지갑주소",
+    // title: {
+    //   text: "Dynamic Updating Chart",
+    //   align: "left",
+    // },
+    xaxis: {
+      type: "datetime",
+      axisBorder: { show: false }, // x축 하단 테두리
     },
-  ];
-
-  // const d = String(new Date(Number(tmp[2].blockTime)));
-  console.log(String(new Date(Number(tmp[2].blockTime))).substring(4, 15));
-
-  // console.log(new Date(Number(tmp[2].blockTime)));
-
-  const Calc = () => {
-    tmp.map((t) => {
-      console.log(t.blockTime);
-      if (t.paymentType === "usdc") {
-        console.log(t);
-
-        setUsdc((prev) => [
-          ...prev,
-          {
-            amount: t.amount,
-            blockTime: t.blockTime,
-          },
-        ]);
-      } else {
-        setSol((prev) => [
-          ...prev,
-          {
-            amount: t.amount,
-            blockTime: t.blockTime,
-          },
-        ]);
-      }
-    });
+    yaxis: [
+      {
+        title: {
+          text: "SOL", // 좌
+        },
+        labels: {
+          formatter: (value) => value.toFixed(2),
+        },
+      },
+      {
+        opposite: true,
+        title: {
+          text: "USDC", // 우
+        },
+        labels: {
+          formatter: (value) => value.toFixed(0),
+        },
+      },
+    ],
+    markers: {
+      // 점
+      size: 3,
+    },
+    tooltip: {
+      // 차트 영역 위로 마우스를 가져갈 때 해당 데이터 표시
+      shared: false,
+      intersect: true, // 마우스를 해당 위치에 정확히 올린 경우에만 표시
+      x: {
+        show: true, // 윗부분에 x값 추가 표시
+      },
+    },
+    legend: {
+      // 범례
+      horizontalAlign: "center", // 위치
+      offsetX: 50, // 범례 간 간격
+    },
+    series: [],
   };
 
-  useEffect(() => {
-    Calc();
-  }, []);
+  // 그래프에 들어갈 data 추가
+  const setGraphData = (type: string, key: number, amount: number) => {
+    if (!graphData[type][key]) {
+      graphData[type][key] = {
+        x: key,
+        y: amount,
+      };
+    } else {
+      graphData[type][key].y += amount;
+    }
+  };
 
-  console.log(usdc);
-  console.log(sol);
+  // backend response (data) 받아오면 실행
+  useEffect(() => {
+    if (data) {
+      data?.transaction?.map((el) => {
+        const key = new Date(el.blockTime).setHours(12, 0, 0, 0);
+
+        if (el.paymentType === "sol") {
+          const amount = el.amount / LAMPORTS_PER_SOL;
+          setGraphData("sol", key, amount);
+        } else {
+          setGraphData("usdc", key, el.amount);
+        }
+      });
+
+      ApexCharts.exec("realtime", "updateSeries", [
+        {
+          name: "SOL",
+          data: Object.values(graphData.sol),
+        },
+        {
+          name: "USDC",
+          data: Object.values(graphData.usdc),
+        },
+      ]);
+    }
+  }, [data, graphData]);
 
   return (
     <Container>
       <Gragh>
-        <ApexCharts
-          series={[
-            {
-              name: "USDC",
-              type: "line",
-              data: [0, 100, 200, 600],
-            },
-            {
-              name: "SOL",
-              type: "line",
-              data: [4, 0, 1, 0],
-            },
-          ]}
-          options={{
-            theme: {
-              mode: "light",
-            },
-            // title: {
-            //   text: "Traffic Sources",
-            // },
-            chart: {
-              toolbar: {
-                show: true, // 확대, 축소, 저장 등
-              },
-              background: "transparent", // 그래프 배경색
-            },
-            // grid: { show: true }, // y축 구분선
-            stroke: {
-              curve: "smooth", // 선 모양 (곡선)
-              width: 4, // 선 너비
-            },
-            // fill: {
-            //   colors: ["00a8ff"], // 선 색
-            // },
-            yaxis: [
-              {
-                title: {
-                  text: "USDC", // 좌
-                },
-              },
-              {
-                opposite: true,
-                title: {
-                  text: "SOL", // 우
-                },
-              },
-            ],
-            xaxis: {
-              axisBorder: { show: false }, // x축 하단 테두리
-              axisTicks: { show: true }, // x축 눈금
-              labels: { show: true },
-              // categories: tmp?.map((t) => new Date(Number(t.blockTime))),
-            },
-          }}
-        />
+        <Chart options={state} series={state.series} type="line" />
       </Gragh>
-      <Gragh>
-        <ApexCharts
-          series={[
-            {
-              name: "USDC",
-              type: "line",
-              data: [0, 100, 200, 600],
-            },
-            {
-              name: "SOL",
-              type: "line",
-              data: [4, 0, 1, 0],
-            },
-          ]}
-          options={{
-            theme: {
-              mode: "light",
-            },
-            // title: {
-            //   text: "Traffic Sources",
-            // },
-            chart: {
-              toolbar: {
-                show: true, // 확대, 축소, 저장 등
-              },
-              background: "transparent", // 그래프 배경색
-            },
-            // grid: { show: true }, // y축 구분선
-            stroke: {
-              curve: "smooth", // 선 모양 (곡선)
-              width: 4, // 선 너비
-            },
-            // fill: {
-            //   colors: ["00a8ff"], // 선 색
-            // },
-            yaxis: [
-              {
-                title: {
-                  text: "USDC", // 좌
-                },
-              },
-              {
-                opposite: true,
-                title: {
-                  text: "SOL", // 우
-                },
-              },
-            ],
-            xaxis: {
-              axisBorder: { show: false }, // x축 하단 테두리
-              axisTicks: { show: true }, // x축 눈금
-              labels: { show: true },
-              // categories: tmp?.map((t) => new Date(Number(t.blockTime))),
-            },
-          }}
-        />
-      </Gragh>
-      {/* <List>
-        <Table>
-          <ul>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-20 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-22 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-22 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-26 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-            <Element>
-              <div>
-                <span>[텍스트]</span>
-                <span>won</span>
-              </div>
-              <div>
-                <div>2022-4-20 23:07</div>
-                <div>500</div>
-              </div>
-            </Element>
-          </ul>
-        </Table>
-      </List> */}
+      <List>
+        {isLoading ? (
+          <SpinnerDiv>
+            <Spinner />
+          </SpinnerDiv>
+        ) : (
+          <>
+            {data?.transaction && data?.transaction?.length > 0 ? (
+              <Table>
+                <ul>
+                  {data?.transaction?.map((el) => (
+                    <Element key={el.block}>
+                      <Top>
+                        <span>
+                          {el.receiveUserId.twitch
+                            ? el.receiveUserId.twitch.displayName
+                            : el.receiveUserId.walletAddress}
+                        </span>
+                      </Top>
+                      <Mid>
+                        {/* UTC -> 한국 시간 */}
+                        <span>{new Date(el.blockTime).toLocaleString()}</span>
+                        <span>
+                          {el.paymentType === "sol"
+                            ? el.amount / LAMPORTS_PER_SOL + " SOL"
+                            : el.amount + " USDC"}
+                        </span>
+                      </Mid>
+                      <div>
+                        <Message>{`"${el.message}"`}</Message>
+                      </div>
+                      <Bot>
+                        <Tx
+                          onClick={() =>
+                            window.open(
+                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet`, // devnet
+                              "_blank"
+                            )
+                          }
+                        >
+                          Transaction details
+                        </Tx>
+                      </Bot>
+                    </Element>
+                  ))}
+                </ul>
+              </Table>
+            ) : (
+              <Empty>후원한 내역이 없습니다.</Empty>
+            )}
+          </>
+        )}
+      </List>
     </Container>
   );
 }
 
+const Message = styled.p`
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media screen and (min-width: 767px) {
+    max-width: 350px;
+  }
+  @media screen and (min-width: 1024px) {
+    max-width: 650px;
+  }
+  @media screen and (min-width: 1439px) {
+    max-width: 350px;
+  }
+`;
+
+const Tx = styled.span`
+  cursor: pointer;
+`;
+
+const Bot = styled.div`
+  color: ${(props) => props.theme.ownColor};
+`;
+
+const Mid = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Top = styled.div`
+  font-weight: 600;
+  margin-bottom: 3px;
+`;
+
 const Element = styled.li`
+  display: flex;
+  flex-direction: column;
   padding: 16px 24px;
   font-size: 14px;
   letter-spacing: -0.5px;
   border-bottom: 1px solid ${(props) => props.theme.bgColor};
 `;
 
-const Table = styled.div`
+const SpinnerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  height: 100%;
+`;
+
+const Empty = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: ${(props) => props.theme.borderColor};
+  color: ${(props) => props.theme.subTextColor};
+`;
+
+const Table = styled.div`
   background: ${(props) => props.theme.borderColor};
 `;
 
 const List = styled.div`
-  width: 100%;
-  max-height: 400px;
-  overflow-y: scroll;
+  height: 400px;
+  overflow-y: auto;
 `;
 
 const Gragh = styled.div`
-  width: 100%;
-  max-height: 400px;
+  @media screen and (min-width: 767px) {
+    width: 630px;
+  }
 `;
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  /* grid-gap: 30px; */
 
-  @media screen and (min-width: 1024px) {
-    flex-direction: row;
+  @media screen and (min-width: 1439px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 `;
 
