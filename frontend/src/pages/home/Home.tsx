@@ -102,7 +102,6 @@ function Home() {
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
           <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
-            {/* <Wrapper onClick={connectWallet}>입장하기</Wrapper> */}
             입장하기
           </WalletMultiBtn>
         </TextArea>
