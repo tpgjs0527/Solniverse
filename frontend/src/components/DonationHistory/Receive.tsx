@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import { toggleThemeAtom, userInfoAtom } from "atoms";
 import { fetchReceivedDonation } from "utils/fetcher";
 import { useQuery } from "react-query";
+import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
 
 interface IRecord {
   x: number;
@@ -18,24 +19,38 @@ interface IData {
   usdc: Record<number, IRecord>;
 }
 
-interface IResponse {
+interface IUser {
+  twitch?: {
+    displayName: string;
+  };
+  walletAddress: string;
+  _id: string;
+}
+
+interface ITransaction {
+  amount: number;
+  block: number;
+  blockTime: number;
   displayName: string;
   message: string;
   platform?: string;
   paymentType: string;
-  amount: number;
-  block: number;
-  blockTime: number;
-  receiveUserId: string;
-  sendUserId: string;
+  receiveUserId: IUser;
+  sendUserId: IUser;
   txSignature: string;
+}
+
+interface IResponse {
+  result: string;
+  transaction: ITransaction[];
 }
 
 function Receive() {
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
+  const [isGraph, setIsGraph] = useState(false);
 
-  const { isLoading, data: res } = useQuery<any>(
+  const { isLoading, data } = useQuery<IResponse>(
     ["receive", userInfo.walletAddress],
     () => fetchReceivedDonation(userInfo.walletAddress!)
     // {
@@ -43,10 +58,7 @@ function Receive() {
     // }
   );
 
-  console.log(res);
-
-  const tmp: Array<IResponse> = [];
-  const data: IData = { sol: {}, usdc: {} };
+  const graphData: IData = { sol: {}, usdc: {} };
 
   const state: ApexOptions = {
     theme: {
@@ -81,11 +93,17 @@ function Receive() {
         title: {
           text: "SOL", // 좌
         },
+        labels: {
+          formatter: (value) => value.toFixed(2),
+        },
       },
       {
         opposite: true,
         title: {
           text: "USDC", // 우
+        },
+        labels: {
+          formatter: (value) => value.toFixed(0),
         },
       },
     ],
@@ -109,65 +127,44 @@ function Receive() {
     series: [],
   };
 
-  // useEffect(() => {
-  //   const initDate = 1643641200000; //2022년 1월 1일
-  //   const nowDate = 1651762800000; //2022년 5월 5일
+  // 그래프에 들어갈 data 추가
+  const setGraphData = (type: string, key: number, amount: number) => {
+    if (!graphData[type][key]) {
+      graphData[type][key] = {
+        x: key,
+        y: amount,
+      };
+    } else {
+      graphData[type][key].y += amount;
+    }
+  };
 
-  //   ////////////더미 데이터 초기화 (백엔드에서 이런식의 전체 데이터를 보내줌)
-  //   for (let i = 0; i < 100; i++) {
-  //     tmp.push({
-  //       displayName: "gdgd",
-  //       message: "gdgd",
-  //       paymentType: Math.floor(Math.random() * 10) ? "sol" : "usdc",
-  //       amount: Math.floor(Math.random() * 100000 - 1) + 1,
-  //       block: 131444440,
-  //       blockTime:
-  //         Math.floor(Math.random() * (nowDate - initDate + 1)) + initDate,
-  //       receiveUserId: "626e9c4f5c24a7fca07783fe",
-  //       sendUserId: "626e9c4f5c24a7fca0778400",
-  //       txSignature:
-  //         "3BTwVopjGeyH1yyWCTLyDwXVyUuUBqpiistbC5CjJUhvqLnnuUSQepo12udbZW8p4njDF9zGkqy88fpjPGBH15Lb",
-  //     });
-  //   }
+  // backend response (data) 받아오면 실행
+  useEffect(() => {
+    if (data) {
+      data?.transaction?.map((el) => {
+        const key = new Date(el.blockTime).setHours(12, 0, 0, 0);
 
-  //   //오름차순 정렬
-  //   tmp.sort((a, b) => {
-  //     return a.blockTime - b.blockTime;
-  //   });
-  //   //////////// 여기까지 백엔드에서 보내주는 데이터
+        if (el.paymentType === "sol") {
+          const amount = el.amount / LAMPORTS_PER_SOL;
+          setGraphData("sol", key, amount);
+        } else {
+          setGraphData("usdc", key, el.amount);
+        }
+      });
 
-  //   tmp.map((t) => {
-  //     const key = new Date(t.blockTime).setHours(0, 0, 0, 0);
-  //     if (!data[t.paymentType][key]) {
-  //       data[t.paymentType][key] = { x: key, y: t.amount };
-  //     } else {
-  //       data[t.paymentType][key].y += t.amount;
-  //     }
-  //   });
-  //   // console.log(data);
-  //   ApexCharts.exec("realtime", "updateSeries", [
-  //     {
-  //       name: "SOL",
-  //       data: Object.values(data.sol),
-  //     },
-  //     {
-  //       name: "USDC",
-  //       data: Object.values(data.usdc),
-  //     },
-  //   ]);
-  //   // window.setInterval(() => {
-  //   //     getNewSeries(lastDate, {
-  //   //         min: 10,
-  //   //         max: 10000,
-  //   //     });
-
-  //   //     ApexCharts.exec('realtime', 'updateSeries', [
-  //   //         {
-  //   //             data: data,
-  //   //         },
-  //   //     ]);
-  //   // }, 1000);
-  // }, []);
+      ApexCharts.exec("realtime", "updateSeries", [
+        {
+          name: "SOL",
+          data: Object.values(graphData.sol),
+        },
+        {
+          name: "USDC",
+          data: Object.values(graphData.usdc),
+        },
+      ]);
+    }
+  }, [data, graphData]);
 
   return (
     <Container>

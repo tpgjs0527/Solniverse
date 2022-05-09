@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Layout from "components/Layout";
 import { createSearchParams, useNavigate, useParams } from "react-router-dom";
-import { MouseEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   clusterApiUrl,
@@ -11,9 +11,6 @@ import {
 } from "@solana/web3.js";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { getProvider } from "utils/getProvider";
-import { isMobile } from "react-device-detect";
 
 interface IDonation {
   nickname: string;

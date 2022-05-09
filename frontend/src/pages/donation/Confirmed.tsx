@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 import interpolate from "color-interpolate";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import styled, { keyframes } from "styled-components";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 // interface IState {
 //   state: { signature: string };
