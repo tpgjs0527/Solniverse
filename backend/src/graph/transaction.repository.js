@@ -1,9 +1,3 @@
-/**
- * user collection Manipulations
- * user collection에 접근합니다.
- *
- */
-
 const connection = require("../../config/connection")();
 const Transaction = connection.models["Transaction"];
 
@@ -17,8 +11,9 @@ class GraphRepository {
    */
   async getTransactionsByRecieveUserId(receiveUserId) {
     return Transaction.find({ receiveUserId })
-      .populate("receiveUserId", "walletAddress twitch")
-      .populate("sendUserId", "walletAddress twitch")
+      .select("_id displayName message platform paymentType amount block blockTime receiveUserId sendUserId txSignature")
+      .populate("receiveUserId", "walletAddress twitch.displayName")
+      .populate("sendUserId", "walletAddress twitch.displayName")
       .lean();
   }
 
@@ -29,8 +24,9 @@ class GraphRepository {
    */
   async getTransactionBySendUserId(sendUserId) {
     return Transaction.find({ sendUserId })
-      .populate("receiveUserId", "walletAddress twitch")
-      .populate("sendUserId", "walletAddress twitch")
+      .select("_id displayName message platform paymentType amount block blockTime receiveUserId sendUserId txSignature")
+      .populate("receiveUserId", "walletAddress twitch.displayName")
+      .populate("sendUserId", "walletAddress twitch.displayName")
       .lean();
   }
 }

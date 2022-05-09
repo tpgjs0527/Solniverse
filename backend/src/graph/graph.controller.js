@@ -23,7 +23,7 @@ router.get("/receive/:walletAddress", async function (req, res) {
  * walletAddress를 통한 후원한 내역 가져오기
  */
 
-router.post("/give/:walletAddress", async function (req, res) {
+router.get("/give/:walletAddress", async function (req, res) {
   const walletAddress = req.params["walletAddress"];
 
   const { statusCode, responseBody } = await graphService.getSendList(

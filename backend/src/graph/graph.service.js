@@ -1,21 +1,10 @@
-/**
- * Services Logics related to Digital Assets(item)
- * Service/Repository 레이어의 함수를 호출해야합니다.
- *
- * @format
- */
-
 const UserSchema = require("../../model/User");
 const UserRepository = require("../auth/user.repository");
 const userRepository = new UserRepository();
 const {
-  BAD_REQUEST_RESPONSE,
   SUCCESS_RESPONSE,
   NOT_FOUND_RESPONSE,
-  CONFLICT_RESPONSE,
-  UNAUTHORIZED_RESPONSE,
   BaseResponse,
-  JWT_EXPIRED_MESSAGE,
 } = require("../common/base.response");
 const TransactionRepository = require("./transaction.repository");
 const transactionRepository = new TransactionRepository();
@@ -23,9 +12,7 @@ const transactionRepository = new TransactionRepository();
 /**
  * 재활용 response들
  */
-const badRequestResponse = new BaseResponse(BAD_REQUEST_RESPONSE);
 const notFoundResponse = new BaseResponse(NOT_FOUND_RESPONSE);
-const conflictResponse = new BaseResponse(CONFLICT_RESPONSE);
 
 // const message =
 //   "Sign this message for authenticating with your wallet. Nonce: ";
