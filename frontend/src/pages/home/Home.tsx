@@ -26,32 +26,6 @@ function Home() {
   const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
 
-  // 기존에 지갑 있으면 연결함
-  const checkIfWalletIsConnected = async () => {
-    const data = await checkWallet();
-    if (data && data.result === "success") {
-      setIsWallet(true);
-      if (data.user.twitch) {
-        setUserInfo({
-          twitch: {
-            id: data.user.twitch.id,
-            displayName: data.user.twitch.displayName,
-            profileImageUrl: data.user.twitch.profileImageUrl,
-          },
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      } else {
-        setUserInfo({
-          ...userInfo,
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      }
-      navigate("/main");
-    } else {
-    }
-  };
   // 지갑연결
   const connectWallet = async () => {
     const data = await getWallet();
@@ -81,13 +55,6 @@ function Home() {
   };
 
   useEffect(() => {
-    const onLoad = async () => {
-      await checkIfWalletIsConnected();
-    };
-    window.addEventListener("load", onLoad);
-    return () => window.removeEventListener("load", onLoad);
-  });
-  useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
   return (
@@ -101,10 +68,9 @@ function Home() {
       <Box2>
         <TextArea>
           WELCOME <br /> SOLNIVERSE <br />
-          {/* <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}> */}
-          <Wrapper onClick={connectWallet}>입장하기</Wrapper>
-          {/* 입장하기 */}
-          {/* </WalletMultiBtn> */}
+          <WalletMultiBtn isWallet={isWallet} onClick={connectWallet}>
+            입장하기
+          </WalletMultiBtn>
         </TextArea>
       </Box2>
       <Box3>
@@ -276,7 +242,7 @@ export const Menu = styled.div`
   }
 `;
 
-const WalletMultiBtn = styled(WalletConnectButton)<{ isWallet: boolean }>`
+const WalletMultiBtn = styled.button<{ isWallet: boolean }>`
   width: 143px;
   height: 50px;
   display: flex;

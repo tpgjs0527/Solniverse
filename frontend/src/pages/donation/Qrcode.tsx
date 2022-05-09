@@ -34,6 +34,7 @@ import { WalletError } from "@solana/wallet-adapter-base";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { getProvider } from "utils/getProvider";
 import { getWallet } from "utils/getWallet";
+import { checkMobile } from "utils/checkMobile";
 
 interface IPayment {
   open: any;
@@ -57,30 +58,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const [signature, setSignature] = useState("");
   const [connectWallet, setConnectWallet] = useState(false);
   const [txURL, setTXURL] = useState<any>();
-  const { publicKey, wallet, connect, connecting, connected, sendTransaction } =
-    useWallet();
+  // const { publicKey, wallet, connect, connecting, connected, sendTransaction } =
+  //   useWallet();
 
   // const wallets = [new PhantomWalletAdapter()];
-  const wallets = useMemo(
-    () => (connectWallet ? [new PhantomWalletAdapter()] : []),
-    [connectWallet]
-  );
-  // const wallets = [new PhantomWalletAdapter()];
-  const endPoint = clusterApiUrl("devnet");
-
-  const mobileStyle = {
-    content: {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-      bottom: "auto",
-      marginRight: "-50%",
-      transform: "translate(-50%, -50%)",
-      width: "300px",
-      height: "600px",
-      backgroundColor: "#eeeeee",
-    },
-  };
   const desktopStyle = {
     content: {
       top: "50%",
@@ -181,11 +162,20 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
     }
   };
 
-  const onError = useCallback(
-    (error: WalletError) =>
-      alert(error.message ? `${error.name} : ${error.message}` : error.name),
-    []
-  );
+  const onInstall = () => {
+    const UA = checkMobile();
+    if (isMobile) {
+      if (UA === "ios") {
+        window.location.href =
+          "https://apps.apple.com/kr/app/phantom-solana-wallet/id1598432977";
+      } else if (UA === "android") {
+        window.location.href =
+          "https://play.google.com/store/apps/details?id=app.phantom";
+      }
+    } else {
+      window.open("https://phantom.app/", "_blank");
+    }
+  };
 
   useEffect(() => {
     setTimeout(() => main(), 100);
@@ -220,6 +210,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
                 transaction?.transaction.message.accountKeys[j].toBase58() ===
                 `${params.walletAddress}`
               ) {
+                console.log("결제 내용이 블록체인에 올라갔습니다.");
                 clearInterval(interval);
                 navigate("/payment/confirmed", {
                   state: { signature: signatures[i].signature },
@@ -243,6 +234,8 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
     setConnectWallet(true);
     try {
       if (txURL) {
+        const provider = getProvider();
+        provider?.connect();
         const { recipient, amount, reference, memo } = parseURL(txURL);
         const publicKey = new PublicKey(userInfo.walletAddress);
         console.log(publicKey);
@@ -256,9 +249,26 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           { reference, memo }
         );
         console.log(transaction);
-        // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
-        const response = await sendTransaction(transaction, connection);
-        console.log(response);
+        transaction.feePayer = publicKey;
+        const anyTransaction: any = transaction;
+        anyTransaction.recentBlockhash = (
+          await connection.getRecentBlockhash()
+        ).blockhash;
+
+        let blockhashObj = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = await blockhashObj.blockhash;
+        const response = await provider?.signTransaction(transaction);
+        console.log("시그니처 싸인이 완료됐습니다.", response);
+        let signature = await connection.sendRawTransaction(
+          response!.serialize()
+        );
+        console.log("트랜잭션 전송 성공~", signature);
+        const res2 = await connection.confirmTransaction(signature);
+        console.log("결제 확인까지 성공했습니다.", res2);
+
+        // // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
+        // const response = await sendTransaction(transaction, connection);
+        // console.log(response);
 
         // await connection.confirmTransaction(signature, "processed");
 
@@ -271,18 +281,8 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         //     lamports: web3.LAMPORTS_PER_SOL,
         //   })
         // );
-        // transaction.feePayer = publicKey;
-        // const anyTransaction: any = transaction
-        // anyTransaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash
-
-        // let blockhashObj = await connection.getRecentBlockhash();
-        // transaction.recentBlockhash = await blockhashObj.blockhash;
 
         // let signed = await provider?.signTransaction(transaction);
-        // let signature = await connection.sendRawTransaction(
-        //   signed!.serialize()
-        // );
-        // await connection.confirmTransaction(signature);
       }
     } catch (error) {
       console.error(error);
@@ -347,18 +347,23 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           </QRWrapper>
         </Wrapper>
         <Wrapper>
-          <NoWalletGuide>
-            스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
-            설치하세요!
-          </NoWalletGuide>
+          {isMobile ? (
+            <NoWalletGuide>
+              스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
+              설치하세요!
+            </NoWalletGuide>
+          ) : (
+            <NoWalletGuide>
+              쉽고 편리하게 결제할 수 있는 Phantom Wallet 구글 확장프로그램을
+              설치하세요!
+            </NoWalletGuide>
+          )}
+
           <WalletInstall>
-            <WalletBtn onClick={getSignature}>설치하기</WalletBtn>
+            <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
           </WalletInstall>
         </Wrapper>
         <CloseBtn onClick={closeModal}>닫기</CloseBtn>
-        {/* <Container style={{ margin: "0px", visibility: "hidden" }}> */}
-        <WalletModalButton />
-        {/* </Container> */}
       </Container>
     </Modal>
   );
