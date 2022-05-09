@@ -2,38 +2,16 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Modal from "react-modal";
 // import { Modal } from "react-responsive-modal";
 import { createQR, createTransaction, encodeURL, parseURL } from "@solana/pay";
-import {
-  clusterApiUrl,
-  Connection,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
-import * as web3 from "@solana/web3.js";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import QRCodeStyling from "qr-code-styling";
 import styled from "styled-components";
-import { BrowserView, isMobile, MobileView } from "react-device-detect";
+import { isMobile } from "react-device-detect";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
-import { Navigate, useNavigate, useNavigationType } from "react-router-dom";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import {
-  ConnectionProvider,
-  useConnection,
-  useWallet,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import {
-  WalletModalButton,
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-import { WalletError } from "@solana/wallet-adapter-base";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { useNavigate } from "react-router-dom";
+import { useConnection } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
-import { getWallet } from "utils/getWallet";
 import { checkMobile } from "utils/checkMobile";
 
 interface IPayment {

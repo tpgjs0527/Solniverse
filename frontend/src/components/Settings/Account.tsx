@@ -5,13 +5,8 @@ import useMutation from "hooks/useMutation";
 import { useRecoilState } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
-import {
-  clusterApiUrl,
-  Connection,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-} from "@solana/web3.js";
 import checkToken from "utils/checkToken";
+import { getBalance, getSolanaPrice } from "utils/solanaWeb3";
 
 export interface IUser {
   result: string;
@@ -36,42 +31,10 @@ function Account() {
   const platform = searchParams.get("platform");
   const code = searchParams.get("code");
 
-  // 실시간 solana 가격 (USD)
-  const getSolanaPrice = async () => {
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`,
-      {
-        method: "GET",
-      }
-    );
-    const data = await response.json();
-    return data.solana.usd;
-  };
-
-  // 지갑 잔액 가져오는 함수
-  const getSol = async () => {
-    const connection = new Connection(clusterApiUrl("devnet")); // devnet 연결
-    const publicKey = new PublicKey(userInfo.walletAddress);
-
-    // 지갑 잔액 가져오기
-    const lamports = await connection.getBalance(publicKey).catch((err) => {
-      console.error(`Error: ${err}`);
-    });
-
-    if (lamports) {
-      // 잔액이 0이 아닐 때
-      const sol = lamports / LAMPORTS_PER_SOL; // 0.000000001 단위로 처리
-      return sol;
-    } else {
-      // 잔액이 0일 때
-      return lamports;
-    }
-  };
-
   // 페이지 들어오면 지갑 잔액 함수 실행
   useEffect(() => {
     const getAsyncSol = async () => {
-      const sol = await getSol();
+      const sol = await getBalance(userInfo.walletAddress);
       const usdPrice = await getSolanaPrice();
 
       if (sol) {

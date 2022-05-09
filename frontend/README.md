@@ -65,6 +65,12 @@ npm install --save react-apexcharts apexcharts
 npm i swr
 ```
 
+- Query
+
+```bash
+npm i react-query
+```
+
 - react-cookies
 
 ```bash
