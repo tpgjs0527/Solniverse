@@ -1,29 +1,17 @@
-import { useLocalStorage } from "@solana/wallet-adapter-react";
-import {
-  WalletConnectButton,
-  WalletModalButton,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-import { Button } from "@solana/wallet-adapter-react-ui/lib/types/Button";
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMatch, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
-import { checkWallet } from "utils/checkWallet";
 
 import { getWallet } from "utils/getWallet";
-// import picture1 from "../../styles/1.png";
-// import picture2 from "../../styles/2.png";
 
 function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const homeMatch = useMatch("/");
-  const serviceMatch = useMatch("/service");
   const navigate = useNavigate();
 
   // 지갑연결
@@ -103,8 +91,6 @@ export const Main = styled.div`
   overflow: hidden;
 `;
 
-const Wrapper = styled.div``;
-
 const anim = keyframes`
     from {
         bottom: -100%;
@@ -125,12 +111,10 @@ const anim2 = keyframes`
 `;
 
 const Loading = styled.div`
-  /* position: absolute; */
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 50%;
-  /* margin-top: 45vh; */
   @media screen and (min-width: 1000px) {
     display: none;
   }

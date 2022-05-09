@@ -1,7 +1,6 @@
 import { useSocket } from "hooks/useSocket";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import io from "socket.io-client";
 import styled, { keyframes } from "styled-components";
 
 export interface IMessage {
