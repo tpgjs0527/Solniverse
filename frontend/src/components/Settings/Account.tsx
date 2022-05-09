@@ -5,7 +5,7 @@ import useMutation from "hooks/useMutation";
 import { useRecoilState } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
-import checkToken from "utils/checkToken";
+import { checkToken } from "utils/token";
 import { getBalance, getSolanaPrice } from "utils/solanaWeb3";
 
 export interface IUser {
