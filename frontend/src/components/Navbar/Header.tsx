@@ -222,7 +222,7 @@ const Col = styled.div`
   margin: 0 auto;
   height: 60px;
   padding: 0 24px;
-  max-width: 364px;
+  max-width: 414px;
 
   @media screen and (min-width: 767px) {
     max-width: 630px;
