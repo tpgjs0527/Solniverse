@@ -33,7 +33,6 @@ const App = () => {
             <Routes />
             <GlobalStyle />
             <Outlet />
-            {/* <WalletMultiButton /> */}
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>
