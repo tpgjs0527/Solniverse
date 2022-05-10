@@ -30,6 +30,10 @@ const authJwtMiddleware = (req, res, next) => {
         message: result.message, // jwt가 만료되었다면 메세지는 'jwt expired'
       });
     }
+  } else {
+    const { statusCode, responseBody } = new BaseResponse(BAD_REQUEST_RESPONSE);
+    res.status(statusCode).send(responseBody);
+    return;
   }
 };
 
