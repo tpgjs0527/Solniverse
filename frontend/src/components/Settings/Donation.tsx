@@ -2,8 +2,8 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
-import checkToken from "utils/checkToken";
 import Spinner from "components/Spinner";
+import { checkToken } from "utils/token";
 
 function SetDonation() {
   const userInfo = useRecoilValue(userInfoAtom);

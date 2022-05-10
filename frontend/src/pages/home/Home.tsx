@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
-
-import { getWallet } from "utils/getWallet";
+import { getWallet } from "utils/solanaWeb3";
 
 function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
@@ -233,7 +232,7 @@ const WalletMultiBtn = styled.button<{ isWallet: boolean }>`
   justify-content: center;
   align-items: center;
   text-align: center;
-
+  margin-left: 10px;
   font-size: 19px;
   font-weight: 550;
   padding: 15px;

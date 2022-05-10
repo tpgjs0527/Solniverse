@@ -3,20 +3,26 @@ import { isMobile } from "react-device-detect";
 import { checkMobile } from "./checkMobile";
 
 type DisplayEncoding = "utf8" | "hex";
-type PhantomEvent = "connect";
+type PhantomEvent = "disconnect" | "connect" | "accountChanged";
 
-type PhantomRequestMethod = "connect" | "signTransaction" | "signMessage";
+type PhantomRequestMethod =
+  | "connect"
+  | "disconnect"
+  | "signTransaction"
+  | "signMessage";
 interface ConnectOpts {
   onlyIfTrusted: boolean;
 }
 interface PhantomProvider {
   publicKey: PublicKey | null;
+  isConnected: boolean | null;
   signTransaction: (transaction: Transaction) => Promise<Transaction>;
   signMessage: (
     message: Uint8Array | string,
     display?: DisplayEncoding
   ) => Promise<any>;
   connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
+  disconnect: () => Promise<void>;
   on: (event: PhantomEvent, handler: (args: any) => void) => void;
   request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
 }

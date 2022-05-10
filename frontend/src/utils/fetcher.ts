@@ -13,3 +13,12 @@ export async function fetchReceive(walletAddress: string) {
     `${process.env.REACT_APP_BASE_URL}/graph/receive/${walletAddress}`
   ).then((response) => response.json());
 }
+
+export async function fetchWallet(walletAddress: string, method = "GET") {
+  return fetch(
+    `${process.env.REACT_APP_BASE_URL}/auth/connect/${walletAddress}`,
+    {
+      method: method,
+    }
+  );
+}
