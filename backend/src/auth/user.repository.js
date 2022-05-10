@@ -24,7 +24,7 @@ class UserRepository {
       nonce: crypto.randomBytes(16).toString("base64"),
     });
 
-    return user.save().lean();
+    return user.save();
   }
 
   /**

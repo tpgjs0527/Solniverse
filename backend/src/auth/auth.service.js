@@ -70,26 +70,22 @@ class AuthService {
       if (!(await web3.PublicKey.isOnCurve(publicKey))) {
         return badRequestResponse;
       }
-      try {
-        const user = await userRepository.createUserByWalletAddress(
-          walletAddress,
-        );
-        let res = new BaseResponse(SUCCESS_RESPONSE);
-        res.responseBody.user = {
-          walletAddress: user.walletAddress,
-          createdAt: user.createdAt,
-        };
-        return res;
-      } catch (err) {
-        switch (err.code) {
-          case 11000:
-            return conflictResponse;
-          default:
-            return badRequestResponse;
-        }
-      }
+      const user = await userRepository.createUserByWalletAddress(
+        walletAddress,
+      );
+      let res = new BaseResponse(SUCCESS_RESPONSE);
+      res.responseBody.user = {
+        walletAddress: user.walletAddress,
+        createdAt: user.createdAt,
+      };
+      return res;
     } catch (error) {
-      return badRequestResponse;
+      switch (error.code) {
+        case 11000:
+          return conflictResponse;
+        default:
+          return badRequestResponse;
+      }
     }
   }
 
