@@ -34,8 +34,10 @@ router.post("/connect", async function (req, res) {
   const walletAddress = req.body["walletAddress"];
   const signature = req.body["signature"];
 
-  const { statusCode, responseBody } =
-    await authService.verifyAddressBySignature(signature, walletAddress);
+  const { statusCode, responseBody } = await authService.getAccessTokenByVerify(
+    signature,
+    walletAddress,
+  );
   if (statusCode == StatusCodes.OK) {
     const refreshToken = await jwtUtil.refresh(walletAddress);
     if (refreshToken)

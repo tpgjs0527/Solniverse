@@ -24,7 +24,7 @@ class UserRepository {
       nonce: crypto.randomBytes(16).toString("base64"),
     });
 
-    return user.save();
+    return user.save().lean();
   }
 
   /**
@@ -33,7 +33,7 @@ class UserRepository {
    * @returns {Promise<user|null>} user|null
    */
   async getUserByWalletAddress(walletAddress) {
-    return User.findOne({ walletAddress }).then((res) => res);
+    return User.findOne({ walletAddress }).lean();
   }
 
   /**

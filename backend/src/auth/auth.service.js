@@ -17,8 +17,7 @@ const {
 const UserRepository = require("./user.repository");
 const userRepository = new UserRepository();
 const { web3 } = require("../../config/web3.connection");
-const nacl = require("tweetnacl");
-const base58 = require("bs58");
+
 const jwtUtil = require("../common/jwt-util");
 const { default: axios } = require("axios");
 const platforms = require("../../config/platforms");
@@ -30,33 +29,22 @@ const badRequestResponse = new BaseResponse(BAD_REQUEST_RESPONSE);
 const notFoundResponse = new BaseResponse(NOT_FOUND_RESPONSE);
 const conflictResponse = new BaseResponse(CONFLICT_RESPONSE);
 
-const message =
-  "Sign this message for authenticating with your wallet. Nonce: ";
+const {
+  message,
+  verifyAddressBySignature,
+} = require("../common/verifySignature");
+
 class AuthService {
   /**
    * Signature 받아 address를 얻어내고 인증을 생성한다.
-   * @param {string} nonce
    * @param {string} signature
    * @param {string} walletAddress
    * @returns response
    */
-  async verifyAddressBySignature(signature, walletAddress) {
+  async getAccessTokenByVerify(signature, walletAddress) {
     try {
-      const user = await userRepository.getUserByWalletAddress(walletAddress);
+      const user = await verifyAddressBySignature(signature, walletAddress);
       if (!user) {
-        return badRequestResponse;
-      }
-      const messageBytes = new TextEncoder().encode(message + user.nonce);
-      const publicKeyBytes = base58.decode(walletAddress);
-      const signatureBytes = base58.decode(signature);
-
-      const result = nacl.sign.detached.verify(
-        messageBytes,
-        signatureBytes,
-        publicKeyBytes,
-      );
-
-      if (!result) {
         return badRequestResponse;
       }
 

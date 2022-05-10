@@ -1,6 +1,7 @@
 const swaggerUi = require("swagger-ui-express");
 const authControllerSwagger = require("./auth/auth.controller.swagger");
 const donationControllerSwagger = require("./donation/donation.controller.swagger");
+const candyMachineControllerSwagger = require("./candyMachine/candyMachine.controller.swagger");
 
 const {
   BAD_REQUEST_RESPONSE,
@@ -38,6 +39,7 @@ var swaggerConfig = {
   paths: {
     ...authControllerSwagger,
     ...donationControllerSwagger,
+    ...candyMachineControllerSwagger,
   },
   components: {
     schemas: {
