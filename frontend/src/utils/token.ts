@@ -25,7 +25,7 @@ const getTokens = async (walletAddress: string) => {
     } catch (error) {
       phantom = await (await provider.connect()).publicKey.toString();
     }
-    // 연결안되어있으면 연결하기
+    // 지금 연결된 지갑과 아톱의 지갑이 다르면 로그아웃 (?)
 
     // sign message 받기
     const res = await (

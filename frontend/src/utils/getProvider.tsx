@@ -24,6 +24,7 @@ interface PhantomProvider {
   connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
   disconnect: () => Promise<void>;
   on: (event: PhantomEvent, handler: (args: any) => void) => void;
+
   request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
 }
 

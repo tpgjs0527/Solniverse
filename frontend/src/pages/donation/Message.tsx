@@ -2,7 +2,7 @@ import { useSocket } from "hooks/useSocket";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-
+import useSound from "use-sound";
 export interface IMessage {
   displayName: string;
   message: string;
@@ -18,6 +18,8 @@ export const Message = () => {
   const [visible, setVisible] = useState(false);
   const refQueue = useMemo(() => queue, [queue]);
   const [socket, disconnectSocket] = useSocket(uuid);
+  const soundUrl = "./sounds/알림음-돈.mp3";
+  const [play, { stop }] = useSound(soundUrl, { volume: 0.5 });
   useEffect(() => {
     return () => {
       console.log("disconnect socket", uuid);
@@ -49,9 +51,10 @@ export const Message = () => {
       console.log(refQueue);
       setStart(true);
       setVisible(true);
-
+      play();
       setTimeout(() => {
         setVisible(false);
+        stop();
       }, 3000);
       setTimeout(() => {
         setQueue(refQueue.filter((value, i) => i !== 0));
