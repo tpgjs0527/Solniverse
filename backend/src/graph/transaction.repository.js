@@ -11,7 +11,9 @@ class GraphRepository {
    */
   async getTransactionsByRecieveUserId(receiveUserId) {
     return Transaction.find({ receiveUserId })
-      .select("_id displayName message platform paymentType amount block blockTime receiveUserId sendUserId txSignature")
+      .select(
+        "_id displayName message platform paymentType amount block blockTime receiveUserId sendUserId txSignature",
+      )
       .populate("receiveUserId", "walletAddress twitch.displayName")
       .populate("sendUserId", "walletAddress twitch.displayName")
       .lean();
@@ -24,7 +26,9 @@ class GraphRepository {
    */
   async getTransactionBySendUserId(sendUserId) {
     return Transaction.find({ sendUserId })
-      .select("_id displayName message platform paymentType amount block blockTime receiveUserId sendUserId txSignature")
+      .select(
+        "_id displayName message platform paymentType amount block blockTime receiveUserId sendUserId txSignature",
+      )
       .populate("receiveUserId", "walletAddress twitch.displayName")
       .populate("sendUserId", "walletAddress twitch.displayName")
       .lean();
