@@ -18,7 +18,7 @@ import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
 import { Service } from "./home/Service";
 
-function Routes() {
+function Routes({}) {
   const userInfo = useRecoilValue(userInfoAtom);
 
   return (

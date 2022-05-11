@@ -44,13 +44,14 @@ const getBalance = async (walletAddress: string) => {
   }
 };
 
-// 랜딩페이지에서 지갑연결하여 해당 리턴값 반환
-const getWallet = async () => {
+const getWallet = async (res: any) => {
   const provider = getProvider();
 
   // provider가 undefined면 팬텀지갑 공식홈페이지로 이동
   if (provider) {
     const response = await provider.connect();
+    console.log(response);
+    console.log(res);
     try {
       const res = await fetchWallet(response.publicKey.toString());
       if (res.status >= 200 && res.status < 400) {

@@ -1,6 +1,6 @@
 export function checkMobile() {
   let UA = navigator.userAgent.toLowerCase();
-  console.log(UA);
+  // console.log(UA);
   if (UA.indexOf("android") > -1) {
     //안드로이드
     return "android";

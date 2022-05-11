@@ -1,4 +1,3 @@
-import { PublicKey } from "@solana/web3.js";
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
@@ -18,8 +17,10 @@ function Home() {
 
   // 지갑연결
   const connectWallet = async () => {
-    const data = await getWallet();
+    const res = await provider?.connect();
+    const data = await getWallet(res);
     if (data.result === "success") {
+      console.log("최초 지갑 로그인!!!!!!!!!!!!!", data);
       setIsWallet(true);
       if (data.user.twitch) {
         setUserInfo({
@@ -38,6 +39,7 @@ function Home() {
           createdAt: data.user.createdAt,
         });
       }
+      console.log("최초 지갑 로그인!!!!!!!!!!!!!", userInfo);
       navigate("/main");
     } else {
       alert("지갑연결이 실패했습니다");
@@ -170,12 +172,17 @@ const Box2 = styled.div`
   @media screen and (max-width: 800px) {
     font-size: 6em;
     line-height: 90px;
-    left: 80px;
+    left: 20px;
   }
-  @media screen and (max-width: 550px) {
-    font-size: 4em;
+  @media screen and (max-width: 600px) {
+    font-size: 5rem;
     line-height: 90px;
-    left: 80px;
+    left: 20px;
+  }
+  @media screen and (max-width: 375px) {
+    font-size: 3.7rem;
+    line-height: 90px;
+    left: 20px;
   }
 `;
 
@@ -219,6 +226,9 @@ export const Logo = styled.div`
   img {
     width: 50px;
   }
+  @media screen and (max-width: 600px) {
+    margin-left: 40px;
+  }
 `;
 export const Menu = styled.div`
   font-family: Arial, Helvetica, sans-serif;
@@ -227,7 +237,7 @@ export const Menu = styled.div`
 
   letter-spacing: 2px;
   margin-right: 150px;
-  margin-top: 20px;
+  margin-top: 30px;
   float: right;
   ul {
     list-style: none;
@@ -236,9 +246,13 @@ export const Menu = styled.div`
       margin-left: 100px;
     }
   }
+  @media screen and (max-width: 600px) {
+    margin-right: 40px;
+    letter-spacing: 1px;
+  }
 `;
 
-const WalletMultiBtn = styled.button<{ isWallet: boolean }>`
+const WalletMultiBtn = styled.span<{ isWallet: boolean }>`
   display: block;
   position: relative;
   padding: 12px 42px;
@@ -285,7 +299,7 @@ const Pushable = styled.button`
     width: 100%;
     height: 100%;
     border-radius: 12px;
-    background: ${(props) => "#2c3b68"};
+    background: ${(props) => "#283250"};
   }
   &:hover {
     filter: brightness(110%);
