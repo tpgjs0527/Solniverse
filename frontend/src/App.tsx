@@ -8,7 +8,6 @@ import { useEffect, useMemo, useState } from "react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
-  useWallet,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
@@ -23,67 +22,25 @@ const App = () => {
   const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(() => [new PhantomWalletAdapter()], [network]);
-  const provider = getProvider();
-  const { signMessage } = useWallet();
+  const provider = useMemo(() => getProvider(), []);
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
-  // const setUserInfo = useSetRecoilState(userInfoAtom);
-  // const userInfo = useRecoilValue(userInfoAtom);
   const [data, setData] = useState<any>();
   const connectWallet = async () => {
     await provider?.connect();
   };
   useEffect(() => {
     if (wallets) {
-      // console.log(wallets);
     }
   }, [wallets]);
   console.log("원래 유저", userInfo);
-  // useEffect(() => {
-  //   connectWallet();
-  // }, []);
+
   useEffect(() => {
     if (!provider) return;
-    // const connectWallet = async () => {
-    //   await provider?.connect();
-    // };
-    // connectWallet();
     if (provider) {
       provider.connect({ onlyIfTrusted: true }).catch((err) => {});
-      // provider.on("connect", async (publicKey: PublicKey) => {
-      //   const rs = publicKey;
-      //   console.log(rs);
-      //   if (publicKey) {
-      //     const data = await getWallet(rs);
-      //     setData(data);
-      //     if (data.result === "success") {
-      //       if (data.user.twitch) {
-      //         console.log("유저 세팅~~");
-      //         setUserInfo({
-      //           twitch: {
-      //             id: data.user.twitch.id,
-      //             displayName: data.user.twitch.displayName,
-      //             profileImageUrl: data.user.twitch.profileImageUrl,
-      //           },
-      //           walletAddress: data.user.walletAddress,
-      //           createdAt: data.user.createdAt,
-      //         });
-      //       } else {
-      //         console.log("트위치 연동 X");
-      //         setUserInfo({
-      //           twitch: {
-      //             id: "",
-      //             displayName: "",
-      //             profileImageUrl: "",
-      //           },
-      //           walletAddress: data.user.walletAddress,
-      //           createdAt: data.user.createdAt,
-      //         });
-      //       }
-      //     } else {
-      //       alert("지갑연결이 실패했습니다");
-      //     }
-      //   }
-      // });
+      provider.on("disconnect", () => {
+        console.log("연결이 끊겼어요");
+      });
       provider.on("accountChanged", async (publicKey: PublicKey) => {
         console.log("지갑변경", publicKey.toBase58());
         const rs = publicKey;
@@ -107,10 +64,6 @@ const App = () => {
                 walletAddress: data.user.walletAddress,
                 createdAt: data.user.createdAt,
               });
-              console.log(
-                "유저가 지갑 바꾸고 아톰 변경 후(twitch, userInfo)",
-                userInfo
-              );
             } else {
               console.log("트위치 연동 X");
               console.log(data.user);
@@ -140,24 +93,9 @@ const App = () => {
             });
         }
       });
-      console.log("연결해제 전", userInfo);
-      provider.on("disconnect", async () => {
-        console.log("연결해제!!");
-        // setUserInfo({
-        //   twitch: {
-        //     id: "",
-        //     displayName: "",
-        //     profileImageUrl: "",
-        //   },
-        //   walletAddress: "",
-        //   createdAt: "",
-        // });
-        // connectWallet();
-      });
-      console.log("지갑 관련 감지 끝", userInfo);
+
       return () => {
-        connectWallet();
-        // provider.disconnect()
+        provider.disconnect();
       };
     }
   }, [provider]);

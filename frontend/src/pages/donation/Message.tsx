@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import useSound from "use-sound";
+import { Howl, Howler } from "howler";
 export interface IMessage {
   displayName: string;
   message: string;
@@ -11,6 +12,7 @@ export interface IMessage {
 }
 
 export const Message = () => {
+  Howler.autoUnlock = false;
   const params = useParams<{ uuid: string }>();
   const { uuid } = params;
   const [queue, setQueue] = useState<IMessage[]>([]);
@@ -18,8 +20,14 @@ export const Message = () => {
   const [visible, setVisible] = useState(false);
   const refQueue = useMemo(() => queue, [queue]);
   const [socket, disconnectSocket] = useSocket(uuid);
-  const soundUrl = "./sounds/알림음-돈.mp3";
-  const [play, { stop }] = useSound(soundUrl, { volume: 0.5 });
+  const [play, { stop }] = useSound(`${process.env.PUBLIC_URL}/alarm.mp3`);
+
+  const sound = {
+    donation: new Howl({
+      src: [`${process.env.PUBLIC_URL}/alarm.mp3`],
+    }),
+  };
+
   useEffect(() => {
     return () => {
       console.log("disconnect socket", uuid);
@@ -48,20 +56,24 @@ export const Message = () => {
 
   useEffect(() => {
     if (refQueue.length > 0) {
+      let context = new AudioContext();
+      context.resume().then(async () => await sound.donation.play());
       console.log(refQueue);
       setStart(true);
       setVisible(true);
-      play();
+      sound.donation.play();
       setTimeout(() => {
         setVisible(false);
-        stop();
+        // stop();
       }, 3000);
       setTimeout(() => {
         setQueue(refQueue.filter((value, i) => i !== 0));
+        sound.donation.stop();
       }, 7000);
     }
     if (refQueue.length === 0) {
       setStart(false);
+
       return;
     }
   }, [refQueue]);
