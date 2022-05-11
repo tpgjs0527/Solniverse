@@ -31,3 +31,8 @@ export const accessTokenAtom = atom({
   default: "",
   effects_UNSTABLE: [persistAtom],
 });
+
+export const walletCheckAtom = atom({
+  key: "walletCheck",
+  default: false,
+});

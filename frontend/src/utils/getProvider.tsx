@@ -24,6 +24,7 @@ interface PhantomProvider {
   connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
   disconnect: () => Promise<void>;
   on: (event: PhantomEvent, handler: (args: any) => void) => void;
+
   request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
 }
 
@@ -41,16 +42,16 @@ export const getProvider = (): PhantomProvider | undefined => {
       }
     }
   }
-  const confirmation = window.confirm("Phantom wallet 앱을 설치하시겠습니까?");
-  if (isMobile && confirmation) {
-    if (UA === "ios") {
-      window.location.href =
-        "https://apps.apple.com/kr/app/phantom-solana-wallet/id1598432977";
-    } else if (UA === "android") {
-      window.location.href =
-        "https://play.google.com/store/apps/details?id=app.phantom";
-    }
-  } else if (!isMobile) {
-    window.open("https://phantom.app/", "_blank");
-  }
+  // const confirmation = window.confirm("Phantom wallet 앱을 설치하시겠습니까?");
+  // if (isMobile && confirmation) {
+  //   if (UA === "ios") {
+  //     window.location.href =
+  //       "https://apps.apple.com/kr/app/phantom-solana-wallet/id1598432977";
+  //   } else if (UA === "android") {
+  //     window.location.href =
+  //       "https://play.google.com/store/apps/details?id=app.phantom";
+  //   }
+  // } else if (!isMobile) {
+  //   window.open("https://phantom.app/", "_blank");
+  // }
 };
