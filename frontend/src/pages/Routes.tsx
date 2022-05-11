@@ -17,6 +17,7 @@ import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
 import { Service } from "./home/Service";
+import CandyMachineHome from "./candyMachine/CandyMachineHome";
 
 function Routes({}) {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -61,7 +62,12 @@ function Routes({}) {
       <Route
         path="/nft-reward"
         element={
-          userInfo.walletAddress ? <NftReward /> : <Navigate replace to="/" />
+          userInfo.walletAddress ? (
+            <CandyMachineHome />
+          ) : (
+            <Navigate replace to="/" />
+          )
+          // userInfo.walletAddress ? <NftReward /> : <Navigate replace to="/" />
         }
       />
       <Route
