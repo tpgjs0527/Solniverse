@@ -32,6 +32,7 @@ module.exports = function connectionFactory() {
   conn.model("User", require("../model/User"));
   conn.model("Transaction", require("../model/Transaction"));
   conn.model("RefreshToken", require("../model/RefreshToken"));
+  conn.model("Rank", require("../model/Rank"));
   conn.model("CandyMachine", require("../model/CandyMachine"));
 
   return conn;

@@ -11,6 +11,7 @@ const morganMiddleware = require("./config/morganMiddleware");
 const authRouter = require("./src/auth/auth.controller");
 const donationRouter = require("./src/donation/donation.controller");
 const graphRouter = require("./src/graph/graph.controller");
+const rankRouter = require("./src/rank/rank.controller");
 const candyMachineRouter = require("./src/candyMachine/candyMachine.controller");
 const { swaggerUi, swaggerConfig } = require("./src/swaggerConfig");
 
@@ -34,6 +35,7 @@ app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerConfig));
 app.use("/api/auth", authRouter);
 app.use("/api/donation", donationRouter);
 app.use("/api/graph", graphRouter);
+app.use("/api/rank", rankRouter);
 app.use("/api/candyMachine", candyMachineRouter);
 
 // catch 404 and forward to error handler

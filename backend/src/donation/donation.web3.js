@@ -4,6 +4,8 @@ const DonationRepository = require("./donation.repository");
 const donationRepository = new DonationRepository();
 const UserRepository = require("../auth/user.repository");
 const userRepository = new UserRepository();
+const RankRepository = require("../rank/rank.repository");
+const rankRepository = new RankRepository();
 const { Types } = require("mongoose");
 const { io } = require("../../sockapp");
 const bs58 = require("bs58");
@@ -91,6 +93,14 @@ function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
     paymentType: symbol,
     decimal: 10 ** senderPreToken.decimals,
   };
+}
+
+function checkRank(total) {
+  if (total >= 12500) return "d";
+  else if (total >= 5000) return "p";
+  else if (total >= 500) return "g";
+  else if (total >= 100) return "s";
+  else return "b";
 }
 
 /**
@@ -183,6 +193,49 @@ async function updateTransactionWithoutDuplication(tx) {
       logger.info(
         `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${updatedTx}`,
       );
+
+      // receiveUserId와 sendUserId를 가져와서 각 유저의 지갑주소를 가져온다
+      const receiveWalletAddress = receiveUser.walletAddress;
+      const sendWalletAddress = sendUser.walletAddress;
+
+      // paymentType이 sol이면 usdc로 변환
+      let updatedAmount = updatedTx.amount;
+      if (updatedTx.paymentType == "sol") {
+        updatedAmount = (updatedAmount / SOL_DECIMAL) * getUsdPerSol();
+      }
+      const [receive, send] = await Promise.all([
+        rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
+        rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
+      ]);
+      // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
+      if (!receive) {
+        const receiveRank = {
+          walletAddress: receiveWalletAddress,
+          receiveCount: 1,
+          receiveTotal: updatedAmount,
+          receiveRank: checkRank(receive.receiveTotal),
+        };
+        rankRepository.createRankByReceive(receiveRank);
+      } else {
+        receive.receiveCount++;
+        receive.receiveTotal += updatedAmount;
+        receive.receiveRank = checkRank(receive.receiveTotal);
+        rankRepository.updateRankByReceive(receive);
+      }
+      if (!send) {
+        const sendRank = {
+          walletAddress: sendWalletAddress,
+          sendCount: 1,
+          sendTotal: updatedAmount,
+          sendRank: checkRank(send.sendTotal),
+        };
+        rankRepository.createRankBySend(sendRank);
+      } else {
+        send.sendCount++;
+        send.sendTotal += updatedAmount;
+        send.sendRank = checkRank(send.sendTotal);
+        rankRepository.updateRankBySend(send);
+      }
     } else {
       // 기존 데이터를 가져옴
       const donation = {

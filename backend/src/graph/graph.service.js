@@ -14,9 +14,7 @@ const transactionRepository = new TransactionRepository();
  */
 const notFoundResponse = new BaseResponse(NOT_FOUND_RESPONSE);
 
-// const message =
-//   "Sign this message for authenticating with your wallet. Nonce: ";
-class AuthService {
+class GraphService {
   /**
    * walletAddress받아서 후원받은 내역을 조회한다.
    * @param {string} walletAddress
@@ -55,4 +53,4 @@ class AuthService {
   }
 }
 
-module.exports = AuthService;
+module.exports = GraphService;
