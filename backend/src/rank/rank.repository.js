@@ -9,10 +9,7 @@ class RankRepository {
    */
   async createRankByReceive(receive) {
     const rank = new Rank({
-      walletAddress: receive.walletAddress,
-      receiveCount: receive.receiveCount,
-      receiveTotal: receive.receiveTotal,
-      receiveRank: receive.receiveRank,
+      ...receive,
     });
     return rank.save();
   }
@@ -24,10 +21,7 @@ class RankRepository {
    */
   async createRankBySend(send) {
     const rank = new Rank({
-      walletAddress: send.walletAddress,
-      sendCount: send.receiveCount,
-      sendTotal: send.receiveTotal,
-      sendRank: send.receiveRank,
+      ...send,
     });
     return rank.save();
   }
@@ -41,9 +35,7 @@ class RankRepository {
     return Rank.updateOne(
       { walletAddress: receive.walletAddress },
       {
-        receiveCount: receive.receiveCount,
-        receiveTotal: receive.receiveTotal,
-        receiveRank: receive.receiveRank,
+        ...receive,
       },
     );
   }

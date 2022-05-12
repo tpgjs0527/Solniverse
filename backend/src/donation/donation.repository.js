@@ -78,7 +78,7 @@ class DonationRepository {
         ...data,
       },
       { new: true },
-    );
+    ).lean();
   }
 
   /**
@@ -90,7 +90,8 @@ class DonationRepository {
       .sort({ block: -1 })
       .limit(1)
       .where("block")
-      .ne(null);
+      .ne(null)
+      .lean();
   }
 
   /**
@@ -100,7 +101,7 @@ class DonationRepository {
    * @returns {Promise<Tx>} tx
    */
   async getTransactionById(txId) {
-    return Transaction.findOne({ _id: txId });
+    return Transaction.findOne({ _id: txId }).lean();
   }
 }
 

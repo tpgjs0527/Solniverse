@@ -188,54 +188,11 @@ async function updateTransactionWithoutDuplication(tx) {
         decimal,
         donation,
         sendWallet.toString(),
-        updatedTx.receiveUserId.toString(),
+        receiveWallet.toString(),
       );
       logger.info(
         `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${updatedTx}`,
       );
-
-      // receiveUserId와 sendUserId를 가져와서 각 유저의 지갑주소를 가져온다
-      const receiveWalletAddress = receiveUser.walletAddress;
-      const sendWalletAddress = sendUser.walletAddress;
-
-      // paymentType이 sol이면 usdc로 변환
-      let updatedAmount = updatedTx.amount;
-      if (updatedTx.paymentType == "sol") {
-        updatedAmount = (updatedAmount / SOL_DECIMAL) * getUsdPerSol();
-      }
-      const [receive, send] = await Promise.all([
-        rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
-        rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
-      ]);
-      // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
-      if (!receive) {
-        const receiveRank = {
-          walletAddress: receiveWalletAddress,
-          receiveCount: 1,
-          receiveTotal: updatedAmount,
-          receiveRank: checkRank(updatedAmount),
-        };
-        rankRepository.createRankByReceive(receiveRank);
-      } else {
-        receive.receiveCount++;
-        receive.receiveTotal += updatedAmount;
-        receive.receiveRank = checkRank(receive.receiveTotal);
-        rankRepository.updateRankByReceive(receive);
-      }
-      if (!send) {
-        const sendRank = {
-          walletAddress: sendWalletAddress,
-          sendCount: 1,
-          sendTotal: updatedAmount,
-          sendRank: checkRank(updatedAmount),
-        };
-        rankRepository.createRankBySend(sendRank);
-      } else {
-        send.sendCount++;
-        send.sendTotal += updatedAmount;
-        send.sendRank = checkRank(send.sendTotal);
-        rankRepository.updateRankBySend(send);
-      }
     } else {
       // 기존 데이터를 가져옴
       const donation = {
@@ -255,7 +212,7 @@ async function updateTransactionWithoutDuplication(tx) {
         decimal,
         donation,
         sendWallet.toString(),
-        createdTx.receiveUserId.toString(),
+        receiveWallet.toString(),
       );
       logger.info(
         `updateTransactionWithoutDuplication 새 데이터 삽입: ${createdTx}`,
@@ -354,15 +311,15 @@ function alertAndSendSnv(
   decimal,
   { displayName = "", message = "", paymentType = "", amount = 0 } = {},
   sendWallet,
-  receiveUserId,
+  receiveWallet,
 ) {
   (async () => {
     const toWallet = new web3.PublicKey(sendWallet);
     try {
-      const pointAmount =
-        ((paymentType == "sol" ? await getUsdFromSol(amount) : amount) | 0) *
-        10;
-      sendSnvToken(toWallet, pointAmount);
+      const usdcAmount =
+        (paymentType == "sol" ? await getUsdFromSol(amount) : amount) | 0;
+      updateRank(sendWallet, receiveWallet, usdcAmount / 10 ** 6);
+      sendSnvToken(toWallet, usdcAmount * 10);
     } catch (err) {
       logger.error(
         `SNV Transfer 에러 발생: to=${toWallet.toString()} error=${err}`,
@@ -372,9 +329,9 @@ function alertAndSendSnv(
   amount = amount / decimal;
 
   logger.info(
-    `Donation 알림 전송 to=${receiveUserId} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
+    `Donation 알림 전송 to=${receiveWallet} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
   );
-  io.to(receiveUserId).emit("donation", {
+  io.to(receiveWallet).emit("donation", {
     displayName,
     message,
     paymentType,
@@ -383,7 +340,54 @@ function alertAndSendSnv(
 }
 
 /**
- * Solana Amount를 입력받아 USD 환산 값을 반환하는 함수.
+ * 랭크 변경
+ *
+ * @param {string} sendWalletAddress
+ * @param {string} receiveWalletAddress
+ * @param {number} uscAmount
+ */
+async function updateRank(sendWalletAddress, receiveWalletAddress, uscAmount) {
+  try {
+    const [receive, send] = await Promise.all([
+      rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
+      rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
+    ]);
+    // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
+    if (!receive) {
+      const receiveRank = {
+        walletAddress: receiveWalletAddress,
+        receiveCount: 1,
+        receiveTotal: uscAmount,
+        receiveRank: checkRank(uscAmount),
+      };
+      rankRepository.createRankByReceive(receiveRank);
+    } else {
+      receive.receiveCount++;
+      receive.receiveTotal += uscAmount;
+      receive.receiveRank = checkRank(receive.receiveTotal);
+      rankRepository.updateRankByReceive(receive);
+    }
+    if (!send) {
+      const sendRank = {
+        walletAddress: sendWalletAddress,
+        sendCount: 1,
+        sendTotal: uscAmount,
+        sendRank: checkRank(uscAmount),
+      };
+      rankRepository.createRankBySend(sendRank);
+    } else {
+      send.sendCount++;
+      send.sendTotal += uscAmount;
+      send.sendRank = checkRank(send.sendTotal);
+      rankRepository.updateRankBySend(send);
+    }
+  } catch (error) {
+    logger.error(`updateRank 에러 발생: error=${error}`);
+  }
+}
+
+/**
+ * Solana Amount를 입력받아 Decimal 6의 USD 환산 값을 반환하는 함수.
  * 전역변수 usdPerSol에 의존성을 가짐.
  *
  * @param {number} amount
@@ -503,7 +507,7 @@ recoverTransaction(); //서버 부팅시 동작
 connection.onLogs(
   new web3.PublicKey(process.env.DDD_SHOP_WALLET),
   logCallback,
-  "confirmed",
+  "finalized",
 );
 
 const WEB_RPC_OPEN = "solana webrpc opend";
