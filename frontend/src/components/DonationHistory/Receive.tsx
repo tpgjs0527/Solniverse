@@ -46,7 +46,7 @@ interface IResponse {
   transaction: ITransaction[];
 }
 
-function Receive() {
+function ReceiveDonationHistory() {
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
 
@@ -74,40 +74,80 @@ function Receive() {
       },
       background: "transparent", // 그래프 배경색
     },
+    colors: ["#00FFA3", "#2775ca"],
+    fill: {
+      type: "gradient",
+      gradient: {
+        colorStops: [
+          [
+            {
+              offset: 0,
+              color: "#00FFA3",
+            },
+            {
+              offset: 50,
+              color: "#03E1FF",
+            },
+            {
+              offset: 100,
+              color: "#DC1FFF",
+            },
+          ],
+          [
+            {
+              color: "#2775ca",
+            },
+          ],
+        ],
+      },
+    },
     // dataLabels: {
     //   enabled: false,  // 선에 y 데이터 값 표시
     // },
+    grid: {
+      show: true,
+      borderColor: isDark ? "#333333" : "#eeeeee",
+    },
     stroke: {
       curve: "smooth", // 선 모양 (곡선)
       width: 4, // 선 너비
     },
-    // title: {
-    //   text: "Dynamic Updating Chart",
-    //   align: "left",
-    // },
     xaxis: {
       type: "datetime",
       axisBorder: { show: false }, // x축 하단 테두리
+      axisTicks: {
+        show: true,
+        color: isDark ? "#333333" : "#eeeeee",
+      },
+      labels: {
+        show: true,
+        style: {
+          colors: isDark ? "#777777" : "#666666",
+        },
+      },
     },
-    yaxis: [
-      {
-        title: {
-          text: "SOL", // 좌
-        },
-        labels: {
-          formatter: (value) => value.toFixed(2),
-        },
-      },
-      {
-        opposite: true,
-        title: {
-          text: "USDC", // 우
-        },
-        labels: {
-          formatter: (value) => value.toFixed(0),
-        },
-      },
-    ],
+    yaxis: {
+      show: false,
+    },
+    // yaxis: [
+    //   {
+    //     title: {
+    //       text: "SOL", // 좌
+    //     },
+    //     labels: {
+    //       formatter: (value) => value.toFixed(2),
+    //     },
+    //   },
+    //   {
+    //     opposite: true,
+    //     title: {
+    //       text: "USDC", // 우
+    //     },
+    //     labels: {
+    //       formatter: (value) => value.toFixed(0),
+    //     },
+    //   },
+    // ],
     markers: {
       // 점
       size: 3,
@@ -118,6 +158,9 @@ function Receive() {
       intersect: true, // 마우스를 해당 위치에 정확히 올린 경우에만 표시
       x: {
         show: true, // 윗부분에 x값 추가 표시
+      },
+      y: {
+        formatter: (value) => String(parseFloat(value.toFixed(2))),
       },
     },
     legend: {
@@ -294,6 +337,14 @@ const Table = styled.div`
 const List = styled.div`
   height: 400px;
   overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: ${(props) => props.theme.subTextColor};
+  }
 `;
 
 const Gragh = styled.div`
@@ -312,4 +363,4 @@ const Container = styled.div`
   }
 `;
 
-export default Receive;
+export default ReceiveDonationHistory;

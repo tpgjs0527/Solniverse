@@ -5,7 +5,7 @@ import Chart from "react-apexcharts";
 import { useRecoilValue } from "recoil";
 import { toggleThemeAtom, userInfoAtom } from "atoms";
 import { useQuery } from "react-query";
-import { fetchGive } from "utils/fetcher";
+import { fetchSend } from "utils/fetcher";
 import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
 import Spinner from "components/Spinner";
 
@@ -46,14 +46,17 @@ interface IResponse {
   transaction: ITransaction[];
 }
 
-function Give() {
+function SendDonationHistory() {
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
 
   // [BE] 후원한 목록
   const { isLoading, data } = useQuery<IResponse>(
     ["give", userInfo.walletAddress],
-    () => fetchGive(userInfo.walletAddress!)
+    () => fetchSend(userInfo.walletAddress!)
+    // {
+    //   refetchInterval: 5000,
+    // }
   );
 
   const graphData: IData = { sol: {}, usdc: {} };
@@ -71,40 +74,58 @@ function Give() {
       },
       background: "transparent", // 그래프 배경색
     },
-    // dataLabels: {
-    //   enabled: false,  // 선에 y 데이터 값 표시
-    // },
+    colors: ["#00FFA3", "#2775ca"],
+    fill: {
+      type: "gradient",
+      gradient: {
+        colorStops: [
+          [
+            {
+              offset: 0,
+              color: "#00FFA3",
+            },
+            {
+              offset: 50,
+              color: "#03E1FF",
+            },
+            {
+              offset: 100,
+              color: "#DC1FFF",
+            },
+          ],
+          [
+            {
+              color: "#2775ca",
+            },
+          ],
+        ],
+      },
+    },
+    grid: {
+      show: true,
+      borderColor: isDark ? "#333333" : "#eeeeee",
+    },
     stroke: {
       curve: "smooth", // 선 모양 (곡선)
       width: 4, // 선 너비
     },
-    // title: {
-    //   text: "Dynamic Updating Chart",
-    //   align: "left",
-    // },
     xaxis: {
       type: "datetime",
       axisBorder: { show: false }, // x축 하단 테두리
+      axisTicks: {
+        show: true,
+        color: isDark ? "#333333" : "#eeeeee",
+      },
+      labels: {
+        show: true,
+        style: {
+          colors: isDark ? "#777777" : "#666666",
+        },
+      },
     },
-    yaxis: [
-      {
-        title: {
-          text: "SOL", // 좌
-        },
-        labels: {
-          formatter: (value) => value.toFixed(2),
-        },
-      },
-      {
-        opposite: true,
-        title: {
-          text: "USDC", // 우
-        },
-        labels: {
-          formatter: (value) => value.toFixed(0),
-        },
-      },
-    ],
+    yaxis: {
+      show: false,
+    },
     markers: {
       // 점
       size: 3,
@@ -115,6 +136,9 @@ function Give() {
       intersect: true, // 마우스를 해당 위치에 정확히 올린 경우에만 표시
       x: {
         show: true, // 윗부분에 x값 추가 표시
+      },
+      y: {
+        formatter: (value) => String(parseFloat(value.toFixed(2))),
       },
     },
     legend: {
@@ -294,6 +318,14 @@ const Table = styled.div`
 const List = styled.div`
   height: 400px;
   overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: ${(props) => props.theme.subTextColor};
+  }
 `;
 
 const Gragh = styled.div`
@@ -305,11 +337,10 @@ const Gragh = styled.div`
 const Container = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  /* grid-gap: 30px; */
 
   @media screen and (min-width: 1439px) {
     grid-template-columns: repeat(2, 1fr);
   }
 `;
 
-export default Give;
+export default SendDonationHistory;
