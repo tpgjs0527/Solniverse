@@ -6,10 +6,8 @@ import {
   useMatch,
   useNavigate,
 } from "react-router-dom";
-import Give from "components/DonationHistory/Give";
-import Receive from "components/DonationHistory/Receive";
-import { useRecoilValue } from "recoil";
-import { userInfoAtom } from "atoms";
+import SendDonationHistory from "components/DonationHistory/Send";
+import ReceiveDonationHistory from "components/DonationHistory/Receive";
 
 function DonationHistory() {
   const navigate = useNavigate();
@@ -41,8 +39,8 @@ function DonationHistory() {
 
         <TabComponent>
           <ReactRouterRoutes>
-            <Route path="" element={<Give />} />
-            <Route path="/receive" element={<Receive />} />
+            <Route path="" element={<SendDonationHistory />} />
+            <Route path="/receive" element={<ReceiveDonationHistory />} />
           </ReactRouterRoutes>
         </TabComponent>
       </Section>

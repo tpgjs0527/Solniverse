@@ -59,12 +59,6 @@ npm i @types/styled-components
 npm install --save react-apexcharts apexcharts
 ```
 
-- SWR
-
-```bash
-npm i swr
-```
-
 - Query
 
 ```bash
@@ -113,6 +107,12 @@ npm i react-circular-progressbar
 ```bash
 npm i socket.io-client
 npm i --save-dev @types/socket.io-client
+```
+
+- howler
+
+```bash
+npm i howler
 ```
 
 ### Provider

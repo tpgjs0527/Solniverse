@@ -44,14 +44,13 @@ const getBalance = async (walletAddress: string) => {
   }
 };
 
-const getWallet = async (res: any) => {
+const getWallet = async () => {
   const provider = getProvider();
 
-  // provider가 undefined면 팬텀지갑 공식홈페이지로 이동
   if (provider) {
     const response = await provider.connect();
     console.log(response);
-    console.log(res);
+
     try {
       const res = await fetchWallet(response.publicKey.toString());
       if (res.status >= 200 && res.status < 400) {
@@ -71,9 +70,11 @@ const getWallet = async (res: any) => {
       } else {
         const error = new Error(res.statusText);
         console.log(error);
-        alert("지갑 연결이 안되네요");
+        alert("지갑 연결이 안됩니다");
       }
     }
+  } else {
+    alert("팬텀 지갑 확장 프로그램을 확인해주세요!");
   }
 };
 

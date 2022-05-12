@@ -16,7 +16,7 @@ import CandyDrop from "./nft/CandyDrop";
 import Other from "./nft/Other";
 import CandyMachineHome from "./candyMachine/CandyMachineHome";
 
-function Routes({}) {
+function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
 
   return (
