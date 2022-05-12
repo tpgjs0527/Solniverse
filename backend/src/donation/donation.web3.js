@@ -213,7 +213,7 @@ async function updateTransactionWithoutDuplication(tx) {
           walletAddress: receiveWalletAddress,
           receiveCount: 1,
           receiveTotal: updatedAmount,
-          receiveRank: checkRank(receive.receiveTotal),
+          receiveRank: checkRank(updatedAmount),
         };
         rankRepository.createRankByReceive(receiveRank);
       } else {
@@ -227,7 +227,7 @@ async function updateTransactionWithoutDuplication(tx) {
           walletAddress: sendWalletAddress,
           sendCount: 1,
           sendTotal: updatedAmount,
-          sendRank: checkRank(send.sendTotal),
+          sendRank: checkRank(updatedAmount),
         };
         rankRepository.createRankBySend(sendRank);
       } else {
