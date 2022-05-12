@@ -316,8 +316,9 @@ function alertAndSendSnv(
   (async () => {
     const toWallet = new web3.PublicKey(sendWallet);
     try {
-      const usdcAmount =
-        (paymentType == "sol" ? await getUsdFromSol(amount) : amount) | 0;
+      const usdcAmount = Math.floor(
+        paymentType == "sol" ? await getUsdFromSol(amount) : amount,
+      );
       updateRank(sendWallet, receiveWallet, usdcAmount / 10 ** 6);
       sendSnvToken(toWallet, usdcAmount * 10);
     } catch (err) {
