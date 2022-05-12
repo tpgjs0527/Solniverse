@@ -452,3 +452,18 @@ connection.onLogs(
   logCallback,
   "confirmed",
 );
+
+const WEB_RPC_OPEN = "solana webrpc opend";
+const WEB_RPC_ERROR = "solana webrpc error";
+const WEB_RPC_CLOSE = "solana webrpc closed";
+
+connection._rpcWebSocket.on("open", () => {
+  logger.info(WEB_RPC_OPEN);
+});
+connection._rpcWebSocket.on("close", () => {
+  logger.info(WEB_RPC_CLOSE);
+});
+connection._rpcWebSocket.on("error", (err) => {
+  const { error: error } = err;
+  logger.error(`${WEB_RPC_ERROR}: error=${error}`);
+});
