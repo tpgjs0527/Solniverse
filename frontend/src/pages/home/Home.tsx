@@ -7,7 +7,7 @@ import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
 import { getWallet } from "utils/solanaWeb3";
 
-function Home({ provider }: any) {
+function Home() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,8 +15,7 @@ function Home({ provider }: any) {
 
   // 지갑연결
   const connectWallet = async () => {
-    const res = await provider?.connect();
-    const data = await getWallet(res);
+    const data = await getWallet();
     if (data.result === "success") {
       setIsWallet(true);
       if (data.user.twitch) {

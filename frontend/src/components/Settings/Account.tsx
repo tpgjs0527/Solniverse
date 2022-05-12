@@ -5,8 +5,8 @@ import useMutation from "hooks/useMutation";
 import { useRecoilState } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
-import { checkToken } from "utils/token";
 import { getBalance, getSolanaPrice } from "utils/solanaWeb3";
+import useToken from "hooks/useToken";
 
 export interface IUser {
   result: string;
@@ -30,6 +30,7 @@ function Account() {
   const [searchParams, setSearchParams] = useSearchParams();
   const platform = searchParams.get("platform");
   const code = searchParams.get("code");
+  const [, , checkToken] = useToken();
 
   // 페이지 들어오면 지갑 잔액 함수 실행
   useEffect(() => {

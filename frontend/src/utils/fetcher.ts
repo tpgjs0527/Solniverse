@@ -13,7 +13,7 @@ export async function fetchReceive(walletAddress: string) {
     `${process.env.REACT_APP_BASE_URL}/graph/receive/${walletAddress}`
   ).then((response) => response.json());
 }
-
+// walletAddress로 로그인 혹은 유저 데이터 만들기
 export async function fetchWallet(walletAddress: string, method = "GET") {
   return fetch(
     `${process.env.REACT_APP_BASE_URL}/auth/connect/${walletAddress}`,
