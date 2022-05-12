@@ -24,6 +24,7 @@
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
     "color-interpolate": "^1.0.5",
+    "howler": "^2.2.3",
     "process": "^0.11.10",
     "qr-code-styling": "^1.6.0-rc.1",
     "react": "^17.0.2",
@@ -46,7 +47,6 @@
     "styled-components": "^5.3.5",
     "tweetnacl": "^1.0.3",
     "typescript": "^4.4.4",
-    "use-sound": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -74,6 +74,7 @@
     ]
   },
   "devDependencies": {
+    "@types/howler": "^2.2.7",
     "@types/react-router-dom": "^5.3.3",
     "@types/socket.io-client": "^1.4.35",
     "webpack": "^5.72.0",

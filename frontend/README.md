@@ -109,6 +109,12 @@ npm i socket.io-client
 npm i --save-dev @types/socket.io-client
 ```
 
+- howler
+
+```bash
+npm i howler
+```
+
 ### Provider
 
 - solana web3

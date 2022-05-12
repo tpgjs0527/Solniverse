@@ -28,6 +28,7 @@ export async function fetchReceiveDashboard(walletAddress: string) {
   ).then((response) => response.json());
 }
 
+// 지갑주소에 따른 유저 로그인 혹은 회원가입
 export async function fetchWallet(walletAddress: string, method = "GET") {
   return fetch(
     `${process.env.REACT_APP_BASE_URL}/auth/connect/${walletAddress}`,
