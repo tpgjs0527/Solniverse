@@ -35,137 +35,6 @@ const splTokenName = process.env.REACT_APP_SPL_TOKEN_TO_MINT_NAME
   ? process.env.REACT_APP_SPL_TOKEN_TO_MINT_NAME.toString()
   : "TOKEN";
 
-const ConnectButton = styled(WalletMultiButton)`
-  border-radius: 18px !important;
-  padding: 6px 16px;
-  background-color: #4e44ce;
-  margin: 0 auto;
-`;
-
-const NFT = styled(Paper)`
-  min-width: 500px;
-  margin: 0 auto;
-  padding: 5px 20px 20px 20px;
-  flex: 1 1 auto;
-  background-color: var(--card-background-color) !important;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
-`;
-
-const Card = styled(Paper)`
-  display: inline-block;
-  background-color: var(--countdown-background-color) !important;
-  margin: 5px;
-  min-width: 40px;
-  padding: 24px;
-  h1 {
-    margin: 0px;
-  }
-`;
-
-const MintButtonContainer = styled.div`
-  button.MuiButton-contained:not(.MuiButton-containedPrimary).Mui-disabled {
-    color: #464646;
-  }
-
-  button.MuiButton-contained:not(.MuiButton-containedPrimary):hover,
-  button.MuiButton-contained:not(.MuiButton-containedPrimary):focus {
-    -webkit-animation: pulse 1s;
-    animation: pulse 1s;
-    box-shadow: 0 0 0 2em rgba(255, 255, 255, 0);
-  }
-
-  @-webkit-keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 #ef8f6e;
-    }
-  }
-
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 #ef8f6e;
-    }
-  }
-`;
-
-const SolExplorerLink = styled.a`
-  color: var(--title-text-color);
-  border-bottom: 1px solid var(--title-text-color);
-  font-weight: bold;
-  list-style-image: none;
-  list-style-position: outside;
-  list-style-type: none;
-  outline: none;
-  text-decoration: none;
-  text-size-adjust: 100%;
-
-  :hover {
-    border-bottom: 2px solid var(--title-text-color);
-  }
-`;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  margin-right: 4%;
-  margin-left: 4%;
-  text-align: center;
-  justify-content: center;
-`;
-
-const MintContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 20px;
-`;
-
-const DesContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  gap: 20px;
-`;
-
-const Price = styled(Chip)`
-  position: absolute;
-  margin: 5px;
-  font-weight: bold;
-  font-size: 1.2em !important;
-  font-family: "Patrick Hand", cursive !important;
-`;
-
-const Image = styled.img`
-  height: 400px;
-  width: auto;
-  border-radius: 7px;
-  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.5);
-`;
-
-const BorderLinearProgress = styled(LinearProgress)`
-  margin: 20px;
-  height: 10px !important;
-  border-radius: 30px;
-  border: 2px solid white;
-  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.5);
-  background-color: var(--main-text-color) !important;
-
-  > div.MuiLinearProgress-barColorPrimary {
-    background-color: var(--title-text-color) !important;
-  }
-
-  > div.MuiLinearProgress-bar1Determinate {
-    border-radius: 30px !important;
-    background-image: linear-gradient(
-      270deg,
-      rgba(255, 255, 255, 0.01),
-      rgba(255, 255, 255, 0.5)
-    );
-  }
-`;
-
 const CandyMachineHome = () => {
   const [balance, setBalance] = useState<number>();
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
@@ -194,11 +63,12 @@ const CandyMachineHome = () => {
   });
 
   const wallet = useAnchorWallet();
+
   const [candyMachine, setCandyMachine] = useState<CandyMachine>();
 
   //@TODO candyMachineId를 바꿔야함. useEffect [] 첫 마운트 기준으로 state로 받아와야됨.
   const candyMachineId = new PublicKey(
-    "CaYTfBrLUKsxi43RL8qDBLr8oMfE8WifaHkPUuGJZzGp"
+    "4P4Hea8rMbR3FNEboaEDHDsVHTH8KdpRaAQ4wQm19ffL"
   );
   const rpcUrl = clusterApiUrl("devnet");
   const connection = new anchor.web3.Connection(rpcUrl, "confirmed");
@@ -563,14 +433,16 @@ const CandyMachineHome = () => {
   };
 
   useEffect(refreshCandyMachineState, [wallet, isEnded, isPresale]);
-
+  useEffect(() => {
+    console.log(wallet?.publicKey.toBase58());
+  }, [wallet]);
   return (
-    <Layout>
+    <Container>
       <MainContainer>
         <MintContainer>
           <DesContainer>
             <NFT elevation={3}>
-              <h2>My NFT</h2>
+              <Title>Candy Drop</Title>
               <br />
               <div>
                 <Price
@@ -580,7 +452,10 @@ const CandyMachineHome = () => {
                       : price + " " + priceLabel
                   }
                 />
-                <Image src="cool-cats.gif" alt="NFT To Mint" />
+                <Image
+                  src={`${process.env.PUBLIC_URL}/cool-cats.gif`}
+                  alt="NFT To Mint"
+                />
               </div>
               <br />
               {wallet &&
@@ -611,9 +486,9 @@ const CandyMachineHome = () => {
                 />
               )}
               {wallet && isActive && (
-                <h3>
+                <Title>
                   TOTAL MINTED : {itemsRedeemed} / {itemsAvailable}
-                </h3>
+                </Title>
               )}
               {wallet && isActive && (
                 <BorderLinearProgress
@@ -718,8 +593,148 @@ const CandyMachineHome = () => {
           {alertState.message}
         </Alert>
       </Snackbar>
-    </Layout>
+    </Container>
   );
 };
+
+const Container = styled.div``;
+
+const ConnectButton = styled(WalletMultiButton)`
+  border-radius: 18px !important;
+  padding: 6px 16px;
+  background-color: #4e44ce;
+  margin: 0 auto;
+`;
+
+const NFT = styled(Paper)`
+  min-width: 500px;
+  min-height: 500px;
+  margin: 0 auto;
+  padding: 5px 20px 20px 20px;
+  flex: 1 1 auto;
+  background-color: var(--card-background-color) !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+`;
+
+const Title = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 16px;
+`;
+
+const Card = styled(Paper)`
+  display: inline-block;
+  background-color: var(--countdown-background-color) !important;
+  margin: 5px;
+  min-width: 40px;
+  padding: 24px;
+  h1 {
+    margin: 0px;
+  }
+`;
+
+const MintButtonContainer = styled.div`
+  button.MuiButton-contained:not(.MuiButton-containedPrimary).Mui-disabled {
+    color: #464646;
+  }
+
+  button.MuiButton-contained:not(.MuiButton-containedPrimary):hover,
+  button.MuiButton-contained:not(.MuiButton-containedPrimary):focus {
+    -webkit-animation: pulse 1s;
+    animation: pulse 1s;
+    box-shadow: 0 0 0 2em rgba(255, 255, 255, 0);
+  }
+
+  @-webkit-keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 #ef8f6e;
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 #ef8f6e;
+    }
+  }
+`;
+
+const SolExplorerLink = styled.a`
+  color: var(--title-text-color);
+  border-bottom: 1px solid var(--title-text-color);
+  font-weight: bold;
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+  outline: none;
+  text-decoration: none;
+  text-size-adjust: 100%;
+
+  :hover {
+    border-bottom: 2px solid var(--title-text-color);
+  }
+`;
+
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 4%;
+  margin-left: 4%;
+  text-align: center;
+  justify-content: center;
+`;
+
+const MintContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 20px;
+`;
+
+const DesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 20px;
+`;
+
+const Price = styled(Chip)`
+  position: absolute;
+  margin: 16px;
+  font-weight: bold;
+  font-size: 1.2em !important;
+  /* font-family: "Patrick Hand", cursive !important; */
+`;
+
+const Image = styled.img`
+  height: 400px;
+  width: auto;
+  border-radius: 7px;
+  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.5);
+`;
+
+const BorderLinearProgress = styled(LinearProgress)`
+  margin: 20px;
+  height: 10px !important;
+  border-radius: 30px;
+  border: 2px solid white;
+  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.5);
+  background-color: var(--main-text-color) !important;
+
+  > div.MuiLinearProgress-barColorPrimary {
+    background-color: var(--title-text-color) !important;
+  }
+
+  > div.MuiLinearProgress-bar1Determinate {
+    border-radius: 30px !important;
+    background-image: linear-gradient(
+      270deg,
+      rgba(255, 255, 255, 0.01),
+      rgba(255, 255, 255, 0.5)
+    );
+  }
+`;
 
 export default CandyMachineHome;

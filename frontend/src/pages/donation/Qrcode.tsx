@@ -10,7 +10,7 @@ import { isMobile } from "react-device-detect";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
-import { useConnection } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 
@@ -36,8 +36,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const [signature, setSignature] = useState("");
   const [connectWallet, setConnectWallet] = useState(false);
   const [txURL, setTXURL] = useState<any>();
-  // const { publicKey, wallet, connect, connecting, connected, sendTransaction } =
-  //   useWallet();
+  const { publicKey, wallet, connect, connecting, connected, sendTransaction } =
+    useWallet();
+  console.log(publicKey?.toBase58());
 
   // const wallets = [new PhantomWalletAdapter()];
   const desktopStyle = {

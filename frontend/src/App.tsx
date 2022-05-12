@@ -42,7 +42,10 @@ const App = () => {
   //   connectWallet();
   // }, []);
   useEffect(() => {
-    if (!provider) return;
+    if (!provider) {
+      // window.location.reload();
+      return;
+    }
     // const connectWallet = async () => {
     //   await provider?.connect();
     // };
@@ -128,6 +131,7 @@ const App = () => {
                 userInfo
               );
             }
+            window.location.reload();
           } else {
             alert("지갑연결이 실패했습니다");
           }
@@ -165,7 +169,7 @@ const App = () => {
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
       <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect={false}>
+        <WalletProvider wallets={wallets} autoConnect={true}>
           <WalletModalProvider>
             <Routes />
             <GlobalStyle />

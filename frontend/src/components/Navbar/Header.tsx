@@ -32,8 +32,8 @@ export default function Header() {
             </Link>
           </Element>
           <Element isActive={nftRewardMatch !== null}>
-            <Link to="/nft-reward">
-              <Text>NFT 리워드</Text>
+            <Link to="/snv-world">
+              <Text>SNV World</Text>
             </Link>
           </Element>
           <Element isActive={serviceCenterMatch !== null}>

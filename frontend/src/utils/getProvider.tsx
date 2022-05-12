@@ -42,6 +42,7 @@ export const getProvider = (): PhantomProvider | undefined => {
       }
     }
   }
+
   // const confirmation = window.confirm("Phantom wallet 앱을 설치하시겠습니까?");
   // if (isMobile && confirmation) {
   //   if (UA === "ios") {
