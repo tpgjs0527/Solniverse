@@ -18,7 +18,7 @@ import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
 import { Service } from "./home/Service";
 
-function Routes() {
+function Routes({ provider }: any) {
   const userInfo = useRecoilValue(userInfoAtom);
 
   return (
@@ -32,7 +32,11 @@ function Routes() {
       <Route
         path="/"
         element={
-          userInfo.walletAddress ? <Navigate replace to="/main" /> : <Home />
+          userInfo.walletAddress ? (
+            <Navigate replace to="/main" />
+          ) : (
+            <Home provider={provider} />
+          )
         }
       />
       <Route path="/service" element={<Service />} />

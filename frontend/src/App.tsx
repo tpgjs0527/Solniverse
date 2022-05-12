@@ -17,7 +17,6 @@ import { getWallet } from "utils/solanaWeb3";
 import { clusterApiUrl, PublicKey, Transaction } from "@solana/web3.js";
 import { isMobile } from "react-device-detect";
 import { checkMobile } from "../src/utils/checkMobile";
-import { useProvider } from "hooks/useProvider";
 
 type DisplayEncoding = "utf8" | "hex";
 type PhantomEvent = "disconnect" | "connect" | "accountChanged";
@@ -45,11 +44,28 @@ export interface PhantomProvider {
 }
 
 const App = () => {
+  const getProvider = useCallback((): PhantomProvider | undefined => {
+    try {
+      const { solana } = window;
+      if (solana) {
+        if (solana.isPhantom) {
+          const provider = solana;
+          return provider;
+        }
+      } else {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    return;
+  }, []);
   const isDark = useRecoilValue(toggleThemeAtom);
   const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(() => [new PhantomWalletAdapter()], [network]);
-  const provider = useProvider();
+  const provider = useMemo(() => getProvider(), [getProvider]);
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [data, setData] = useState<any>();
 
@@ -61,7 +77,7 @@ const App = () => {
 
   useEffect(() => {
     if (!provider) {
-      alert("지갑연결이 끊겼습니다. 재입장해주세요!");
+      alert("지갑연결이 끊겼습니다. 팬텀 지갑을 확인하시고 재입장해주세요!");
       setUserInfo({
         twitch: {
           id: "",
@@ -125,21 +141,13 @@ const App = () => {
       return () => {};
     }
   }, [provider]);
-  // useEffect(() => {
-  //   const onLoad = async () => {
-  //     await provider?.connect();
-  //   };
-  //   window.addEventListener("load", onLoad);
-  //   return () => {
-  //     window.removeEventListener("load", onLoad);
-  //   };
-  // }, []);
+
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect={false}>
           <WalletModalProvider>
-            <Routes />
+            <Routes provider={provider} />
             <GlobalStyle />
             <Outlet />
           </WalletModalProvider>

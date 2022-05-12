@@ -1,6 +1,5 @@
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
-import { useProvider } from "hooks/useProvider";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -8,12 +7,12 @@ import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
 import { getWallet } from "utils/solanaWeb3";
 
-function Home() {
+function Home({ provider }: any) {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const provider = useProvider();
+
   // 지갑연결
   const connectWallet = async () => {
     const res = await provider?.connect();
