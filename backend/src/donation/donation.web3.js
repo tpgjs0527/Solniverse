@@ -96,11 +96,11 @@ function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
 }
 
 function checkRank(total) {
-  if (total >= 12500) return "d";
-  else if (total >= 5000) return "p";
-  else if (total >= 500) return "g";
-  else if (total >= 100) return "s";
-  else return "b";
+  if (total >= 12500) return "Diamond";
+  else if (total >= 2500) return "Platinum";
+  else if (total >= 500) return "Gold";
+  else if (total >= 100) return "Silver";
+  else return "Bronze";
 }
 
 /**
