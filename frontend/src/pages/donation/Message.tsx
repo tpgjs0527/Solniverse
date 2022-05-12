@@ -2,7 +2,6 @@ import { useSocket } from "hooks/useSocket";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import useSound from "use-sound";
 import { Howl, Howler } from "howler";
 export interface IMessage {
   displayName: string;
@@ -20,7 +19,6 @@ export const Message = () => {
   const [visible, setVisible] = useState(false);
   const refQueue = useMemo(() => queue, [queue]);
   const [socket, disconnectSocket] = useSocket(uuid);
-  const [play, { stop }] = useSound(`${process.env.PUBLIC_URL}/alarm.mp3`);
 
   const sound = {
     donation: new Howl({
@@ -57,6 +55,7 @@ export const Message = () => {
   useEffect(() => {
     if (refQueue.length > 0) {
       let context = new AudioContext();
+      // 크롬에서 자동재생을 막기 때문에, 참고(https://developer.chrome.com/blog/autoplay/) resume() 호출하도록 해야함
       context.resume().then(async () => await sound.donation.play());
       console.log(refQueue);
       setStart(true);
@@ -64,7 +63,6 @@ export const Message = () => {
       sound.donation.play();
       setTimeout(() => {
         setVisible(false);
-        // stop();
       }, 3000);
       setTimeout(() => {
         setQueue(refQueue.filter((value, i) => i !== 0));

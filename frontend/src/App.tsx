@@ -4,7 +4,7 @@ import GlobalStyle from "styles/GlobalStyle";
 import Routes from "pages/Routes";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { toggleThemeAtom, userInfoAtom } from "atoms";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
@@ -12,22 +12,47 @@ import {
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import { clusterApiUrl, PublicKey } from "@solana/web3.js";
 import { Outlet } from "react-router-dom";
-import { getProvider } from "utils/getProvider";
 import { getWallet } from "utils/solanaWeb3";
+import { clusterApiUrl, PublicKey, Transaction } from "@solana/web3.js";
+import { isMobile } from "react-device-detect";
+import { checkMobile } from "../src/utils/checkMobile";
+import { useProvider } from "hooks/useProvider";
+
+type DisplayEncoding = "utf8" | "hex";
+type PhantomEvent = "disconnect" | "connect" | "accountChanged";
+
+type PhantomRequestMethod =
+  | "connect"
+  | "disconnect"
+  | "signTransaction"
+  | "signMessage";
+interface ConnectOpts {
+  onlyIfTrusted: boolean;
+}
+export interface PhantomProvider {
+  publicKey: PublicKey | null;
+  isConnected: boolean | null;
+  signTransaction: (transaction: Transaction) => Promise<Transaction>;
+  signMessage: (
+    message: Uint8Array | string,
+    display?: DisplayEncoding
+  ) => Promise<any>;
+  connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
+  disconnect: () => Promise<void>;
+  on: (event: PhantomEvent, handler: (args: any) => void) => void;
+  request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
+}
 
 const App = () => {
   const isDark = useRecoilValue(toggleThemeAtom);
   const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(() => [new PhantomWalletAdapter()], [network]);
-  const provider = useMemo(() => getProvider(), []);
+  const provider = useProvider();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [data, setData] = useState<any>();
-  const connectWallet = async () => {
-    await provider?.connect();
-  };
+
   useEffect(() => {
     if (wallets) {
     }
@@ -35,26 +60,38 @@ const App = () => {
   console.log("원래 유저", userInfo);
 
   useEffect(() => {
-    if (!provider) return;
+    if (!provider) {
+      alert("지갑연결이 끊겼습니다. 재입장해주세요!");
+      setUserInfo({
+        twitch: {
+          id: "",
+          displayName: "",
+          profileImageUrl: "",
+        },
+        walletAddress: "",
+        createdAt: "",
+      });
+    }
     if (provider) {
       provider.connect({ onlyIfTrusted: true }).catch((err) => {});
       provider.on("disconnect", () => {
         console.log("연결이 끊겼어요");
+        // provider.connect();
       });
       provider.on("accountChanged", async (publicKey: PublicKey) => {
-        console.log("지갑변경", publicKey.toBase58());
+        // 연결이 끊겨있는 상태에서 주소바꾸면 null값이 나옴
+        console.log(publicKey);
+        if (!publicKey) {
+          provider.connect();
+        }
+        console.log("지갑변경");
         const rs = publicKey;
         if (publicKey) {
           const data = await getWallet(rs);
           setData(data);
-          console.log("백 통신 결과", data);
+
           if (data.result === "success") {
-            console.log("유저바꼈다1");
-            console.log("유저가 지갑 바꾼 직후 userInfo", userInfo);
-            console.log("유저가 지갑 바꾼 직후 data.user", data.user);
             if (data.user.twitch) {
-              console.log("유저 세팅~~");
-              console.log(data.user);
               setUserInfo({
                 twitch: {
                   id: data.user.twitch.id,
@@ -65,7 +102,6 @@ const App = () => {
                 createdAt: data.user.createdAt,
               });
             } else {
-              console.log("트위치 연동 X");
               console.log(data.user);
               setUserInfo({
                 twitch: {
@@ -76,30 +112,28 @@ const App = () => {
                 walletAddress: data.user.walletAddress,
                 createdAt: data.user.createdAt,
               });
-              console.log(
-                "유저가 지갑 바꾸고 아톰 변경 후(No twitch, userInfo)",
-                userInfo
-              );
             }
+            // window.location.reload();
           } else {
-            alert("지갑연결이 실패했습니다");
+            return;
           }
         } else {
-          provider
-            ?.connect()
-            .then(() => console.log("유저 데이터 갱신"))
-            .catch((err) => {
-              console.log("에러");
-            });
+          return;
         }
       });
 
-      return () => {
-        provider.disconnect();
-      };
+      return () => {};
     }
   }, [provider]);
-
+  // useEffect(() => {
+  //   const onLoad = async () => {
+  //     await provider?.connect();
+  //   };
+  //   window.addEventListener("load", onLoad);
+  //   return () => {
+  //     window.removeEventListener("load", onLoad);
+  //   };
+  // }, []);
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
       <ConnectionProvider endpoint={endpoint}>

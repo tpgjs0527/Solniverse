@@ -1,11 +1,11 @@
 import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
+import { useProvider } from "hooks/useProvider";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
-import { getProvider } from "utils/getProvider";
 import { getWallet } from "utils/solanaWeb3";
 
 function Home() {
@@ -13,14 +13,12 @@ function Home() {
   const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const provider = getProvider();
-
+  const provider = useProvider();
   // 지갑연결
   const connectWallet = async () => {
     const res = await provider?.connect();
     const data = await getWallet(res);
     if (data.result === "success") {
-      console.log("최초 지갑 로그인!!!!!!!!!!!!!", data);
       setIsWallet(true);
       if (data.user.twitch) {
         setUserInfo({
@@ -39,7 +37,7 @@ function Home() {
           createdAt: data.user.createdAt,
         });
       }
-      console.log("최초 지갑 로그인!!!!!!!!!!!!!", userInfo);
+
       navigate("/main");
     } else {
       alert("지갑연결이 실패했습니다");

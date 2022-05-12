@@ -1,6 +1,5 @@
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
-import { isMobile } from "react-device-detect";
-import { checkMobile } from "./checkMobile";
+import { PublicKey, Transaction } from "@solana/web3.js";
+import { useCallback } from "react";
 
 type DisplayEncoding = "utf8" | "hex";
 type PhantomEvent = "disconnect" | "connect" | "accountChanged";
@@ -27,10 +26,8 @@ export interface PhantomProvider {
   request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
 }
 
-export const getProvider = (): PhantomProvider | undefined => {
-  const UA = checkMobile();
-  if (isMobile) {
-  } else {
+export function useProvider() {
+  const getProvider = useCallback((): PhantomProvider | undefined => {
     try {
       const { solana } = window;
       if (solana) {
@@ -39,8 +36,13 @@ export const getProvider = (): PhantomProvider | undefined => {
           return provider;
         }
       } else {
-        alert("solana를 찾지 못하였습니다. 다시 로그인해주세요!");
+        return;
       }
-    } catch {}
-  }
-};
+    } catch {
+      return;
+    }
+
+    return;
+  }, []);
+  return getProvider();
+}
