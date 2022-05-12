@@ -16,13 +16,13 @@ const notFoundResponse = new BaseResponse(NOT_FOUND_RESPONSE);
 const defaultReceiveBody = {
   receiveCount: 0,
   receiveTotal: 0,
-  receiveRank: "b",
+  receiveRank: "Bronze",
   ranking: -1,
 };
 const defaultSendBody = {
   sendCount: 0,
   sendTotal: 0,
-  sendRank: "b",
+  sendRank: "Bronze",
   ranking: -1,
 };
 
