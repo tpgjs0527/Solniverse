@@ -4,7 +4,7 @@ const Rank = connection.models["Rank"];
 class RankRepository {
   /**
    * receive정보로 기록 생성
-   * @param receive
+   * @param {Object} receive
    * @returns {Promise<rank>} rank
    */
   async createRankByReceive(receive) {
@@ -19,7 +19,7 @@ class RankRepository {
 
   /**
    * send정보로 기록 생성
-   * @param send
+   * @param {Object} send
    * @returns {Promise<rank>} rank
    */
   async createRankBySend(send) {
@@ -34,7 +34,7 @@ class RankRepository {
 
   /**
    * receive정보로 기록 수정
-   * @param receive
+   * @param {Object} receive
    * @returns {Promise<rank>} rank
    */
   async updateRankByReceive(receive) {
@@ -50,7 +50,7 @@ class RankRepository {
 
   /**
    * send정보로 기록 수정
-   * @param send
+   * @param {Object} send
    * @returns {Promise<rank>} rank
    */
   async updateRankBySend(send) {
@@ -70,7 +70,7 @@ class RankRepository {
    * @returns {Promise<rank|null>} rank|null
    */
   async getReceiveRankListByWalletAddress(walletAddress) {
-    return Rank.find({ walletAddress })
+    return Rank.findOne({ walletAddress })
       .select("walletAddress receiveCount receiveTotal receiveRank")
       .lean();
   }
@@ -80,8 +80,11 @@ class RankRepository {
    * @param {string} walletAddress
    * @returns {Promise<rank|null>} rank|null
    */
-  async getReceiveRankByWalletAddress(walletAddress) {
-    return Rank.sort({ receiveTotal: -1 }).find({ walletAddress }).count();
+  async getReceiveRankingByWalletAddress(walletAddress) {
+    return Rank.find()
+      .sort({ receiveTotal: -1 })
+      .findOne({ walletAddress })
+      .count();
   }
 
   /**
@@ -90,7 +93,7 @@ class RankRepository {
    * @returns {Promise<rank|null>} rank|null
    */
   async getSendRankListByWalletAddress(walletAddress) {
-    return Rank.find({ walletAddress })
+    return Rank.findOne({ walletAddress })
       .select("walletAddress sendCount sendTotal sendRank")
       .lean();
   }
@@ -100,8 +103,11 @@ class RankRepository {
    * @param {string} walletAddress
    * @returns {Promise<rank|null>} rank|null
    */
-  async getSendRankByWalletAddress(walletAddress) {
-    return Rank.sort({ sendTotal: -1 }).find({ walletAddress }).count();
+  async getSendRankingByWalletAddress(walletAddress) {
+    return Rank.find()
+      .sort({ sendTotal: -1 })
+      .findOne({ walletAddress })
+      .count();
   }
 }
 

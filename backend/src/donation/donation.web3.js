@@ -195,45 +195,46 @@ async function updateTransactionWithoutDuplication(tx) {
       );
 
       // receiveUserId와 sendUserId를 가져와서 각 유저의 지갑주소를 가져온다
-      const receiveWalletAddress =
-        await userRepository.getUserWalletAddressById(updatedTx.receiveUserId);
-      const sendWalletAddress = await userRepository.getUserWalletAddressById(
-        updatedTx.sendUserId,
-      );
+      const receiveWalletAddress = receiveUser.walletAddress;
+      const sendWalletAddress = sendUser.walletAddress;
 
       // paymentType이 sol이면 usdc로 변환
       let updatedAmount = updatedTx.amount;
       if (updatedTx.paymentType == "sol") {
-        updatedAmount = (updatedAmount / SOL_DECIMAL) * usdPerSol;
+        updatedAmount = (updatedAmount / SOL_DECIMAL) * getUsdPerSol();
       }
+      const [receive, send] = await Promise.all([
+        rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
+        rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
+      ]);
       // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
-      const receive =
-        rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress);
       if (!receive) {
-        receive.walletAddress = receiveWalletAddress;
-        receive.receiveCount = 1;
-        receive.receiveTotal = updatedAmount;
-        receive.receiveRank = checkRank(receive.receiveTotal);
-        await rankRepository.createRankByReceive(receive);
+        const receiveRank = {
+          walletAddress: receiveWalletAddress,
+          receiveCount: 1,
+          receiveTotal: updatedAmount,
+          receiveRank: checkRank(receive.receiveTotal),
+        };
+        rankRepository.createRankByReceive(receiveRank);
       } else {
         receive.receiveCount++;
         receive.receiveTotal += updatedAmount;
         receive.receiveRank = checkRank(receive.receiveTotal);
-        await rankRepository.updateRankByReceive(receive);
+        rankRepository.updateRankByReceive(receive);
       }
-      const send =
-        rankRepository.getSendRankListByWalletAddress(sendWalletAddress);
       if (!send) {
-        send.walletAddress = sendWalletAddress;
+        const sendRank = {
+          walletAddress: sendWalletAddress,
+          sendCount: 1,
+          sendTotal: updatedAmount,
+          sendRank: checkRank(send.sendTotal),
+        };
+        rankRepository.createRankBySend(sendRank);
+      } else {
         send.sendCount++;
         send.sendTotal += updatedAmount;
         send.sendRank = checkRank(send.sendTotal);
-        await rankRepository.createRankBySend(send);
-      } else {
-        send.sendCount = 1;
-        send.sendTotal = updatedAmount;
-        send.sendRank = checkRank(send.sendTotal);
-        await rankRepository.updateRankBySend(send);
+        rankRepository.updateRankBySend(send);
       }
     } else {
       // 기존 데이터를 가져옴

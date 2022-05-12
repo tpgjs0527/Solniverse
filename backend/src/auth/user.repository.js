@@ -71,15 +71,6 @@ class UserRepository {
   async updateTwitchInfoByWalletAddress(walletAddress, twitchInfo) {
     return User.updateOne({ walletAddress }, { twitch: twitchInfo });
   }
-
-  /**
-   * id로 유저 walletAddress를 가져옴
-   * @param {string} _id
-   * @returns
-   */
-  async getUserWalletAddressById(_id) {
-    return User.findOne({ _id }).select("walletAddress").lean();
-  }
 }
 
 module.exports = UserRepository;
