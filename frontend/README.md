@@ -59,12 +59,6 @@ npm i @types/styled-components
 npm install --save react-apexcharts apexcharts
 ```
 
-- SWR
-
-```bash
-npm i swr
-```
-
 - Query
 
 ```bash
