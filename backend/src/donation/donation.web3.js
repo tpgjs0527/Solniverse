@@ -120,7 +120,7 @@ function checkRank(total) {
  */
 async function updateTransactionWithoutDuplication(tx) {
   try {
-    if (!tx.meta || tx.meta.err) {
+    if (!tx || !tx.meta || tx.meta.err) {
       throw `Tx가 잘못됨 tx=${tx}`;
     }
     const {
@@ -133,6 +133,9 @@ async function updateTransactionWithoutDuplication(tx) {
         logMessages = [],
       },
     } = tx;
+    if (logMessages.length != 6 && logMessages.length != 8) {
+      throw `logMessages의 길이가 6 또는 8이 아님. Len=${logMessages.length} logMessages=${logMessages}`;
+    }
 
     // sendWallet과 receiveWallet을 알아냄
     const { sendWallet, receiveWallet } =
@@ -233,7 +236,6 @@ async function updateTransactionWithoutDuplication(tx) {
  * @returns
  */
 function getSymbolByTokenAddress(tokenAddress) {
-  console.log(tokenAddress);
   switch (tokenAddress) {
     case USDC_TOKEN:
       return "usdc";
@@ -323,7 +325,7 @@ function alertAndSendSnv(
       sendSnvToken(toWallet, usdcAmount * 10);
     } catch (err) {
       logger.error(
-        `SNV Transfer 에러 발생: to=${toWallet.toString()} error=${err}`,
+        `alertAndSendSnv 에러 발생: to=${toWallet.toString()} error=${err}`,
       );
     }
   })();
@@ -407,7 +409,7 @@ function getUsdFromSol(amount) {
         clearTimeout(timeout);
         clearInterval(interval);
       }, 1000);
-    } else resolve((usdPerSol * amount) / 1000);
+    } else resolve(usdPerSol * (amount / 1000));
   });
 }
 
@@ -421,7 +423,6 @@ async function sendSnvToken(toWallet, amount) {
   if (!(amount > 0)) return;
   try {
     const fromTokenAccount = await fromTokenAccountGlobal;
-
     // 구조 분해 할당, 값 무시
     const [toTokenAccount, ,] = await Promise.all([
       getOrCreateAssociatedTokenAccount(connection, fromWallet, mint, toWallet),
@@ -450,6 +451,7 @@ async function sendSnvToken(toWallet, amount) {
     logger.error(
       `SNV Transfer 에러 발생: amount: ${amount} to: ${toWallet} error=${err}`,
     );
+    console.log(err);
   }
 }
 
@@ -459,22 +461,34 @@ async function sendSnvToken(toWallet, amount) {
  *
  * @param {*} context
  */
-function logCallback(context) {
+async function logCallback(context) {
   if (context.err) {
     logger.error(`logCallback 에러 발생: error=${context.error}`);
     return;
   }
-  connection
-    .getTransaction(context.signature)
-    .catch(() =>
-      connection
-        .getTransaction(context.signature)
-        .catch((err) =>
-          logger.error(`getTransaction 2 번 에러 발생: error=${err}`),
-        )
-        .then(updateTransactionWithoutDuplication),
-    )
-    .then(updateTransactionWithoutDuplication);
+  try {
+    const interval = setInterval(async () => {
+      try {
+        const response = await connection.getSignatureStatus(context.signature);
+        const status = response.value;
+        if (status) {
+          const confirmation = status.confirmations || 0;
+          if (confirmation >= 32 || status.confirmationStatus === "finalized") {
+            clearInterval(interval);
+            const transaction = await connection.getTransaction(
+              context.signature,
+            );
+            updateTransactionWithoutDuplication(transaction);
+          }
+        }
+      } catch (err) {
+        clearInterval(interval);
+        logger.error(`logCallback interval 에러 발생: error=${err}`);
+      }
+    }, 1000);
+  } catch (err) {
+    logger.error(`logCallback 에러 발생: error=${err}`);
+  }
 }
 
 /**
@@ -503,13 +517,13 @@ async function recoverTransaction() {
   }
 }
 
-recoverTransaction(); //서버 부팅시 동작
-
-connection.onLogs(
-  new web3.PublicKey(process.env.DDD_SHOP_WALLET),
-  logCallback,
-  "finalized",
-);
+recoverTransaction().then(() => {
+  connection.onLogs(
+    new web3.PublicKey(process.env.DDD_SHOP_WALLET),
+    logCallback,
+    "confirmed",
+  );
+}); //서버 부팅시 동작
 
 const WEB_RPC_OPEN = "solana webrpc opend";
 const WEB_RPC_ERROR = "solana webrpc error";

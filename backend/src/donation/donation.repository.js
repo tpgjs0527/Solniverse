@@ -97,7 +97,7 @@ class DonationRepository {
   /**
    * txId 에 해당하는 트랜잭션을 찾습니다.
    *
-   * @param {string} txId
+   * @param {ObjectId} txId
    * @returns {Promise<Tx>} tx
    */
   async getTransactionById(txId) {
