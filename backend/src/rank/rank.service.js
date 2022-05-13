@@ -39,14 +39,14 @@ class RankService {
 
     let res = new BaseResponse(SUCCESS_RESPONSE),
       responseBody = res.responseBody;
-    if (!ranklist) {
+    if (!ranklist || ranklist.receiveCount == 0) {
       responseBody.ranklist = defaultReceiveBody;
       return res;
     }
 
-    const ranking = await rankRepository.getReceiveRankingByWalletAddress(
-      walletAddress,
-    );
+    const ranking = await rankRepository.getReceiveRankingByReceiveTotal(
+      ranklist.receiveTotal,
+    )+1;
 
     responseBody.ranklist = { ...ranklist, ranking };
     return res;
@@ -64,14 +64,14 @@ class RankService {
 
     let res = new BaseResponse(SUCCESS_RESPONSE),
       responseBody = res.responseBody;
-    if (!ranklist) {
+    if (!ranklist || ranklist.sendCount == 0) {
       responseBody.ranklist = defaultSendBody;
       return res;
     }
 
-    const ranking = await rankRepository.getSendRankingByWalletAddress(
-      walletAddress,
-    );
+    const ranking = await rankRepository.getSendRankingBySendTotal(
+      ranklist.sendTotal,
+    )+1;
 
     responseBody.ranklist = { ...ranklist, ranking };
     return res;

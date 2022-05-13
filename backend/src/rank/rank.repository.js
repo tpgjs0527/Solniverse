@@ -68,15 +68,12 @@ class RankRepository {
   }
 
   /**
-   * walletAddress로 후원받은 금액 순위를 계산한다.
-   * @param {string} walletAddress
-   * @returns {Promise<rank|null>} rank|null
+   * receiveTotal로 후원받은 금액 순위를 계산한다.
+   * @param {Number} receiveTotal
+   * @returns {Number}
    */
-  async getReceiveRankingByWalletAddress(walletAddress) {
-    return Rank.find()
-      .sort({ receiveTotal: -1 })
-      .findOne({ walletAddress })
-      .count();
+  async getReceiveRankingByReceiveTotal(receiveTotal) {
+    return Rank.find().gt('receiveTotal', receiveTotal).count();
   }
 
   /**
@@ -91,15 +88,12 @@ class RankRepository {
   }
 
   /**
-   * walletAddress로 후원한 금액 순위를 계산한다.
-   * @param {string} walletAddress
-   * @returns {Promise<rank|null>} rank|null
+   * sendTotal로 후원한 금액 순위를 계산한다.
+   * @param {Number} sendTotal
+   * @returns {Number}
    */
-  async getSendRankingByWalletAddress(walletAddress) {
-    return Rank.find()
-      .sort({ sendTotal: -1 })
-      .findOne({ walletAddress })
-      .count();
+  async getSendRankingBySendTotal(sendTotal) {
+    return Rank.find().gt('sendTotal', sendTotal).count();
   }
 }
 
