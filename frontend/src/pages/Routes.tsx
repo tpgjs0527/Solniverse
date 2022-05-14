@@ -17,6 +17,7 @@ import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
 import { Service } from "./home/Service";
+import PageNotFound from "./Error/404";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -78,6 +79,18 @@ function Routes() {
         path="/donation/alertbox/:uuid"
         element={
           userInfo.walletAddress ? <Message /> : <Navigate replace to="/" />
+        }
+      />
+
+      {/* 404 가장 밑에 위치 */}
+      <Route
+        path="*"
+        element={
+          userInfo.walletAddress ? (
+            <PageNotFound />
+          ) : (
+            <Navigate replace to="/" />
+          )
         }
       />
     </ReactRouterRoutes>
