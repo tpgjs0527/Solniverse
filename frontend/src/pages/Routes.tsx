@@ -75,12 +75,7 @@ function Routes() {
           )
         }
       />
-      <Route
-        path="/donation/alertbox/:uuid"
-        element={
-          userInfo.walletAddress ? <Message /> : <Navigate replace to="/" />
-        }
-      />
+      <Route path="/donation/alertbox/:uuid" element={<Message />} />
 
       {/* 404 가장 밑에 위치 */}
       <Route

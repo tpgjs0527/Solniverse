@@ -115,6 +115,12 @@ npm i --save-dev @types/socket.io-client
 npm i howler
 ```
 
+-react-animate-height
+
+```bash
+npm i react-animate-height
+```
+
 ### Provider
 
 - solana web3
