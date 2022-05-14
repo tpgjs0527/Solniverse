@@ -1,3 +1,6 @@
+import Features from "components/Home/Features";
+import { Interaction } from "components/Home/Interaction";
+import Introduction from "components/Home/Introduction";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -5,7 +8,7 @@ import { Logo, Main, Menu } from "./Home";
 
 export const Service = () => {
   return (
-    <Main>
+    <>
       <NavBar>
         <Logo>
           <img src="" alt="" />
@@ -21,15 +24,24 @@ export const Service = () => {
           </ul>
         </Menu>
       </NavBar>
-      <Article></Article>
-    </Main>
+      <ServiceWrapper>
+        {/* <Introduction /> */}
+        <Features />
+        <Interaction />
+      </ServiceWrapper>
+    </>
   );
 };
 
 const NavBar = styled.div`
   width: 100%;
-  position: absolute;
+  position: sticky;
   top: 0%;
 `;
 
-const Article = styled.div``;
+const ServiceWrapper = styled.div`
+  padding: 4rem;
+  & > :last-child {
+    margin-bottom: 15rem;
+  }
+`;

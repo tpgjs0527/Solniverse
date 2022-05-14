@@ -74,12 +74,7 @@ function Routes() {
           )
         }
       />
-      <Route
-        path="/donation/alertbox/:uuid"
-        element={
-          userInfo.walletAddress ? <Message /> : <Navigate replace to="/" />
-        }
-      />
+      <Route path="/donation/alertbox/:uuid" element={<Message />} />
     </ReactRouterRoutes>
   );
 }

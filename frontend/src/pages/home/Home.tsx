@@ -52,8 +52,8 @@ function Home() {
           <Spinner />
         </Loading>
       ) : null}
-      <Box1></Box1>
-      <Box2>
+      <Hand></Hand>
+      <TextBox>
         <TextArea>
           ENJOY
           <br /> SOLNIVERSE <br />
@@ -69,8 +69,8 @@ function Home() {
             </WalletMultiBtn>
           </Pushable>
         </TextArea>
-      </Box2>
-      <Box3>
+      </TextBox>
+      <NavBox>
         <Container>
           <Logo>
             <img src="" alt="" />
@@ -86,7 +86,7 @@ function Home() {
             </ul>
           </Menu>
         </Container>
-      </Box3>
+      </NavBox>
     </Main>
   );
 }
@@ -98,6 +98,8 @@ export const Main = styled.div`
   height: 100%;
   position: absolute;
   overflow: hidden;
+  /* iPhone 가로 스크롤 방지 */
+  overflow-x: hidden;
 `;
 
 const anim = keyframes`
@@ -129,7 +131,7 @@ const Loading = styled.div`
   }
 `;
 
-const Box1 = styled.div`
+const Hand = styled.div`
   width: 530px;
   height: 625px;
   background-image: url("1.png");
@@ -152,7 +154,7 @@ const Box1 = styled.div`
   }
 `;
 
-const Box2 = styled.div`
+const TextBox = styled.div`
   width: auto;
   height: auto;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
@@ -197,7 +199,7 @@ const TextArea = styled.div`
   color: ${(props) => props.theme.textColor};
   animation: ${anim3} 1.5s forwards 1.3s;
 `;
-const Box3 = styled.div`
+const NavBox = styled.div`
   overflow: hidden;
 `;
 const anim4 = keyframes`
