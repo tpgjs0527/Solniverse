@@ -41,7 +41,6 @@ export default function FeaturesGallery() {
 
   const imagesMarkup = TABS.map((singleTab, idx) => {
     const isActive = singleTab.title === currentTab.title;
-    const isFirst = idx === 0;
 
     return (
       <ImageContainer key={singleTab.title} isActive={isActive}>
@@ -117,9 +116,15 @@ const SectionTitle = styled.div`
 `;
 const GalleryWrapper = styled.div`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
+
   margin: 1.5rem;
   margin-left: 4rem;
+  @media screen and (max-width: 800px) {
+    flex-direction: column;
+    margin: 0;
+    margin-left: 0;
+  }
 `;
 
 const Content = styled.div`
@@ -132,9 +137,14 @@ const Content = styled.div`
 const TabsContainer = styled.div`
   flex: 1;
   margin-right: 4rem;
-
+  padding-top: 2rem;
   & > *:not(:first-child) {
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
+  }
+  @media screen and (max-width: 800px) {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    width: 100%;
   }
 `;
 
@@ -159,6 +169,9 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
     bottom: 0;
     left: 0;
   }
+  @media screen and (max-width: 800px) {
+    width: ${(p) => (p.isActive ? "100%" : "0")};
+  }
 `;
 
 const Tab = styled.div<{ isActive: boolean }>`
@@ -169,11 +182,13 @@ const Tab = styled.div<{ isActive: boolean }>`
 
   opacity: ${(p) => (p.isActive ? 1 : 0.6)};
   cursor: pointer;
-  border-radius: 0.6rem;
   transition: opacity 0.2s;
 
   font-size: 1.3rem;
   font-weight: bold;
+  @media screen and (max-width: 800px) {
+    width: 100%;
+  }
 `;
 
 const TabTitleContainer = styled.div`
@@ -197,8 +212,14 @@ const TabContent = styled.div`
   p {
     font-weight: normal;
   }
+  @media screen and (max-width: 800px) {
+    padding-left: calc(4rem + 1.25rem);
+  }
 `;
 
 const CircleContainer = styled.div`
   flex: 0 calc(5rem + 1.5rem);
+  @media screen and (max-width: 800px) {
+    flex: 0 calc(4rem + 1.25rem);
+  }
 `;

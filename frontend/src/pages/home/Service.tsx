@@ -1,6 +1,5 @@
 import Features from "components/Home/Features";
 import { Interaction } from "components/Home/Interaction";
-import Introduction from "components/Home/Introduction";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -16,32 +15,32 @@ export const Service = () => {
         <Menu>
           <ul>
             <li>
-              <Link to={"/"}>Home</Link>
+              <Link to={"/service"}>서비스</Link>
             </li>
             <li>
-              <Link to={"/service"}>Service</Link>
+              <Link to={"/"}>홈</Link>
             </li>
           </ul>
         </Menu>
       </NavBar>
       <ServiceWrapper>
-        {/* <Introduction /> */}
         <Features />
-        <Interaction />
+        {/* <Interaction /> */}
       </ServiceWrapper>
     </>
   );
 };
 
 const NavBar = styled.div`
-  width: 100%;
+  width: 100vw;
   position: sticky;
   top: 0%;
 `;
 
 const ServiceWrapper = styled.div`
-  padding: 4rem;
-  & > :last-child {
+  /* padding: 4rem; */
+  padding-top: 4rem;
+  /* & > :last-child {
     margin-bottom: 15rem;
-  }
+  } */
 `;
