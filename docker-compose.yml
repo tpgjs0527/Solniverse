@@ -11,4 +11,5 @@ services:
       - "3000:3000"
     volumes:
       - /home/ubuntu/docker-volume/ssl2:/var/www/html
+      - /home/ubuntu/backlog:/logs
     container_name: "backend"
