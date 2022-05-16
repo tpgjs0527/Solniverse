@@ -15,9 +15,12 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { Outlet } from "react-router-dom";
 import { clusterApiUrl } from "@solana/web3.js";
 
+require("@solana/wallet-adapter-react-ui/styles.css");
+
 const App = () => {
   const isDark = useRecoilValue(toggleThemeAtom);
   const network = WalletAdapterNetwork.Devnet;
+  // const network = process.env.REACT_APP_SOLANA_NETWORK as WalletAdapterNetwork;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(() => [new PhantomWalletAdapter()], [network]);
 

@@ -6,6 +6,7 @@ import { RecoilRoot } from "recoil";
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 import { QueryClient, QueryClientProvider } from "react-query";
+import reportWebVitals from "reportWebVitals";
 
 const queryClient = new QueryClient();
 
@@ -21,3 +22,5 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+reportWebVitals();
