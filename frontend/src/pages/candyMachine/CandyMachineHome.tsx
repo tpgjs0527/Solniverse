@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Layout from "components/Layout";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import confetti from "canvas-confetti";
 import * as anchor from "@project-serum/anchor";
-import { clusterApiUrl } from "@solana/web3.js";
+import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
@@ -26,6 +26,46 @@ import {
   mintMultipleToken,
   CANDY_MACHINE_PROGRAM,
 } from "../../utils/candy-machine";
+import { getProvider } from "utils/getProvider";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
+
+export interface ICandyMachine {
+  id: anchor.web3.PublicKey;
+  program: anchor.Program;
+  state: CandyMachineState;
+}
+
+interface CandyMachineState {
+  itemsAvailable: number;
+  itemsRedeemed: number;
+  itemsRemaining: number;
+  treasury: anchor.web3.PublicKey;
+  tokenMint: anchor.web3.PublicKey;
+  isSoldOut: boolean;
+  isActive: boolean;
+  goLiveDate: anchor.BN;
+  price: anchor.BN;
+  gatekeeper: null | {
+    expireOnUse: boolean;
+    gatekeeperNetwork: anchor.web3.PublicKey;
+  };
+  endSettings: null | {
+    number: anchor.BN;
+    endSettingType: any;
+  };
+  whitelistMintSettings: null | {
+    mode: any;
+    mint: anchor.web3.PublicKey;
+    presale: boolean;
+    discountPrice: null | anchor.BN;
+  };
+  hiddenSettings: null | {
+    name: string;
+    uri: string;
+    hash: Uint8Array;
+  };
+}
 
 const cluster = process.env.REACT_APP_SOLANA_NETWORK!.toString();
 const decimals = process.env.REACT_APP_SPL_TOKEN_TO_MINT_DECIMALS
@@ -55,6 +95,8 @@ const CandyMachineHome = () => {
   const [endDate, setEndDate] = useState<Date>();
   const [isPresale, setIsPresale] = useState(false);
   const [isWLOnly, setIsWLOnly] = useState(false);
+  const [percent, setPercent] = useState(0);
+  const userInfo = useRecoilValue(userInfoAtom);
 
   const [alertState, setAlertState] = useState<AlertState>({
     open: false,
@@ -63,28 +105,106 @@ const CandyMachineHome = () => {
   });
 
   const wallet = useAnchorWallet();
+  const provider = getProvider();
+  const walletAddress = new PublicKey(userInfo.walletAddress);
 
-  const [candyMachine, setCandyMachine] = useState<CandyMachine>();
+  const [candyMachine, setCandyMachine] = useState<any>();
 
   //@TODO candyMachineId를 바꿔야함. useEffect [] 첫 마운트 기준으로 state로 받아와야됨.
   const candyMachineId = new PublicKey(
-    "4P4Hea8rMbR3FNEboaEDHDsVHTH8KdpRaAQ4wQm19ffL"
+    "C4pfkEDWkUBPeLiJ2Nq8oD5Jn42C1MjJpFSM2BJS3MFv"
   );
   const rpcUrl = clusterApiUrl("devnet");
   const connection = new anchor.web3.Connection(rpcUrl, "confirmed");
   const txTimeout = 30000;
 
   const solFeesEstimation = 0.012; // approx of account creation fees
-
+  const opts: any = {
+    preflightCommitment: "processed",
+  };
+  const candyMachineProgram = new anchor.web3.PublicKey(
+    "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"
+  );
+  const getRPCProvider = () => {
+    // const rpcHost = process.env.REACT_APP_SOLANA_RPC_HOST;
+    // const connection = new Connection(rpcHost!);
+    const provider = new anchor.Provider(
+      connection,
+      window.solana,
+      opts.preflightCommitment
+    );
+    return provider;
+  };
+  const getCandy = async () => {
+    const provider = getRPCProvider();
+    const idl = await anchor.Program.fetchIdl(candyMachineProgram, provider);
+    const program = new anchor.Program(idl, candyMachineProgram, provider);
+    const candyMachine: any = await program.account.candyMachine.fetch(
+      candyMachineId
+    );
+    console.log(candyMachine);
+    //     const txid =
+    //   "yApu8AfBQDFsF7a5b2XWfGaJEx41e7pFdHHcrKf4scc1E9UdssgDGxp2xNTwV6TioGoHz75F1ZMadAJ5f69Sfja";
+    // const timeout = 1000;
+    // const connection = program.provider.connection;
+    // console.log(program);
+    // console.log(connection);
+    // const confirmation = await awaitTransactionSignatureConfirmation(
+    //   txid,
+    //   timeout,
+    //   connection
+    // );
+    // console.log(confirmation);
+    const itemsAvailable = candyMachine.data.itemsAvailable.toNumber();
+    const itemsRedeemed = candyMachine.itemsRedeemed.toNumber();
+    const itemsRemaining = itemsAvailable - itemsRedeemed;
+    // const goLiveDate = candyMachine.data.goLiveDate.toNumber();
+    const presale =
+      candyMachine.data.whitelistMintSettings &&
+      candyMachine.data.whitelistMintSettings.presale &&
+      (!candyMachine.data.goLiveDate ||
+        candyMachine.data.goLiveDate.toNumber() > new Date().getTime() / 1000);
+    // const goLiveDateTimeString = `${new Date(goLiveDate * 1000).toGMTString()}`;
+    return {
+      id: candyMachineId,
+      program,
+      state: {
+        itemsAvailable,
+        itemsRedeemed,
+        itemsRemaining,
+        goLiveDate: candyMachine.data.goLiveDate,
+        // goLiveDateTimeString,
+        isSoldOut: itemsRemaining === 0,
+        isActive:
+          (presale ||
+            candyMachine.data.goLiveDate.toNumber() <
+              new Date().getTime() / 1000) &&
+          (candyMachine.endSettings
+            ? candyMachine.endSettings.endSettingType.date
+              ? candyMachine.endSettings.number.toNumber() >
+                new Date().getTime() / 1000
+              : itemsRedeemed < candyMachine.endSettings.number.toNumber()
+            : true),
+        // isPresale: presale,
+        treasury: candyMachine.wallet,
+        tokenMint: candyMachine.tokenMint,
+        gatekeeper: candyMachine.data.gatekeeper,
+        endSettings: candyMachine.data.endSettings,
+        whitelistMintSettings: candyMachine.data.whitelistMintSettings,
+        hiddenSettings: candyMachine.data.hiddenSettings,
+        price: candyMachine.data.price,
+      },
+    };
+  };
   const refreshCandyMachineState = () => {
     (async () => {
-      if (!wallet) return;
-
-      const cndy = await getCandyMachineState(
-        wallet as anchor.Wallet,
-        candyMachineId,
-        connection
-      );
+      if (!provider) return;
+      const cndy = await getCandy();
+      // const cndy = await getCandyMachineState(
+      //   wallet as anchor.Wallet,
+      //   candyMachineId,
+      //   connection
+      // );
 
       setCandyMachine(cndy);
       setItemsAvailable(cndy.state.itemsAvailable);
@@ -141,7 +261,7 @@ const CandyMachineHome = () => {
             (
               await getAtaForMint(
                 cndy.state.whitelistMintSettings.mint,
-                wallet.publicKey
+                walletAddress
               )
             )[0]
           );
@@ -266,7 +386,7 @@ const CandyMachineHome = () => {
   }
 
   async function mintMany(quantityString: number) {
-    if (wallet && candyMachine?.program && wallet.publicKey) {
+    if (provider && candyMachine?.program && walletAddress) {
       const quantity = Number(quantityString);
       const futureBalance =
         (balance || 0) -
@@ -276,7 +396,7 @@ const CandyMachineHome = () => {
           quantity;
       const signedTransactions: any = await mintMultipleToken(
         candyMachine,
-        wallet.publicKey,
+        walletAddress,
         quantity
       );
 
@@ -311,12 +431,12 @@ const CandyMachineHome = () => {
       let retry = 0;
       if (allTransactionsResult.length > 0) {
         let newBalance =
-          (await connection.getBalance(wallet.publicKey)) / LAMPORTS_PER_SOL;
+          (await connection.getBalance(walletAddress)) / LAMPORTS_PER_SOL;
 
         while (newBalance > futureBalance && retry < 20) {
           await sleep(2000);
           newBalance =
-            (await connection.getBalance(wallet.publicKey)) / LAMPORTS_PER_SOL;
+            (await connection.getBalance(walletAddress)) / LAMPORTS_PER_SOL;
           retry++;
           console.log(
             "Estimated balance (" +
@@ -337,7 +457,7 @@ const CandyMachineHome = () => {
         });
 
         // update front-end amounts
-        displaySuccess(wallet.publicKey, quantity);
+        displaySuccess(walletAddress, quantity);
       }
 
       if (totalFailure || retry === 20) {
@@ -359,12 +479,20 @@ const CandyMachineHome = () => {
   }
 
   async function mintOne() {
-    if (wallet && candyMachine?.program && wallet.publicKey) {
+    if (provider && candyMachine?.program && walletAddress) {
       const mint = anchor.web3.Keypair.generate();
-      const mintTxId = (
-        await mintOneToken(candyMachine, wallet.publicKey, mint)
-      )[0];
+      await provider.connect();
+      console.log("민팅 가즈아");
+      console.log(provider.publicKey?.toBase58());
+      console.log(candyMachine);
+      console.log(walletAddress);
 
+      const mintTxId = (
+        await mintOneToken(candyMachine, walletAddress, mint)
+      )[0];
+      // const mintTxId =
+      //   "2iu7QABig45Cqf8hGJZ1ntyaSrCikemQTj396T7xq8dGwzCdkMrdVgjC8ize85fyfW2aAgvajirjPhaSxJgf2E7w";
+      console.log(mintTxId, "민트아이디 발급");
       let status: any = { err: true };
       if (mintTxId) {
         status = await awaitTransactionSignatureConfirmation(
@@ -432,71 +560,27 @@ const CandyMachineHome = () => {
     }
   };
 
-  useEffect(refreshCandyMachineState, [wallet, isEnded, isPresale]);
+  useEffect(refreshCandyMachineState, [provider, isEnded, isPresale]);
   useEffect(() => {
-    console.log(wallet?.publicKey.toBase58());
-  }, [wallet]);
+    console.log(walletAddress.toBase58());
+    console.log(candyMachine);
+  }, [provider, candyMachine]);
   return (
     <Container>
-      <MainContainer>
-        <MintContainer>
-          <DesContainer>
-            <NFT elevation={3}>
-              <Title>Candy Drop</Title>
-              <br />
-              <div>
-                <Price
-                  label={
-                    isActive && whitelistEnabled && whitelistTokenBalance > 0
-                      ? whitelistPrice + " " + priceLabel
-                      : price + " " + priceLabel
-                  }
-                />
-                <Image
-                  src={`${process.env.PUBLIC_URL}/cool-cats.gif`}
-                  alt="NFT To Mint"
-                />
-              </div>
-              <br />
-              {wallet &&
-                isActive &&
-                whitelistEnabled &&
-                whitelistTokenBalance > 0 &&
-                isBurnToken && (
-                  <h3>
-                    You own {whitelistTokenBalance} WL mint{" "}
-                    {whitelistTokenBalance > 1 ? "tokens" : "token"}.
-                  </h3>
-                )}
-              {wallet &&
-                isActive &&
-                whitelistEnabled &&
-                whitelistTokenBalance > 0 &&
-                !isBurnToken && (
-                  <h3>You are whitelisted and allowed to mint.</h3>
-                )}
-              {wallet && isActive && endDate && Date.now() < endDate.getTime() && (
-                <Countdown
-                  date={toDate(candyMachine?.state?.endSettings?.number)}
-                  onMount={({ completed }) => completed && setIsEnded(true)}
-                  onComplete={() => {
-                    setIsEnded(true);
-                  }}
-                  renderer={renderEndDateCounter}
-                />
-              )}
-              {wallet && isActive && (
-                <Title>
-                  TOTAL MINTED : {itemsRedeemed} / {itemsAvailable}
-                </Title>
-              )}
-              {wallet && isActive && (
-                <BorderLinearProgress
-                  variant="determinate"
-                  value={100 - (itemsRemaining * 100) / itemsAvailable}
-                />
-              )}
-              <br />
+      <PageTitle>NFT Candy Drop</PageTitle>
+      <Wrapper>
+        <MainContainer>
+          <ImageWrapper>
+            <ImageTitle>NFT LIST</ImageTitle>
+            <Image
+              src={`${process.env.PUBLIC_URL}/cool-cats.gif`}
+              alt="NFT To Mint"
+            />
+          </ImageWrapper>
+        </MainContainer>
+        <SpinContainer>
+          <SpinBtn>
+            <MintBtnWrapper>
               <MintButtonContainer>
                 {!isActive &&
                 !isEnded &&
@@ -512,19 +596,18 @@ const CandyMachineHome = () => {
                     }}
                     renderer={renderGoLiveDateCounter}
                   />
-                ) : !wallet ? (
+                ) : !provider ? (
                   <ConnectButton>Connect Wallet</ConnectButton>
                 ) : !isWLOnly || whitelistTokenBalance > 0 ? (
                   candyMachine?.state.gatekeeper &&
-                  wallet.publicKey &&
-                  wallet.signTransaction ? (
+                  walletAddress &&
+                  provider.signTransaction ? (
                     <GatewayProvider
                       wallet={{
                         publicKey:
-                          wallet.publicKey ||
-                          new PublicKey(CANDY_MACHINE_PROGRAM),
+                          walletAddress || new PublicKey(CANDY_MACHINE_PROGRAM),
                         //@ts-ignore
-                        signTransaction: wallet.signTransaction,
+                        signTransaction: provider.signTransaction,
                       }}
                       // // Replace with following when added
                       // gatekeeperNetwork={candyMachine.state.gatekeeper_network}
@@ -571,55 +654,185 @@ const CandyMachineHome = () => {
                   <h1>Mint is private.</h1>
                 )}
               </MintButtonContainer>
-              <br />
-              {wallet && isActive && solanaExplorerLink && (
-                <SolExplorerLink href={solanaExplorerLink} target="_blank">
-                  View on Solscan
-                </SolExplorerLink>
-              )}
-            </NFT>
-          </DesContainer>
-        </MintContainer>
-      </MainContainer>
-      <Snackbar
-        open={alertState.open}
-        autoHideDuration={6000}
-        onClose={() => setAlertState({ ...alertState, open: false })}
-      >
-        <Alert
+            </MintBtnWrapper>
+          </SpinBtn>
+        </SpinContainer>
+        <MainContainer>
+          <MintContainer>
+            <DesContainer>
+              <NFT elevation={0}>
+                {/* <div>
+                <Price
+                  label={
+                    isActive && whitelistEnabled && whitelistTokenBalance > 0
+                      ? whitelistPrice + " " + priceLabel
+                      : price + " " + priceLabel
+                  }
+                />
+              </div> */}
+                <br />
+                {/* {provider &&
+                isActive &&
+                whitelistEnabled &&
+                whitelistTokenBalance > 0 &&
+                isBurnToken && (
+                  <h3>
+                    You own {whitelistTokenBalance} WL mint{" "}
+                    {whitelistTokenBalance > 1 ? "tokens" : "token"}.
+                  </h3>
+                )}
+              {provider &&
+                isActive &&
+                whitelistEnabled &&
+                whitelistTokenBalance > 0 &&
+                !isBurnToken && (
+                  <h3>You are whitelisted and allowed to mint.</h3>
+                )} */}
+                {provider &&
+                  isActive &&
+                  endDate &&
+                  Date.now() < endDate.getTime() && (
+                    <Countdown
+                      date={toDate(candyMachine?.state?.endSettings?.number)}
+                      onMount={({ completed }) => completed && setIsEnded(true)}
+                      onComplete={() => {
+                        setIsEnded(true);
+                      }}
+                      renderer={renderEndDateCounter}
+                    />
+                  )}
+                {provider && isActive && (
+                  <TitleWrapper>
+                    <Title>TOTAL MINTED :</Title>
+                    <Title>
+                      {itemsRedeemed} / {itemsAvailable}
+                    </Title>
+                  </TitleWrapper>
+                )}
+                {provider && isActive && (
+                  <BorderLinearProgress
+                    variant="determinate"
+                    value={100 - (itemsRemaining * 100) / itemsAvailable}
+                  />
+                )}
+                <br />
+                <TitleWrapper>
+                  <Title>1 Mint : 500 SNV</Title>
+                </TitleWrapper>
+                {provider && isActive && solanaExplorerLink && (
+                  <SolExplorerLink href={solanaExplorerLink} target="_blank">
+                    View on Solscan
+                  </SolExplorerLink>
+                )}
+              </NFT>
+            </DesContainer>
+          </MintContainer>
+        </MainContainer>
+        <Snackbar
+          open={alertState.open}
+          autoHideDuration={6000}
           onClose={() => setAlertState({ ...alertState, open: false })}
-          severity={alertState.severity}
         >
-          {alertState.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setAlertState({ ...alertState, open: false })}
+            severity={alertState.severity}
+          >
+            {alertState.message}
+          </Alert>
+        </Snackbar>
+      </Wrapper>
     </Container>
   );
 };
 
 const Container = styled.div``;
-
-const ConnectButton = styled(WalletMultiButton)`
-  border-radius: 18px !important;
-  padding: 6px 16px;
-  background-color: #4e44ce;
-  margin: 0 auto;
+const PageTitle = styled.div`
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
 `;
 
-const NFT = styled(Paper)`
-  min-width: 500px;
-  min-height: 500px;
-  margin: 0 auto;
-  padding: 5px 20px 20px 20px;
-  flex: 1 1 auto;
-  background-color: var(--card-background-color) !important;
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 16px;
+  margin-left: 16px;
+  text-align: center;
+  justify-content: center;
+  width: 40%;
+  height: 250px;
+`;
+
+const SpinContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 16px;
+  margin-left: 16px;
+  text-align: center;
+  align-items: center;
+  width: 250px;
+  background-color: ${(props) => props.theme.bgColor};
+`;
+const SpinBtn = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 150px;
+  cursor: pointer;
+  /* background-color: ${(props) => props.theme.bgColor}; */
+  border: none;
+  border-radius: 50%;
+  background-color: ${(props) => props.theme.ownColor};
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
 `;
+const SpinTitle = styled.div``;
+const SvgWrapper = styled.svg`
+  width: 50px;
+  height: 50px;
+`;
+const MintBtnWrapper = styled.div`
+  width: 150px;
+  height: 150px;
+  position: relative;
+  z-index: 0;
+  background-color: ${(props) => props.theme.ownColor};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+`;
 
+const MintContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 20px;
+`;
+
+const DesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 20px;
+`;
+const TitleWrapper = styled.div``;
 const Title = styled.div`
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  margin-top: 16px;
+  margin-top: 8px;
 `;
 
 const Card = styled(Paper)`
@@ -631,6 +844,47 @@ const Card = styled(Paper)`
   h1 {
     margin: 0px;
   }
+`;
+
+const Price = styled(Chip)`
+  position: absolute;
+  margin: 16px;
+  font-weight: bold;
+  font-size: 1.2em !important;
+  /* font-family: "Patrick Hand", cursive !important; */
+`;
+
+const ImageWrapper = styled.div``;
+const ImageTitle = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+`;
+
+const Image = styled.img`
+  height: 250px;
+  width: auto;
+  border-radius: 7px;
+  box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.5);
+`;
+
+const ConnectButton = styled(WalletMultiButton)`
+  border-radius: 18px !important;
+  padding: 6px 16px;
+  background-color: #4e44ce;
+  margin: 0 auto;
+`;
+
+const NFT = styled(Paper)`
+  /* min-width: 500px;
+  min-height: 500px; */
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  padding: 5px 20px 20px 20px;
+  flex: 1 1 auto;
+  background-color: var(--card-background-color) !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
 `;
 
 const MintButtonContainer = styled.div`
@@ -647,14 +901,26 @@ const MintButtonContainer = styled.div`
 
   @-webkit-keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0 #ef8f6e;
+      box-shadow: 0 0 0 0 #6eef79;
     }
   }
 
   @keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0 #ef8f6e;
+      box-shadow: 0 0 0 0 #870ff8;
     }
+    /* 25% {
+      box-shadow: 0 0 0 0 #260ff8;
+    }
+    50% {
+      box-shadow: 0 0 0 0 #0f3af8;
+    }
+    75% {
+      box-shadow: 0 0 0 0 #0fa3f8;
+    }
+    100% {
+      box-shadow: 0 0 0 0 #0ff8ec;
+    } */
   }
 `;
 
@@ -674,56 +940,21 @@ const SolExplorerLink = styled.a`
   }
 `;
 
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  margin-right: 4%;
-  margin-left: 4%;
-  text-align: center;
-  justify-content: center;
-`;
-
-const MintContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 20px;
-`;
-
-const DesContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  gap: 20px;
-`;
-
-const Price = styled(Chip)`
-  position: absolute;
-  margin: 16px;
-  font-weight: bold;
-  font-size: 1.2em !important;
-  /* font-family: "Patrick Hand", cursive !important; */
-`;
-
-const Image = styled.img`
-  height: 400px;
-  width: auto;
-  border-radius: 7px;
-  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.5);
-`;
-
 const BorderLinearProgress = styled(LinearProgress)`
   margin: 20px;
   height: 10px !important;
   border-radius: 30px;
   border: 2px solid white;
-  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.5);
-  background-color: var(--main-text-color) !important;
+  box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.5);
+  /* background-color: ; */
+  background: linear-gradient(45deg, #870ff8, #0f3af8, #0ff8ec) !important;
+  background-image: linear-gradient(
+    270deg,
+    rgba(255, 0, 0, 0.01),
+    rgba(255, 255, 255, 0.5)
+  );
 
-  > div.MuiLinearProgress-barColorPrimary {
+  /* > div.MuiLinearProgress-barColorPrimary {
     background-color: var(--title-text-color) !important;
   }
 
@@ -731,10 +962,10 @@ const BorderLinearProgress = styled(LinearProgress)`
     border-radius: 30px !important;
     background-image: linear-gradient(
       270deg,
-      rgba(255, 255, 255, 0.01),
+      rgba(255, 0, 0, 0.01),
       rgba(255, 255, 255, 0.5)
     );
-  }
+  } */
 `;
 
 export default CandyMachineHome;

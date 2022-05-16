@@ -73,7 +73,7 @@ export const sendTransactions = async (
   if (!block) {
     block = await connection.getRecentBlockhash(commitment);
   }
-
+  console.log(instructionSet);
   for (let i = 0; i < instructionSet.length; i++) {
     const instructions = instructionSet[i];
     const signers = signersSet[i];
@@ -109,14 +109,16 @@ export const sendTransactions = async (
     "vs handed in length",
     instructionSet.length
   );
+  console.log(signedTxns);
   for (let i = 0; i < signedTxns.length; i++) {
     const signedTxnPromise = sendSignedTransaction({
       connection,
       signedTransaction: signedTxns[i],
     });
-
+    console.log(signedTxnPromise);
     signedTxnPromise
       .then(({ txid, slot }) => {
+        console.log("success");
         successCallback(txid, i);
       })
       .catch((reason) => {
@@ -194,6 +196,8 @@ export async function sendSignedTransaction({
     }
   })();
   try {
+    console.log("여기까지 진입");
+    console.log(txid, timeout, connection);
     const confirmation = await awaitTransactionSignatureConfirmation(
       txid,
       timeout,
@@ -201,6 +205,7 @@ export async function sendSignedTransaction({
       "recent",
       true
     );
+    console.log(confirmation);
 
     if (!confirmation)
       throw new Error("Timed out awaiting confirmation on transaction");
@@ -309,6 +314,7 @@ async function awaitTransactionSignatureConfirmation(
           } else {
             console.log("Resolved via websocket", result);
             resolve(status);
+            console.log(status);
           }
         },
         commitment
@@ -320,11 +326,15 @@ async function awaitTransactionSignatureConfirmation(
     while (!done && queryStatus) {
       // eslint-disable-next-line no-loop-func
       (async () => {
+        console.log("소켓 이후 진입");
         try {
+          console.log(txid);
           const signatureStatuses = await connection.getSignatureStatuses([
             txid,
           ]);
           status = signatureStatuses && signatureStatuses.value[0];
+          console.log(signatureStatuses);
+          console.log(status);
           if (!done) {
             if (!status) {
               console.log("REST null result for", txid, status);
@@ -349,10 +359,11 @@ async function awaitTransactionSignatureConfirmation(
       await sleep(2000);
     }
   });
+  console.log(subId);
 
   //@ts-ignore
-  if (connection._signatureSubscriptions[subId])
-    connection.removeSignatureListener(subId);
+  // if (connection._signatureSubscriptions[subId])
+  connection.removeSignatureListener(subId);
   done = true;
   console.log("Returning status", status);
   return status;

@@ -9,19 +9,22 @@ import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
 import CandyDrop from "pages/nft/CandyDrop";
 import Other from "pages/nft/Other";
 import CandyMachineHome from "pages/candyMachine/CandyMachineHome";
+import axios from "axios";
 
 function SNVWorld() {
   const userInfo = useRecoilValue(userInfoAtom);
   const navigate = useNavigate();
-  const [balance, setBalance] = useState<number>();
+  const tokenAddress = "9UGMFdqeQbNqu488mKYzsAwBu6P2gLJnsFeQZ29cGSEw";
+  const [solBalance, setSolBalance] = useState<number>();
+  const [tokenBalance, setTokenBalance] = useState<number>();
   const [isLoadingGetBalance, setIsLoadingGetBalance] = useState(true);
   // const publicKey = new PublicKey(userInfo.walletAddress);
   const nftMatch = useMatch("/snv-world/nft");
   const otherMatch = useMatch("/snv-world/other");
-  // const balance = getBalance(userInfo.walletAddress);
+  // const solBalance = getBalance(userInfo.walletAddress);
   const getAsyncSol = async () => {
     const sol = await getBalance(userInfo.walletAddress);
-    setBalance(Number(sol));
+    setSolBalance(Number(sol));
   };
 
   const onNFT = () => {
@@ -30,6 +33,47 @@ function SNVWorld() {
 
   const onOther = () => {
     navigate("/snv-world/Other");
+  };
+
+  const getTokenBalance = async (
+    walletAddress: string,
+    tokenMintAddress: string
+  ) => {
+    const response = await axios({
+      url: `https://api.devnet.solana.com`,
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getTokenAccountsByOwner",
+        params: [
+          walletAddress,
+          {
+            mint: tokenMintAddress,
+          },
+          {
+            encoding: "jsonParsed",
+          },
+        ],
+      },
+    });
+    console.log(response);
+    if (
+      Array.isArray(response?.data?.result?.value) &&
+      response?.data?.result?.value?.length > 0 &&
+      response?.data?.result?.value[0]?.account?.data?.parsed?.info?.tokenAmount
+        ?.amount > 0
+    ) {
+      setTokenBalance(
+        Number(
+          response?.data?.result?.value[0]?.account?.data?.parsed?.info
+            ?.tokenAmount?.amount
+        ) / 1000000
+      );
+    } else {
+      setTokenBalance(0);
+    }
   };
 
   // const getToken = async () => {
@@ -49,10 +93,11 @@ function SNVWorld() {
 
   useEffect(() => {
     getAsyncSol();
-    if (balance) {
+    getTokenBalance(userInfo.walletAddress, tokenAddress);
+    if (solBalance && tokenBalance) {
       setIsLoadingGetBalance(false);
     }
-  }, [balance]);
+  }, [solBalance, tokenBalance]);
 
   return (
     <Layout>
@@ -80,7 +125,7 @@ function SNVWorld() {
                         <Spinner />
                       </SpinnerDiv>
                     ) : (
-                      balance?.toFixed(2)
+                      solBalance?.toFixed(2)
                     )}
                   </PointContent>
                 </PointWrapper>
@@ -92,7 +137,7 @@ function SNVWorld() {
                         <Spinner />
                       </SpinnerDiv>
                     ) : (
-                      balance?.toFixed(2)
+                      tokenBalance?.toFixed(0)
                     )}
                   </PointContent>
                 </PointWrapper>
@@ -143,7 +188,7 @@ const Title = styled.div`
 
 const Wrapper = styled.div`
   padding: 8px;
-  width: 25%;
+  width: 20%;
   height: 100%;
   @media screen and (max-width: 691px) {
     margin-bottom: 12px;
@@ -217,6 +262,10 @@ const NFTBox = styled.div`
   justify-content: center;
   width: 100%;
   height: auto;
+  @media screen and (max-width: 691px) {
+    width: 30%;
+    height: auto;
+  }
 `;
 const NFTTitle = styled.div``;
 const NFTContent = styled.div``;

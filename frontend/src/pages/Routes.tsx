@@ -22,10 +22,7 @@ function Routes() {
   return (
     <ReactRouterRoutes>
       {/* <Route path="/donation/:displayName/:platform" element={<Donation />} /> */}
-      <Route
-        path="/donation/:walletAddress"
-        element={userInfo.walletAddress ? <Donation /> : <Home />}
-      />
+      <Route path="/donation/:walletAddress" element={<Donation />} />
       <Route
         path="/payment"
         element={userInfo.walletAddress ? <Payment /> : <Home />}

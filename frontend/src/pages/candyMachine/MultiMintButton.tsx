@@ -6,71 +6,14 @@ import { GatewayStatus, useGateway } from "@civic/solana-gateway-react";
 import { CandyMachine } from "../../utils/candy-machine";
 
 export const CTAButton = styled(Button)`
-  display: inline-block !important;
-  margin: 0 auto !important;
-  background-color: var(--title-text-color) !important;
-  min-width: 120px !important;
-  font-size: 1em !important;
-`;
-
-export const Minus = styled.button`
-  margin-left: 30px;
-  width: 40px;
-  height: 40px;
-  font-size: 1.3em;
-  font-weight: bold;
-  line-height: 0.5px;
-  color: var(--main-text-color);
-  background: var(--title-text-color);
-  box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
-    0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
-  border: 0;
-  border-radius: 50%;
-  box-sizing: border-box;
-  font-family: "Patrick Hand", cursive;
-  vertical-align: middle;
-
-  :not(disabled) {
-    cursor: pointer;
-  }
-
-  :not(disabled):hover {
-    outline: 1px solid var(--title-text-color);
-  }
-`;
-
-export const Plus = styled(Minus)`
-  margin-left: 0;
-`;
-
-export const NumericField = styled.input`
-  font-size: 1.3em !important;
-  padding: 4px 4px 4px 16px;
-  width: 50px;
-  vertical-align: middle;
-  background-color: var(--main-text-color);
-  box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
-    0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
-  box-sizing: border-box;
-  font-family: "Patrick Hand", cursive;
-  font-weight: 500;
-  line-height: 1;
-  border-radius: 8px;
-  transition: all 0.4s ease;
-  -moz-appearance: textfield;
-  -webkit-appearance: none;
-  margin: 0 10px;
-
-  :hover,
-  :focus {
-    box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 40%),
-      0px 6px 10px 0px rgb(0 0 0 / 34%), 0px 1px 18px 0px rgb(0 0 0 / 32%);
-  }
-
-  ::-webkit-outer-spin-button,
-  ::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
+  width: 100%;
+  height: 100%;
+  background-color: ${(props) => props.theme.ownColor} !important;
+  color: white !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  border: none !important;
+  box-shadow: none !important;
 `;
 
 export const MultiMintButton = ({
@@ -193,7 +136,7 @@ export const MultiMintButton = ({
             ) : isMinting || clicked ? (
               <CircularProgress />
             ) : (
-              `MINT ${mintCount}`
+              `MINT`
             )
           ) : isEnded ? (
             "ENDED"
@@ -203,56 +146,7 @@ export const MultiMintButton = ({
             "UNAVAILABLE"
           )}
         </CTAButton>
-        <Minus
-          disabled={
-            clicked ||
-            candyMachine?.state.isSoldOut ||
-            isSoldOut ||
-            isMinting ||
-            isEnded ||
-            !isActive ||
-            isVerifying
-          }
-          onClick={() => decrementValue()}
-        >
-          -
-        </Minus>
-        <NumericField
-          disabled={
-            clicked ||
-            candyMachine?.state.isSoldOut ||
-            isSoldOut ||
-            isMinting ||
-            isEnded ||
-            !isActive ||
-            isVerifying
-          }
-          type="number"
-          className="mint-qty"
-          step={1}
-          min={1}
-          max={10}
-          value={mintCount}
-          onChange={(e) => updateMintCount(e.target as any)}
-        />
-        <Plus
-          disabled={
-            clicked ||
-            candyMachine?.state.isSoldOut ||
-            isSoldOut ||
-            isMinting ||
-            isEnded ||
-            !isActive ||
-            isVerifying
-          }
-          onClick={() => incrementValue()}
-        >
-          +
-        </Plus>
       </div>
-      {!candyMachine?.state.isSoldOut && !isSoldOut && isActive && (
-        <h3>Total estimated cost (Solana fees included) : {totalCost} SOL</h3>
-      )}
     </div>
   );
 };
