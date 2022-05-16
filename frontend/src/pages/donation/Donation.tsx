@@ -3,15 +3,12 @@ import Layout from "components/Layout";
 import { createSearchParams, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  clusterApiUrl,
-  Connection,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-} from "@solana/web3.js";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import Swal from "sweetalert2";
+import { getBalance } from "utils/solanaWeb3";
+import { getProvider } from "utils/getProvider";
+import { fetchWallet } from "utils/fetcher";
 
 interface IDonation {
   nickname: string;
@@ -21,20 +18,21 @@ interface IDonation {
 
 function Donation() {
   const navigate = useNavigate();
-  // const { displayName, platform } = useParams();
-  // console.log(displayName, platform);
   const userInfo = useRecoilValue(userInfoAtom);
   const { walletAddress } = useParams();
-  console.log(walletAddress);
   const [nickName, setNickName] = useState("");
   const [amount, setAmount] = useState(0);
   const [type, setType] = useState("SOL");
   const [message, setMessage] = useState("");
+  const [creatorName, setCreatorName] = useState("");
+  const [creatorImgUrl, setCreatorImgUrl] = useState("");
   const params = {
     amount: amount.toString(),
     nickName,
+    creatorName,
     message,
     walletAddress: walletAddress!.toString(),
+    type,
   };
 
   const {
@@ -52,41 +50,71 @@ function Donation() {
     //   pathname: "/payment",
     //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
     // });
-    navigate({
-      pathname: "/payment",
-      search: `?${createSearchParams(params)}`,
-    });
+    console.log(type);
+    if (userInfo.walletAddress) {
+      navigate({
+        pathname: "/payment",
+        search: `?${createSearchParams(params)}`,
+      });
+    } else {
+      alert("지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.");
+    }
     // alert("도네이션을 진행하겠습니다");
   };
   console.log(nickName, amount, message, walletAddress);
-
-  const getSol = async () => {
-    const connection = new Connection(clusterApiUrl("devnet")); // devnet 연결
-    const publicKey = new PublicKey(userInfo.walletAddress);
-
-    // 지갑 잔액 가져오기
-    const lamports = await connection.getBalance(publicKey).catch((err) => {
-      console.error(`Error: ${err}`);
-    });
-
-    if (lamports) {
-      // 잔액이 0이 아닐 때
-      const sol = lamports / LAMPORTS_PER_SOL; // 0.000000001 단위로 처리
-      console.log(sol);
-      return sol;
-    } else {
-      // 잔액이 0일 때
-      return lamports;
-    }
-  };
 
   const onSubmit = (e: any) => {
     setType(e.target.value);
   };
 
+  const getCreatorInfo = async (walletAddress: string) => {
+    const provider = getProvider();
+
+    if (provider) {
+      const response = await provider.connect();
+      console.log(response);
+
+      try {
+        const res = await fetchWallet(walletAddress!.toString());
+        if (res.status >= 200 && res.status < 400) {
+          const data = await res.json();
+          return data;
+        } else {
+          const error = new Error(res.statusText);
+          throw error;
+        }
+      } catch (error) {
+        console.log(error);
+        const res = await fetchWallet(walletAddress!.toString(), "POST");
+        if (res.status >= 200 && res.status < 400) {
+          const data = await res.json();
+          console.log(data);
+          return data;
+        } else {
+          const error = new Error(res.statusText);
+          console.log(error);
+          alert("지갑 연결이 안됩니다");
+        }
+      }
+    } else {
+      alert("팬텀 지갑 확장 프로그램을 확인해주세요!");
+    }
+  };
+
+  useEffect(() => {
+    const getAsyncCreatorInfo = async () => {
+      const creatorInfo = await getCreatorInfo(walletAddress!);
+      console.log(creatorInfo);
+      setCreatorName(creatorInfo.user.twitch.displayName);
+      setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
+    };
+    getAsyncCreatorInfo();
+    console.log(creatorName, creatorImgUrl);
+  }, [creatorName, creatorImgUrl]);
+
   useEffect(() => {
     const getAsyncSol = async () => {
-      const sol = await getSol();
+      const sol = await getBalance(userInfo.walletAddress);
       if (sol < amount) {
         Swal.fire({
           title:
@@ -111,9 +139,12 @@ function Donation() {
       <Container>
         <DonationWrapper>
           <CreatorWrapper>
-            <CreatorName>To. 메인메타님</CreatorName>
+            <CreatorInfoWrapper>
+              <CreatorProfileImage src={creatorImgUrl} />
+              <CreatorName>{creatorName}님께 후원</CreatorName>
+            </CreatorInfoWrapper>
             <CreatorImage />
-            <CreatorContent>❤메인메타 사랑해요❤</CreatorContent>
+            <CreatorContent>❤솔둥이들 사랑해요❤</CreatorContent>
           </CreatorWrapper>
         </DonationWrapper>
         <DonationForm>
@@ -232,6 +263,7 @@ function Donation() {
 
 const Container = styled.div`
   margin-top: 32px;
+
   @media screen and (max-width: 691px) {
     margin-top: 16px;
   }
@@ -259,6 +291,16 @@ const CreatorContent = styled.div`
   @media screen and (max-width: 691px) {
     font-size: 18px;
   }
+`;
+const CreatorInfoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+const CreatorProfileImage = styled.img`
+  width: 50px;
+  border-radius: 30px;
+  margin-right: 8px;
 `;
 const CreatorImage = styled.img.attrs({
   src: `${process.env.PUBLIC_URL}/헤이.png`,

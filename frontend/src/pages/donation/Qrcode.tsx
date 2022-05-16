@@ -10,10 +10,11 @@ import { isMobile } from "react-device-detect";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
-import { useConnection } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
+// import * as splToken from "@solana/spl-token";
 
 interface IPayment {
   open: any;
@@ -23,6 +24,7 @@ interface IPayment {
     nickName: string | null;
     message: string | null;
     walletAddress: string | null;
+    type: string | null;
   };
   txid: string;
 }
@@ -37,8 +39,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const [signature, setSignature] = useState("");
   const [connectWallet, setConnectWallet] = useState(false);
   const [txURL, setTXURL] = useState<any>();
-  // const { publicKey, wallet, connect, connecting, connected, sendTransaction } =
-  //   useWallet();
 
   // const wallets = [new PhantomWalletAdapter()];
   const desktopStyle = {
@@ -58,65 +58,127 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const main = async () => {
     if (txid) {
       // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
-      const recipient = new PublicKey(`${params.walletAddress}`);
+      console.log(params.type);
+      if (params.type === "SOL") {
+        const recipient = new PublicKey(`${params.walletAddress}`);
+        const label = `${
+          userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+        }`;
 
-      const label = `${
-        userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
-      }`;
+        const message = `${params.message}`;
+        const memo = `${txid}`;
+        const amount = new BigNumber(Number(`${params.amount}`));
+        const reference = new PublicKey(
+          "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
+        );
+        // const splToken = new PublicKey("")
 
-      const message = `${params.message}`;
-      const memo = `${txid}`;
-      // 해당 안의 숫자도 사용자가 보내는 값으로 입력해서 보내기
-      const amount = new BigNumber(Number(`${params.amount}`));
-      // 이 안의 값은 우리가 실제로 운영하는 서비스 지갑 주소가 들어간다.(추적용)
-      const reference = new PublicKey(
-        "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
-      );
+        const url = encodeURL({
+          recipient,
+          amount,
+          reference,
+          label,
+          message,
+          memo,
+        });
+        console.log(url);
+        setTXURL(url);
 
-      const url = encodeURL({
-        recipient,
-        amount,
-        reference,
-        label,
-        message,
-        memo,
-      });
-      console.log(url);
-      setTXURL(url);
-
-      const qrCode = createQR(url);
-      // const qrCodeSize = Number(`${message.length >= 30 ? 250 : 230}`);
-      const qrCodeSize = 230;
-      const QrCode = new QRCodeStyling({
-        width: qrCodeSize,
-        height: qrCodeSize,
-        type: "canvas",
-        data: `${qrCode._options.data}`,
-        image: `${process.env.PUBLIC_URL}/솔라나.png`,
-        dotsOptions: {
-          // color: "#4267b2",
-          gradient: {
-            type: "linear",
-            rotation: 90,
-            colorStops: [
-              { offset: 0, color: "#00ff55" },
-              { offset: 1, color: "#7808f8" },
-            ],
+        const qrCode = createQR(url);
+        // const qrCodeSize = Number(`${message.length >= 30 ? 250 : 230}`);
+        const qrCodeSize = 230;
+        const QrCode = new QRCodeStyling({
+          width: qrCodeSize,
+          height: qrCodeSize,
+          type: "canvas",
+          data: `${qrCode._options.data}`,
+          image: `${process.env.PUBLIC_URL}/솔라나.png`,
+          dotsOptions: {
+            // color: "#4267b2",
+            gradient: {
+              type: "linear",
+              rotation: 90,
+              colorStops: [
+                { offset: 0, color: "#00ff55" },
+                { offset: 1, color: "#7808f8" },
+              ],
+            },
+            type: "extra-rounded",
           },
-          type: "extra-rounded",
-        },
-        backgroundOptions: {
-          color: "#e9ebee",
-        },
-        imageOptions: {
-          crossOrigin: "anonymous",
-          margin: 10,
-        },
-      });
-      const element = document.getElementById("qr-code");
-      QrCode.append(element!);
+          backgroundOptions: {
+            color: "#e9ebee",
+          },
+          imageOptions: {
+            crossOrigin: "anonymous",
+            margin: 10,
+          },
+        });
+        const element = document.getElementById("qr-code");
+        QrCode.append(element!);
 
-      setMakeQR(QrCode);
+        setMakeQR(QrCode);
+      } else if (params.type === "USDC") {
+        const recipient = new PublicKey(`${params.walletAddress}`);
+        const label = `${
+          userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+        }`;
+
+        const message = `${params.message}`;
+        const memo = `${txid}`;
+        const amount = new BigNumber(Number(`${params.amount}`));
+        const reference = new PublicKey(
+          "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
+        );
+        const splToken = new PublicKey(
+          "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+        );
+        const url = encodeURL({
+          recipient,
+          amount,
+          reference,
+          label,
+          message,
+          memo,
+          splToken,
+        });
+        console.log(url);
+        console.log(url);
+        setTXURL(url);
+
+        const qrCode = createQR(url);
+        // const qrCodeSize = Number(`${message.length >= 30 ? 250 : 230}`);
+        const qrCodeSize = 230;
+        const QrCode = new QRCodeStyling({
+          width: qrCodeSize,
+          height: qrCodeSize,
+          type: "canvas",
+          data: `${qrCode._options.data}`,
+          image: `${process.env.PUBLIC_URL}/솔라나.png`,
+          dotsOptions: {
+            // color: "#4267b2",
+            gradient: {
+              type: "linear",
+              rotation: 90,
+              colorStops: [
+                { offset: 0, color: "#00ff55" },
+                { offset: 1, color: "#7808f8" },
+              ],
+            },
+            type: "extra-rounded",
+          },
+          backgroundOptions: {
+            color: "#e9ebee",
+          },
+          imageOptions: {
+            crossOrigin: "anonymous",
+            margin: 10,
+          },
+        });
+        const element = document.getElementById("qr-code");
+        QrCode.append(element!);
+
+        setMakeQR(QrCode);
+      }
     } else {
       Swal.fire(
         "Information issue",
@@ -168,6 +230,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
 
   useEffect(() => {
     if (signature) {
+      console.log(signature);
       const interval = setInterval(async () => {
         const reference = new PublicKey(`${userInfo.walletAddress}`);
         const options = { until: `${signature}`, limit: 1000 };
@@ -178,21 +241,46 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           options,
           finality
         );
-
+        console.log(signatures);
         for (let i = 0; i < signatures.length; i++) {
           const transaction = await connections.getTransaction(
             signatures[i].signature
           );
-          if (transaction) {
+          console.log(transaction);
+          if (transaction && params.type === "SOL") {
             for (
               let j = 0;
               j < transaction?.transaction.message.accountKeys.length;
               j++
             ) {
               // 여기 주소 값은 recipient와 같아야 한다.
+              console.log(
+                transaction?.transaction.message.accountKeys[j].toBase58()
+              );
               if (
                 transaction?.transaction.message.accountKeys[j].toBase58() ===
                 `${params.walletAddress}`
+              ) {
+                console.log("결제 내용이 블록체인에 올라갔습니다.");
+                clearInterval(interval);
+                navigate("/payment/confirmed", {
+                  state: { signature: signatures[i].signature },
+                });
+              }
+            }
+          } else if (transaction && params.type === "USDC") {
+            for (
+              let j = 0;
+              j < transaction?.transaction.message.accountKeys.length;
+              j++
+            ) {
+              // 여기 주소 값은 recipient와 같아야 한다.
+              console.log(
+                transaction?.transaction.message.accountKeys[j].toBase58()
+              );
+              if (
+                transaction?.transaction.message.accountKeys[j].toBase58() ===
+                `Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr`
               ) {
                 console.log("결제 내용이 블록체인에 올라갔습니다.");
                 clearInterval(interval);
@@ -218,37 +306,77 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
     setConnectWallet(true);
     try {
       if (txURL) {
-        const provider = getProvider();
-        provider?.connect();
-        const { recipient, amount, reference, memo } = parseURL(txURL);
-        const publicKey = new PublicKey(userInfo.walletAddress);
-        console.log(publicKey);
+        if (params.type === "SOL") {
+          const provider = getProvider();
+          provider?.connect();
+          const { recipient, amount, reference, memo } = parseURL(txURL);
+          const publicKey = new PublicKey(userInfo.walletAddress);
+          console.log(publicKey);
 
-        // part 1
-        const transaction = await createTransaction(
-          connection,
-          publicKey!,
-          recipient,
-          amount!,
-          { reference, memo }
-        );
-        console.log(transaction);
-        transaction.feePayer = publicKey;
-        const anyTransaction: any = transaction;
-        anyTransaction.recentBlockhash = (
-          await connection.getRecentBlockhash()
-        ).blockhash;
+          // part 1
+          const transaction = await createTransaction(
+            connection,
+            publicKey!,
+            recipient,
+            amount!,
+            { reference, memo }
+          );
+          console.log(transaction);
+          transaction.feePayer = publicKey;
+          const anyTransaction: any = transaction;
+          anyTransaction.recentBlockhash = (
+            await connection.getRecentBlockhash()
+          ).blockhash;
 
-        let blockhashObj = await connection.getRecentBlockhash();
-        transaction.recentBlockhash = await blockhashObj.blockhash;
-        const response = await provider?.signTransaction(transaction);
-        console.log("시그니처 싸인이 완료됐습니다.", response);
-        let signature = await connection.sendRawTransaction(
-          response!.serialize()
-        );
-        console.log("트랜잭션 전송 성공~", signature);
-        const res2 = await connection.confirmTransaction(signature);
-        console.log("결제 확인까지 성공했습니다.", res2);
+          let blockhashObj = await connection.getRecentBlockhash();
+          transaction.recentBlockhash = await blockhashObj.blockhash;
+          const response = await provider?.signTransaction(transaction);
+          console.log("시그니처 싸인이 완료됐습니다.", response);
+          let signature = await connection.sendRawTransaction(
+            response!.serialize()
+          );
+          console.log("트랜잭션 전송 성공~", signature);
+          const res2 = await connection.confirmTransaction(signature);
+          console.log("결제 확인까지 성공했습니다.", res2);
+        } else if (params.type === "USDC") {
+          console.log("USDC로 결제");
+
+          const provider = getProvider();
+          provider?.connect();
+          const { recipient, amount, reference, memo } = parseURL(txURL);
+          const publicKey = new PublicKey(userInfo.walletAddress);
+
+          const splToken = new PublicKey(
+            "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
+          );
+          console.log(publicKey);
+
+          // part 1
+          const transaction = await createTransaction(
+            connection,
+            publicKey!,
+            recipient,
+            amount!,
+            { reference, memo, splToken }
+          );
+          console.log(transaction);
+          transaction.feePayer = publicKey;
+          const anyTransaction: any = transaction;
+          anyTransaction.recentBlockhash = (
+            await connection.getRecentBlockhash()
+          ).blockhash;
+
+          let blockhashObj = await connection.getRecentBlockhash();
+          transaction.recentBlockhash = await blockhashObj.blockhash;
+          const response = await provider?.signTransaction(transaction);
+          console.log("시그니처 싸인이 완료됐습니다.", response);
+          let signature = await connection.sendRawTransaction(
+            response!.serialize()
+          );
+          console.log("트랜잭션 전송 성공~", signature);
+          const res2 = await connection.confirmTransaction(signature);
+          console.log("결제 확인까지 성공했습니다.", res2);
+        }
 
         // // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
         // const response = await sendTransaction(transaction, connection);

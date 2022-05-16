@@ -62,10 +62,10 @@ export default function Sidebar() {
             <Element
               onClick={() => {
                 setIsSidebar((prev) => !prev);
-                navigate(`/nft-reward`);
+                navigate(`/snv-world`);
               }}
             >
-              NFT 리워드
+              SNV World
             </Element>
             <Element
               onClick={() => {

@@ -1,15 +1,10 @@
-import {
-  Routes as ReactRouterRoutes,
-  Route,
-  Navigate,
-  BrowserRouter as Router,
-} from "react-router-dom";
+import { Routes as ReactRouterRoutes, Route, Navigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import Main from "pages/my-info/Main";
 import DonationHistory from "pages/my-info/DonationHistory";
 import Donation from "./donation/Donation";
-import NftReward from "pages/my-info/NftReward";
+import SNVWorld from "pages/my-info/SNVWorld";
 import ServiceCenter from "./my-info/ServiceCenter";
 import Payment from "./donation/Payment";
 import Home from "./home/Home";
@@ -17,6 +12,9 @@ import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
 import { Service } from "./home/Service";
+import CandyDrop from "./nft/CandyDrop";
+import Other from "./nft/Other";
+import CandyMachineHome from "./candyMachine/CandyMachineHome";
 import PageNotFound from "./Error/404";
 
 function Routes() {
@@ -26,8 +24,14 @@ function Routes() {
     <ReactRouterRoutes>
       {/* <Route path="/donation/:displayName/:platform" element={<Donation />} /> */}
       <Route path="/donation/:walletAddress" element={<Donation />} />
-      <Route path="/payment" element={<Payment />} />
-      <Route path="/payment/confirmed" element={<Confirmed />} />
+      <Route
+        path="/payment"
+        element={userInfo.walletAddress ? <Payment /> : <Home />}
+      />
+      <Route
+        path="/payment/confirmed"
+        element={userInfo.walletAddress ? <Confirmed /> : <Home />}
+      />
 
       {/* URL 직접 접근 제어 */}
       <Route
@@ -59,12 +63,16 @@ function Routes() {
           )
         }
       />
+      <Route path="/hi" element={<CandyMachineHome />} />
       <Route
-        path="/nft-reward"
+        path="/snv-world/*"
         element={
-          userInfo.walletAddress ? <NftReward /> : <Navigate replace to="/" />
+          userInfo.walletAddress ? <SNVWorld /> : <Navigate replace to="/" />
         }
-      />
+      >
+        <Route path="nft" element={<CandyMachineHome />} />
+        <Route path="other" element={<Other />} />
+      </Route>
       <Route
         path="/service-center"
         element={

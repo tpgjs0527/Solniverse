@@ -1,6 +1,6 @@
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import interpolate from "color-interpolate";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import styled, { keyframes } from "styled-components";
@@ -46,6 +46,7 @@ type Confirmations =
 
 function Confirmed() {
   const { state }: any = useLocation();
+  const navigate = useNavigate();
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   const requiredConfirmations = 32;
   const [confirmations, setConfirmations] = useState<Confirmations>(0);
@@ -141,6 +142,7 @@ function Confirmed() {
             <>
               <CircularProgressbar maxValue={1} value={value} styles={styles} />
               <ProgressText>{text}</ProgressText>
+              <HomeBtn onClick={() => navigate("/")}>Home</HomeBtn>
             </>
           )}
         </ProgressWrapper>
@@ -179,6 +181,26 @@ const spin = keyframes`
   }
   100% {
     transform: rotate(360deg);
+  }
+`;
+const HomeBtn = styled.button`
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30%;
+  height: 40px;
+  color: #ffffff;
+  background-color: ${(props) => props.theme.ownColor};
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  @media screen and (max-width: 691px) {
+    width: 70px;
+    height: 30px;
+    font-size: 14px;
   }
 `;
 
