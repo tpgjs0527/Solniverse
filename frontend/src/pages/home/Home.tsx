@@ -1,57 +1,17 @@
-import { userInfoAtom } from "atoms";
-import FeaturesGallery from "components/Home/Features";
 import Spinner from "components/Spinner";
+import useWallet from "hooks/useWallet";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
-import Swal from "sweetalert2";
-import { getWallet } from "utils/solanaWeb3";
 
 function Home() {
-  const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
-  const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-
-  // 지갑연결
-  const connectWallet = async () => {
-    const data = await getWallet();
-    if (data.result === "success") {
-      setIsWallet(true);
-      if (data.user.twitch) {
-        setUserInfo({
-          twitch: {
-            id: data.user.twitch.id,
-            displayName: data.user.twitch.displayName,
-            profileImageUrl: data.user.twitch.profileImageUrl,
-          },
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      } else {
-        setUserInfo({
-          ...userInfo,
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      }
-
-      navigate("/main");
-    } else {
-      return Swal.fire({
-        icon: "error",
-        title: "Connect issue!",
-        text: "  The wallet is not found.  Please check the wallet program!",
-        footer: '<a href="/service">Go Service Page</a>',
-      });
-    }
-  };
+  const [, connectWallet] = useWallet();
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
+
   return (
     <Main>
       {isLoading ? (
@@ -67,11 +27,7 @@ function Home() {
           <Pushable>
             <span className="shadow"></span>
             <span className="edge"></span>
-            <WalletMultiBtn
-              className="front"
-              isWallet={isWallet}
-              onClick={connectWallet}
-            >
+            <WalletMultiBtn className="front" onClick={connectWallet}>
               입장하기
             </WalletMultiBtn>
           </Pushable>
@@ -260,7 +216,7 @@ export const Menu = styled.div`
   }
 `;
 
-const WalletMultiBtn = styled.span<{ isWallet: boolean }>`
+const WalletMultiBtn = styled.span`
   display: block;
   position: relative;
   padding: 12px 42px;
@@ -273,10 +229,9 @@ const WalletMultiBtn = styled.span<{ isWallet: boolean }>`
   will-change: transform;
   transform: translateY(-4px);
   transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
-  cursor: ${(props) => (props.isWallet ? "" : "pointer")};
-  background-color: ${(props) =>
-    props.isWallet ? "#404144" : props.theme.ownColor};
-  color: ${(props) => (props.isWallet ? "#999" : "#fff")};
+  cursor: "pointer";
+  background-color: ${(props) => props.theme.ownColor};
+  color: "#fff";
 `;
 
 const Pushable = styled.button`
