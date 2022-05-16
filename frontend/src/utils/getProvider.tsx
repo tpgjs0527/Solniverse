@@ -1,6 +1,7 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { isMobile } from "react-device-detect";
 import { checkMobile } from "./checkMobile";
+import Swal from "sweetalert2";
 
 type DisplayEncoding = "utf8" | "hex";
 type PhantomEvent = "disconnect" | "connect" | "accountChanged";
@@ -29,7 +30,9 @@ export interface PhantomProvider {
 
 export const getProvider = (): PhantomProvider | undefined => {
   const UA = checkMobile();
-  if (isMobile) {
+
+  if (UA === "android" || UA === "ios") {
+    return;
   } else {
     try {
       const { solana } = window;
@@ -39,7 +42,12 @@ export const getProvider = (): PhantomProvider | undefined => {
           return provider;
         }
       } else {
-        alert("solana를 찾지 못하였습니다. 다시 로그인해주세요!");
+        Swal.fire(
+          "Network issue",
+          "TSolana Network is still around?",
+          "question"
+        );
+        // alert("solana를 찾지 못하였습니다. 다시 로그인해주세요!");
       }
     } catch {}
   }
