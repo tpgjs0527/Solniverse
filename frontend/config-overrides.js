@@ -20,7 +20,7 @@ module.exports = function override(config, env) {
     new NodePolyfillPlugin(),
   ];
 
-  config.plugins = config.plugins.filter(
+  config.resolve.plugins = config.resolve.plugins.filter(
     (plugin) => !(plugin instanceof ModuleScopePlugin)
   );
 
