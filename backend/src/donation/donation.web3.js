@@ -194,7 +194,9 @@ async function updateTransactionWithoutDuplication(tx) {
         receiveWallet.toString(),
       );
       logger.info(
-        `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${updatedTx}`,
+        `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${JSON.stringify(
+          updatedTx,
+        )}`,
       );
     } else {
       // 기존 데이터를 가져옴
@@ -429,12 +431,13 @@ async function sendSnvToken(toWallet, amount) {
       mintTo(
         connection,
         fromWallet,
-        await fromTokenAccount.mint,
-        await fromTokenAccount.address,
+        fromTokenAccount.mint,
+        fromTokenAccount.address,
         fromWallet.publicKey,
         amount,
       ),
     ]);
+    logger.info(`SNV Transfer tokenAccount: to=${toTokenAccount.address}`);
 
     const signature = await transfer(
       connection,
