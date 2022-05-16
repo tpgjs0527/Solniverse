@@ -70,7 +70,7 @@ function Routes() {
           userInfo.walletAddress ? <SNVWorld /> : <Navigate replace to="/" />
         }
       >
-        <Route path="nft" element={<CandyMachineHome />} />
+        <Route path="" element={<CandyMachineHome />} />
         <Route path="other" element={<Other />} />
       </Route>
       <Route

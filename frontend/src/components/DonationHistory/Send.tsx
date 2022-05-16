@@ -58,6 +58,7 @@ function SendDonationHistory() {
     //   refetchInterval: 5000,
     // }
   );
+  console.log(data);
 
   const graphData: IData = { sol: {}, usdc: {} };
 

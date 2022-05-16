@@ -156,7 +156,7 @@ function SNVWorld() {
           <NFTWrapper>
             <NFTBox>
               <Routes>
-                <Route path="nft" element={<CandyMachineHome />} />
+                <Route path="" element={<CandyMachineHome />} />
                 <Route path="other" element={<Other />} />
               </Routes>
             </NFTBox>
