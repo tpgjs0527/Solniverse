@@ -71,8 +71,8 @@ function Donation() {
     const provider = getProvider();
 
     if (provider) {
-      const response = await provider.connect();
-      console.log(response);
+      // const response = await provider.connect();
+      // console.log(response);
 
       try {
         const res = await fetchWallet(walletAddress!.toString());
