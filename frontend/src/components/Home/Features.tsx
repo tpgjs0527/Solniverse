@@ -3,12 +3,13 @@ import styled from "styled-components";
 import Collapse from "./Tag/Collapse";
 import Container from "./Tag/Container";
 import ThreeLayersCircle from "./Tag/ThreeLayersCircle";
+import RichText from "./Tag/RichText";
 
 const TABS = [
   {
     title: "원터치로 후원하기",
     description:
-      "<p>휴대폰으로 방송을 보시나요? 크리에이터가 등록한 후원링크에 접속하여 원터치로 후원해보세요! QR코드결제는 당신의 손을 더 자유롭게 해줍니다!</p>",
+      "휴대폰으로 방송을 보시나요? 크리에이터가 등록한 후원링크에 접속하여 원터치로 후원해보세요! QR코드결제는 당신의 손을 더 자유롭게 해줍니다!",
     imageUrl: "/demo-illustration-3.png",
     baseColor: "249,82,120",
     secondColor: "221,9,57",
@@ -16,7 +17,7 @@ const TABS = [
   {
     title: "낮은 수수료율",
     description:
-      "<p>수수료가 신경쓰였나요? 우리 SOLNIVERSE는 당신이 후원한 가치 그대로를 전달해드립니다. 수수료율을 최소화함으로써 당신의 크리에이터에게 후원의 가치를 전해보세요</p>",
+      "수수료가 신경쓰였나요? 우리 SOLNIVERSE는 당신이 후원한 가치 그대로를 전달해드립니다. 수수료율을 최소화함으로써 당신의 크리에이터에게 후원의 가치를 전해보세요",
     imageUrl: "/demo-illustration-4.png",
     baseColor: "57,148,224",
     secondColor: "99,172,232",
@@ -24,7 +25,7 @@ const TABS = [
   {
     title: "후원을 통한 오락요소",
     description:
-      "<p>대쉬보드에서 당신의 후원랭킹과 내역을 그래프로 만나보세요! 후원을 할수록 쌓이는 SVN 토큰 포인트를 통해 유니크한 크리에이터 NFT를 뽑고 당신을 빛내보세요. </p>",
+      "대쉬보드에서 당신의 후원랭킹과 내역을 그래프로 만나보세요! 후원을 할수록 쌓이는 SVN 토큰 포인트를 통해 유니크한 크리에이터 NFT를 뽑고 당신을 빛내보세요. ",
     imageUrl: "/demo-illustration-5.png",
     baseColor: "88,193,132",
     secondColor: "124,207,158",
@@ -32,8 +33,6 @@ const TABS = [
 ];
 const CreatorImage = styled.img.attrs({})`
   width: 100%;
-
-  /* height: auto; */
 `;
 
 export default function FeaturesGallery() {
@@ -65,9 +64,7 @@ export default function FeaturesGallery() {
         </TabTitleContainer>
         <Collapse isOpen={isActive} duration={300}>
           <TabContent>
-            <div
-              dangerouslySetInnerHTML={{ __html: singleTab.description }}
-            ></div>
+            <RichText> {singleTab.description}</RichText>
           </TabContent>
         </Collapse>
       </Tab>
@@ -96,16 +93,20 @@ const FeaturesGalleryWrapper = styled(Container)`
   display: flex;
   align-items: center;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   margin-top: 3rem;
+
+  height: 80vh;
+  @media screen and (min-width: 1800px) {
+    margin-top: 5rem;
+  }
 `;
-const OverTitle = styled.span`
+export const OverTitle = styled.span`
   display: block;
   margin-bottom: 1.3rem;
   font-size: 1.2rem;
   letter-spacing: 0.02em;
   font-weight: bold;
-  line-height: 0;
 `;
 const SectionTitle = styled.div`
   font-size: 2.5rem;
@@ -117,12 +118,13 @@ const SectionTitle = styled.div`
 const GalleryWrapper = styled.div`
   display: flex;
   /* align-items: center; */
-
-  margin: 1.5rem;
-  margin-left: 4rem;
+  margin-right: 7rem;
+  margin-top: 1.5rem;
+  margin-left: 7rem;
   @media screen and (max-width: 800px) {
     flex-direction: column;
-    margin: 0;
+    margin-right: 0;
+    margin-top: 0;
     margin-left: 0;
   }
 `;
@@ -136,7 +138,7 @@ const Content = styled.div`
 
 const TabsContainer = styled.div`
   flex: 1;
-  margin-right: 4rem;
+  margin-right: 3rem;
   padding-top: 2rem;
   & > *:not(:first-child) {
     margin-top: 0.5rem;
@@ -152,14 +154,16 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   position: relative;
   overflow: hidden;
   border-radius: 0.8rem;
+  margin-top: 1.5rem;
   flex: ${(p) => (p.isActive ? "2" : "0")};
+
   box-shadow: 1rem;
   transition-duration: 500ms;
   &:before {
     display: block;
     content: "";
     width: 100%;
-    /* padding-top: calc((9 / 16) * 100%); */
+    padding-top: 10px;
   }
 
   & > div {
@@ -171,6 +175,7 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   }
   @media screen and (max-width: 800px) {
     width: ${(p) => (p.isActive ? "100%" : "0")};
+    display: none;
   }
 `;
 
@@ -208,12 +213,12 @@ const TabContent = styled.div`
   margin-top: 0.5rem;
   font-size: 1.3rem;
   padding-left: 5rem;
-
+  text-align: justify;
   p {
     font-weight: normal;
   }
   @media screen and (max-width: 800px) {
-    padding-left: calc(4rem + 1.25rem);
+    padding-left: calc(2.5rem + 1.25rem);
   }
 `;
 

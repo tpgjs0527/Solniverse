@@ -1,10 +1,12 @@
 import { userInfoAtom } from "atoms";
+import FeaturesGallery from "components/Home/Features";
 import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
+import Swal from "sweetalert2";
 import { getWallet } from "utils/solanaWeb3";
 
 function Home() {
@@ -38,7 +40,12 @@ function Home() {
 
       navigate("/main");
     } else {
-      alert("지갑연결이 실패했습니다");
+      return Swal.fire({
+        icon: "error",
+        title: "Connect issue!",
+        text: "  The wallet is not found.  Please check the wallet program!",
+        footer: '<a href="/service">Go Service Page</a>',
+      });
     }
   };
 
@@ -242,6 +249,9 @@ export const Menu = styled.div`
     li {
       display: inline-block;
       margin-left: 80px;
+      &:hover {
+        color: ${(props) => props.theme.ownColor};
+      }
     }
   }
   @media screen and (max-width: 600px) {

@@ -11,6 +11,7 @@ import {
 } from "@solana/web3.js";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import Swal from "sweetalert2";
 
 interface IDonation {
   nickname: string;
@@ -87,7 +88,17 @@ function Donation() {
     const getAsyncSol = async () => {
       const sol = await getSol();
       if (sol < amount) {
-        alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+        Swal.fire({
+          title:
+            "The Donation price is higher than your wallet has. Please set the price again 😊",
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
+        // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
         setAmount(0);
       }
     };

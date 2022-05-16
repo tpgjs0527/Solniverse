@@ -126,7 +126,7 @@ const Test = styled.div<{ visible: boolean }>`
   align-items: center;
   min-height: 100vh;
   color: white;
-  font-size: 80px;
+  font-size: 70px;
   font-weight: 500;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
   animation: ${(props) => (props.visible ? fadeIn : fadeOut)} 3s ease-out;
