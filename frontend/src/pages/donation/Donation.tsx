@@ -68,36 +68,27 @@ function Donation() {
   };
 
   const getCreatorInfo = async (walletAddress: string) => {
-    const provider = getProvider();
-
-    if (provider) {
-      // const response = await provider.connect();
-      // console.log(response);
-
-      try {
-        const res = await fetchWallet(walletAddress!.toString());
-        if (res.status >= 200 && res.status < 400) {
-          const data = await res.json();
-          return data;
-        } else {
-          const error = new Error(res.statusText);
-          throw error;
-        }
-      } catch (error) {
-        console.log(error);
-        const res = await fetchWallet(walletAddress!.toString(), "POST");
-        if (res.status >= 200 && res.status < 400) {
-          const data = await res.json();
-          console.log(data);
-          return data;
-        } else {
-          const error = new Error(res.statusText);
-          console.log(error);
-          alert("지갑 연결이 안됩니다");
-        }
+    try {
+      const res = await fetchWallet(walletAddress!);
+      if (res.status >= 200 && res.status < 400) {
+        const data = await res.json();
+        return data;
+      } else {
+        const error = new Error(res.statusText);
+        throw error;
       }
-    } else {
-      alert("팬텀 지갑 확장 프로그램을 확인해주세요!");
+    } catch (error) {
+      console.log(error);
+      const res = await fetchWallet(walletAddress!, "POST");
+      if (res.status >= 200 && res.status < 400) {
+        const data = await res.json();
+        console.log(data);
+        return data;
+      } else {
+        const error = new Error(res.statusText);
+        console.log(error);
+        alert("지갑 연결이 안됩니다");
+      }
     }
   };
 
@@ -167,6 +158,7 @@ function Donation() {
                 })}
                 placeholder="후원닉네임을 입력해주세요."
               />
+              <ErrorMessage>{errors?.nickname?.message}</ErrorMessage>
             </DonateInputWrapper>
           </DonatorWrapper>
           <DonatorWrapper>
@@ -189,6 +181,7 @@ function Donation() {
                 style={{ display: "flex", justifyContent: "space-between" }}
                 placeholder="후원금액을 입력해주세요."
               />
+              <ErrorMessage>{errors?.amount?.message}</ErrorMessage>
               <Select onChange={onSubmit}>
                 <Option value="SOL">SOL</Option>
                 <Option value="USDC">USDC</Option>
@@ -239,6 +232,7 @@ function Donation() {
                 })}
                 placeholder="후원메시지를 작성해주세요."
               />
+              <ErrorMessage>{errors?.message?.message}</ErrorMessage>
             </DonateInputWrapper>
           </DonatorWrapper>
         </DonationForm>
@@ -276,6 +270,12 @@ const DonationWrapper = styled.div`
 const DonationForm = styled.form`
   margin-bottom: 32px;
   border-bottom: 1px solid ${(props) => props.theme.borderColor};
+`;
+
+export const ErrorMessage = styled.p`
+  margin-top: 3px;
+  font-size: 11px;
+  color: #ff5e57;
 `;
 
 const CreatorWrapper = styled.div``;
