@@ -193,7 +193,8 @@ function ReceiveDonationHistory() {
           const amount = el.amount / LAMPORTS_PER_SOL;
           setGraphData("sol", key, amount);
         } else {
-          setGraphData("usdc", key, el.amount);
+          const amount = el.amount / 1000000;
+          setGraphData("usdc", key, amount);
         }
       });
 

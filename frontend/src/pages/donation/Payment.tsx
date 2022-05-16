@@ -72,7 +72,7 @@ function Payment() {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
-            }`;
+          }`;
 
           const message = `${params.message}`;
           const memo = `${txid}`;
@@ -265,6 +265,9 @@ const Button = styled.button`
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
 `;
 
 export default Payment;
