@@ -15,6 +15,7 @@ import { Service } from "./home/Service";
 import CandyDrop from "./nft/CandyDrop";
 import Other from "./nft/Other";
 import CandyMachineHome from "./candyMachine/CandyMachineHome";
+import PageNotFound from "./Error/404";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -82,10 +83,17 @@ function Routes() {
           )
         }
       />
+      <Route path="/donation/alertbox/:uuid" element={<Message />} />
+
+      {/* 404 가장 밑에 위치 */}
       <Route
-        path="/donation/alertbox/:uuid"
+        path="*"
         element={
-          userInfo.walletAddress ? <Message /> : <Navigate replace to="/" />
+          userInfo.walletAddress ? (
+            <PageNotFound />
+          ) : (
+            <Navigate replace to="/" />
+          )
         }
       />
     </ReactRouterRoutes>
