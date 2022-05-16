@@ -1,6 +1,7 @@
 import * as solanaWeb3 from "@solana/web3.js";
 import { getProvider } from "./getProvider";
 import { fetchWallet } from "./fetcher";
+import Swal from "sweetalert2";
 
 const LAMPORTS_PER_SOL = solanaWeb3.LAMPORTS_PER_SOL;
 
@@ -70,11 +71,21 @@ const getWallet = async () => {
       } else {
         const error = new Error(res.statusText);
         console.log(error);
-        alert("지갑 연결이 안됩니다");
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "There is not wallet address! Please reconnect your wallet 😊",
+          footer: '<a href="/service">Go Service Page</a>',
+        });
       }
     }
   } else {
-    alert("팬텀 지갑 확장 프로그램을 확인해주세요!");
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "There is not wallet address! Please check your wallet program😊",
+      footer: '<a href="/service">Go Service Page</a>',
+    });
   }
 };
 

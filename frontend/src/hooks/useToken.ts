@@ -1,7 +1,8 @@
 import { getProvider } from "../utils/getProvider";
 import base58 from "bs58";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { userInfoAtom } from "atoms";
+import Swal from "sweetalert2";
 
 // signature 전달해서 refresthToken 및 accessToken 받기
 
@@ -15,7 +16,13 @@ function useToken() {
 
   // accessToken과 refreshToken을 받는 함수
   const getTokens = async (walletAddress: string) => {
-    if (!walletAddress) return alert("지갑 주소가 없습니다!");
+    if (!walletAddress)
+      return Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "There is not wallet address! Please connect your wallet 😊",
+        footer: '<a href="/service">Go Service Page</a>',
+      });
     const provider = getProvider();
 
     if (provider) {
@@ -31,7 +38,11 @@ function useToken() {
       }
       // 지금 연결된 지갑과 아톱의 지갑이 다르면 로그아웃
       if (phantom !== userInfo.walletAddress) {
-        alert("유저의 지갑이 다릅니다. 변경된 주소로 재입장해주시기 바랍니다.");
+        Swal.fire(
+          "Wallet issue",
+          "You have changed your wallet address ! <br> Please reconnect with the new one 😊",
+          "question"
+        );
         setUserInfo({
           twitch: {
             id: "",
@@ -78,7 +89,12 @@ function useToken() {
   // refreshToken을 사용하여 accessToken 재발급 받는 함수
   async function getAccessToken(walletAddress: string) {
     if (!walletAddress)
-      return alert("지갑이 연결되어있지 않습니다! 지갑 연결을 해주세요!!");
+      return Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "There is not wallet address! Please connect your wallet 😊",
+        footer: '<a href="/service">Go Service Page</a>',
+      });
     else {
       const response = await (
         await fetch(`${process.env.REACT_APP_BASE_URL}/auth/refresh`, {
@@ -97,9 +113,7 @@ function useToken() {
         try {
           const token = await getTokens(walletAddress);
           return token;
-        } catch (error) {
-          alert("에러 발생");
-        }
+        } catch (error) {}
       }
     }
   }

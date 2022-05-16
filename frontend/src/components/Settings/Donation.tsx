@@ -27,7 +27,6 @@ function SetDonation() {
       setUUID(uuid);
       setIsLoadingUUID(false);
     } else {
-      alert("문제 발생");
     }
   };
 

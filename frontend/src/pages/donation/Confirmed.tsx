@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import interpolate from "color-interpolate";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import styled, { keyframes } from "styled-components";
+import Swal from "sweetalert2";
 
 // interface IState {
 //   state: { signature: string };
@@ -110,9 +111,14 @@ function Confirmed() {
     const preventGoBack = () => {
       window.history.pushState(null, "", window.location.href);
       if (status === "Finalized") {
-        alert("이미 결제 완료된 도네이션입니다.");
+        Swal.fire("Succeed!", "The Donation has already done!", "success");
+        // alert("이미 결제 완료된 도네이션입니다.");
       } else {
-        alert("결제 중인 도네이션입니다.");
+        Swal.fire({
+          title: "Now Donating!",
+          html: "We are Donating now!",
+          timerProgressBar: true,
+        });
       }
     };
     window.history.pushState(null, "", window.location.href);

@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
+import Swal from "sweetalert2";
 // import * as splToken from "@solana/spl-token";
 
 interface IPayment {
@@ -179,7 +180,12 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         setMakeQR(QrCode);
       }
     } else {
-      alert("결제정보가 잘못 입력됐습니다. 다시 후원해주세요.");
+      Swal.fire(
+        "Information issue",
+        "The Donation Information is not correct. <br> Please redonate 🙇‍♂️",
+        "question"
+      );
+      // alert("결제정보가 잘못 입력됐습니다. 다시 후원해주세요.");
       // navigate("/donation");
     }
   };
