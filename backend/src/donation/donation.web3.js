@@ -20,6 +20,15 @@ const MINT_SECRET = process.env.DDD_MINT_SECRET_KEY;
 const USDC_TOKEN = process.env.USDC_TOKEN;
 const fromWallet = Keypair.fromSecretKey(bs58.decode(MINT_SECRET));
 const mint = new PublicKey(process.env.DDD_SNV_TOKEN);
+var fromTokenAccount;
+(async () => {
+  fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+    connection,
+    fromWallet,
+    mint,
+    fromWallet.publicKey,
+  );
+})();
 
 const SOL_DECIMAL = 10 ** 9;
 
@@ -51,15 +60,6 @@ async function getUsdPerSol() {
  */
 getUsdPerSol();
 setInterval(getUsdPerSol, 1000 * 60 * 10);
-
-const fromTokenAccountGlobal = (async () => {
-  return await getOrCreateAssociatedTokenAccount(
-    connection,
-    fromWallet,
-    mint,
-    fromWallet.publicKey,
-  );
-})();
 
 /**
  * 이전 금액과 나중 sol의 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
@@ -424,7 +424,6 @@ function getUsdFromSol(amount) {
 async function sendSnvToken(toWallet, amount) {
   if (!(amount > 0)) return;
   try {
-    const fromTokenAccount = await fromTokenAccountGlobal;
     // 구조 분해 할당, 값 무시
     const [toTokenAccount, ,] = await Promise.all([
       getOrCreateAssociatedTokenAccount(connection, fromWallet, mint, toWallet),
