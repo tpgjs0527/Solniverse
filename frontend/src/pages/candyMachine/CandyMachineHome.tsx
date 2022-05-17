@@ -575,7 +575,7 @@ const CandyMachineHome = () => {
           <ImageWrapper>
             <ImageTitle>NFT LIST</ImageTitle>
             <Image
-              src={`${process.env.PUBLIC_URL}/cool-cats.gif`}
+              src={`${process.env.PUBLIC_URL}/images/cool-cats.gif`}
               alt="NFT To Mint"
             />
           </ImageWrapper>

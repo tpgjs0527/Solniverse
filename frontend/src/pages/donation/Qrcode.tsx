@@ -50,7 +50,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       marginRight: "-50%",
       transform: "translate(-50%, -50%)",
       width: "700px",
-      height: "600px",
+      height: "550px",
       backgroundColor: "#eeeeee",
     },
   };
@@ -92,7 +92,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           height: qrCodeSize,
           type: "canvas",
           data: `${qrCode._options.data}`,
-          image: `${process.env.PUBLIC_URL}/솔라나.png`,
+          image: `${process.env.PUBLIC_URL}/images/솔라나.png`,
           dotsOptions: {
             // color: "#4267b2",
             gradient: {
@@ -153,7 +153,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           height: qrCodeSize,
           type: "canvas",
           data: `${qrCode._options.data}`,
-          image: `${process.env.PUBLIC_URL}/솔라나.png`,
+          image: `${process.env.PUBLIC_URL}/images/솔라나.png`,
           dotsOptions: {
             // color: "#4267b2",
             gradient: {
@@ -304,101 +304,112 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
 
   const sendTX = async () => {
     setConnectWallet(true);
-    try {
-      if (txURL) {
-        if (params.type === "SOL") {
-          const provider = getProvider();
-          provider?.connect();
-          const { recipient, amount, reference, memo } = parseURL(txURL);
-          const publicKey = new PublicKey(userInfo.walletAddress);
-          console.log(publicKey);
+    const provider = getProvider();
+    if (provider) {
+      try {
+        if (txURL) {
+          if (params.type === "SOL") {
+            const provider = getProvider();
+            provider?.connect();
+            const { recipient, amount, reference, memo } = parseURL(txURL);
+            const publicKey = new PublicKey(userInfo.walletAddress);
+            console.log(publicKey);
 
-          // part 1
-          const transaction = await createTransaction(
-            connection,
-            publicKey!,
-            recipient,
-            amount!,
-            { reference, memo }
-          );
-          console.log(transaction);
-          transaction.feePayer = publicKey;
-          const anyTransaction: any = transaction;
-          anyTransaction.recentBlockhash = (
-            await connection.getRecentBlockhash()
-          ).blockhash;
+            // part 1
+            const transaction = await createTransaction(
+              connection,
+              publicKey!,
+              recipient,
+              amount!,
+              { reference, memo }
+            );
+            console.log(transaction);
+            transaction.feePayer = publicKey;
+            const anyTransaction: any = transaction;
+            anyTransaction.recentBlockhash = (
+              await connection.getRecentBlockhash()
+            ).blockhash;
 
-          let blockhashObj = await connection.getRecentBlockhash();
-          transaction.recentBlockhash = await blockhashObj.blockhash;
-          const response = await provider?.signTransaction(transaction);
-          console.log("시그니처 싸인이 완료됐습니다.", response);
-          let signature = await connection.sendRawTransaction(
-            response!.serialize()
-          );
-          console.log("트랜잭션 전송 성공~", signature);
-          const res2 = await connection.confirmTransaction(signature);
-          console.log("결제 확인까지 성공했습니다.", res2);
-        } else if (params.type === "USDC") {
-          console.log("USDC로 결제");
+            let blockhashObj = await connection.getRecentBlockhash();
+            transaction.recentBlockhash = await blockhashObj.blockhash;
+            const response = await provider?.signTransaction(transaction);
+            console.log("시그니처 싸인이 완료됐습니다.", response);
+            let signature = await connection.sendRawTransaction(
+              response!.serialize()
+            );
+            console.log("트랜잭션 전송 성공~", signature);
+            const res2 = await connection.confirmTransaction(signature);
+            console.log("결제 확인까지 성공했습니다.", res2);
+          } else if (params.type === "USDC") {
+            console.log("USDC로 결제");
 
-          const provider = getProvider();
-          provider?.connect();
-          const { recipient, amount, reference, memo } = parseURL(txURL);
-          const publicKey = new PublicKey(userInfo.walletAddress);
+            const provider = getProvider();
+            provider?.connect();
+            const { recipient, amount, reference, memo } = parseURL(txURL);
+            const publicKey = new PublicKey(userInfo.walletAddress);
 
-          const splToken = new PublicKey(
-            "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
-          );
-          console.log(publicKey);
+            const splToken = new PublicKey(
+              "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
+            );
+            console.log(publicKey);
 
-          // part 1
-          const transaction = await createTransaction(
-            connection,
-            publicKey!,
-            recipient,
-            amount!,
-            { reference, memo, splToken }
-          );
-          console.log(transaction);
-          transaction.feePayer = publicKey;
-          const anyTransaction: any = transaction;
-          anyTransaction.recentBlockhash = (
-            await connection.getRecentBlockhash()
-          ).blockhash;
+            // part 1
+            const transaction = await createTransaction(
+              connection,
+              publicKey!,
+              recipient,
+              amount!,
+              { reference, memo, splToken }
+            );
+            console.log(transaction);
+            transaction.feePayer = publicKey;
+            const anyTransaction: any = transaction;
+            anyTransaction.recentBlockhash = (
+              await connection.getRecentBlockhash()
+            ).blockhash;
 
-          let blockhashObj = await connection.getRecentBlockhash();
-          transaction.recentBlockhash = await blockhashObj.blockhash;
-          const response = await provider?.signTransaction(transaction);
-          console.log("시그니처 싸인이 완료됐습니다.", response);
-          let signature = await connection.sendRawTransaction(
-            response!.serialize()
-          );
-          console.log("트랜잭션 전송 성공~", signature);
-          const res2 = await connection.confirmTransaction(signature);
-          console.log("결제 확인까지 성공했습니다.", res2);
+            let blockhashObj = await connection.getRecentBlockhash();
+            transaction.recentBlockhash = await blockhashObj.blockhash;
+            const response = await provider?.signTransaction(transaction);
+            console.log("시그니처 싸인이 완료됐습니다.", response);
+            let signature = await connection.sendRawTransaction(
+              response!.serialize()
+            );
+            console.log("트랜잭션 전송 성공~", signature);
+            const res2 = await connection.confirmTransaction(signature);
+            console.log("결제 확인까지 성공했습니다.", res2);
+          }
+
+          // // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
+          // const response = await sendTransaction(transaction, connection);
+          // console.log(response);
+
+          // await connection.confirmTransaction(signature, "processed");
+
+          // part 2
+          // let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+          // let transaction = new web3.Transaction().add(
+          //   web3.SystemProgram.transfer({
+          //     fromPubkey: publicKey,
+          //     toPubkey: recipient,
+          //     lamports: web3.LAMPORTS_PER_SOL,
+          //   })
+          // );
+
+          // let signed = await provider?.signTransaction(transaction);
         }
-
-        // // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
-        // const response = await sendTransaction(transaction, connection);
-        // console.log(response);
-
-        // await connection.confirmTransaction(signature, "processed");
-
-        // part 2
-        // let connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-        // let transaction = new web3.Transaction().add(
-        //   web3.SystemProgram.transfer({
-        //     fromPubkey: publicKey,
-        //     toPubkey: recipient,
-        //     lamports: web3.LAMPORTS_PER_SOL,
-        //   })
-        // );
-
-        // let signed = await provider?.signTransaction(transaction);
+      } catch (error) {
+        console.error(error);
+        console.log(error);
       }
-    } catch (error) {
-      console.error(error);
-      console.log(error);
+    } else {
+      Swal.fire(
+        "설치 안내",
+        "Phantom Wallet 확장 프로그램이 없습니다. 구글 웹 스토어에서 설치해주세요.",
+        "info"
+      );
+      const url = "https://phantom.app/";
+      window.location.href = url;
     }
   };
 
@@ -475,7 +486,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
           </WalletInstall>
         </Wrapper>
-        <CloseBtn onClick={closeModal}>닫기</CloseBtn>
+        <CloseBtnWrapper>
+          <CloseBtn onClick={closeModal}>닫기</CloseBtn>
+        </CloseBtnWrapper>
       </Container>
     </Modal>
   );
@@ -507,7 +520,7 @@ const PageName = styled.div`
   font-weight: bold;
 `;
 const SVGLogo = styled.img.attrs({
-  src: `${process.env.PUBLIC_URL}/solanasvg.svg`,
+  src: `${process.env.PUBLIC_URL}/images/SNV토큰.png`,
 })`
   width: 15px;
   height: 15px;
@@ -608,7 +621,11 @@ const WalletBtn = styled.button`
     background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
   }
 `;
-
+const CloseBtnWrapper = styled.div`
+  display: flex;
+  justify-content: end;
+  margin-right: 16px;
+`;
 const CloseBtn = styled.button``;
 
 Modal.setAppElement("#root");

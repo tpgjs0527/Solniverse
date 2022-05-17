@@ -5,6 +5,9 @@ import { CircularProgress } from "@material-ui/core";
 import { GatewayStatus, useGateway } from "@civic/solana-gateway-react";
 import { CandyMachine } from "../../utils/candy-machine";
 import Spinner from "components/Spinner";
+import { getTokenBalance } from "utils/solanaWeb3";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 
 export const CTAButton = styled(Button)`
   width: 150px;
@@ -103,12 +106,14 @@ export const MultiMintButton = ({
   isSoldOut: boolean;
   price: number;
 }) => {
+  const userInfo = useRecoilValue(userInfoAtom);
   const { requestGatewayToken, gatewayStatus } = useGateway();
   const [clicked, setClicked] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [mintCount, setMintCount] = useState(1);
   const [totalCost, setTotalCost] = useState(mintCount * (price + 0.012));
   const [isLoading, setIsLoading] = useState(true);
+  const [tokenBalance, setTokenBalance] = useState(0);
 
   useEffect(() => {
     if (candyMachine) {
@@ -170,6 +175,13 @@ export const MultiMintButton = ({
     setMintCount(qty);
     setTotalCost(Math.round(qty * (price + 0.012) * 1000) / 1000); // 0.012 = approx of account creation fees
   }
+  const getAsyncToken = async () => {
+    const amount = await getTokenBalance(userInfo.walletAddress);
+    setTokenBalance(amount);
+  };
+  useEffect(() => {
+    getAsyncToken();
+  }, [tokenBalance]);
 
   return (
     <>
@@ -191,22 +203,26 @@ export const MultiMintButton = ({
               isVerifying
             }
             onClick={async () => {
-              setTimeout(async () => {
-                if (window.confirm("Candy Drop 하시겠습니까?")) {
-                  if (
-                    isActive &&
-                    candyMachine?.state.gatekeeper &&
-                    gatewayStatus !== GatewayStatus.ACTIVE
-                  ) {
-                    console.log("Requesting gateway token");
-                    setClicked(true);
-                    await requestGatewayToken();
-                  } else {
-                    console.log("Minting...");
-                    await onMint(mintCount);
+              if (tokenBalance) {
+                setTimeout(async () => {
+                  if (window.confirm("Candy Drop 하시겠습니까?")) {
+                    if (
+                      isActive &&
+                      candyMachine?.state.gatekeeper &&
+                      gatewayStatus !== GatewayStatus.ACTIVE
+                    ) {
+                      console.log("Requesting gateway token");
+                      setClicked(true);
+                      await requestGatewayToken();
+                    } else {
+                      console.log("Minting...");
+                      await onMint(mintCount);
+                    }
                   }
-                }
-              }, 400);
+                }, 400);
+              } else {
+                alert("SNV 토큰이 부족합니다.");
+              }
             }}
             variant="contained"
           >

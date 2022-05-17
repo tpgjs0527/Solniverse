@@ -4,7 +4,7 @@ import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { getBalance } from "utils/solanaWeb3";
+import { getBalance, getTokenBalance } from "utils/solanaWeb3";
 import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
 import CandyDrop from "pages/nft/CandyDrop";
 import Other from "pages/nft/Other";
@@ -37,47 +37,6 @@ function SNVWorld() {
     navigate("/snv-world/Other");
   };
 
-  const getTokenBalance = async (
-    walletAddress: string,
-    tokenMintAddress: string
-  ) => {
-    const response = await axios({
-      url: `https://api.devnet.solana.com`,
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      data: {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getTokenAccountsByOwner",
-        params: [
-          walletAddress,
-          {
-            mint: tokenMintAddress,
-          },
-          {
-            encoding: "jsonParsed",
-          },
-        ],
-      },
-    });
-    console.log(response);
-    if (
-      Array.isArray(response?.data?.result?.value) &&
-      response?.data?.result?.value?.length > 0 &&
-      response?.data?.result?.value[0]?.account?.data?.parsed?.info?.tokenAmount
-        ?.amount > 0
-    ) {
-      setTokenBalance(
-        Number(
-          response?.data?.result?.value[0]?.account?.data?.parsed?.info
-            ?.tokenAmount?.amount
-        ) / 1000000
-      );
-    } else {
-      setTokenBalance(0);
-    }
-  };
-
   // const getToken = async () => {
   //   if (publicKey) {
   //     const mint = new PublicKey("");
@@ -92,11 +51,15 @@ function SNVWorld() {
   //     );
   //   }
   // };
+  const getAsyncToken = async () => {
+    const amount = await getTokenBalance(userInfo.walletAddress);
+    setTokenBalance(amount);
+  };
 
   useEffect(() => {
     getAsyncSol();
-    getTokenBalance(userInfo.walletAddress, tokenAddress);
-    if (solBalance && tokenBalance) {
+    getAsyncToken();
+    if (solBalance) {
       setIsLoadingGetBalance(false);
     }
   }, [solBalance, tokenBalance]);
@@ -130,7 +93,9 @@ function SNVWorld() {
                 <UserTitle>Your Balance</UserTitle>
                 <PointWrapper>
                   <PointInfoWrapper>
-                    <PointImage src={`${process.env.PUBLIC_URL}/솔라나.png`} />
+                    <PointImage
+                      src={`${process.env.PUBLIC_URL}/images/솔라나.png`}
+                    />
                     <PointTitle>SOL</PointTitle>
                   </PointInfoWrapper>
                   <PointInfoWrapper>
@@ -147,7 +112,9 @@ function SNVWorld() {
                 </PointWrapper>
                 <PointWrapper>
                   <PointInfoWrapper>
-                    <PointImage src={`${process.env.PUBLIC_URL}/SNV토큰.png`} />
+                    <PointImage
+                      src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`}
+                    />
                     <PointTitle>SNV</PointTitle>
                   </PointInfoWrapper>
                   <PointInfoWrapper>

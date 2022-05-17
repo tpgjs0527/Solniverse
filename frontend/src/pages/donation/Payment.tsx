@@ -12,6 +12,7 @@ import useMutation from "hooks/useMutation";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { getProvider } from "utils/getProvider";
 import nacl from "tweetnacl";
+import Swal from "sweetalert2";
 
 export interface ITX {
   result: string;
@@ -99,7 +100,11 @@ function Payment() {
         setOpenModal(true);
       }
     } else {
-      alert("잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.");
+      Swal.fire(
+        "결제 경로 오류",
+        "잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.",
+        "warning"
+      );
       navigate(`/donation/${walletAddress}`);
     }
   };
@@ -157,6 +162,9 @@ function Payment() {
           </Wrapper>
           <Wrapper>
             <PaymentWrapper>
+              <TitleWrapper style={{ marginLeft: "32px", marginBottom: "8px" }}>
+                <Title>결제 정보</Title>
+              </TitleWrapper>
               <TotalPriceWrapper>
                 <PriceWrapper style={{ marginBottom: "8px" }}>
                   <Price>Donate Message</Price>
@@ -210,6 +218,8 @@ const PageName = styled.div`
 `;
 const MainContainer = styled.div`
   display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 64px 70px;
   @media screen and (min-width: 1439px) {
     min-width: 600px;
@@ -219,13 +229,11 @@ const MainContainer = styled.div`
   }
 `;
 const SubContainer = styled.div`
-  display: flex;
-  width: 100%;
   display: grid;
   align-items: center;
   justify-items: center;
   grid-template-columns: repeat(1, 1fr);
-  /* grid-gap: 30px; */
+  grid-gap: 30px;
   @media screen and (min-width: 1439px) {
     grid-template-columns: repeat(2, 1fr);
   }

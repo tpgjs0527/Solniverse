@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { getBalance } from "utils/solanaWeb3";
 import { getProvider } from "utils/getProvider";
 import { fetchWallet } from "utils/fetcher";
+import { isMobile } from "react-device-detect";
 
 interface IDonation {
   nickname: string;
@@ -52,7 +53,7 @@ function Donation() {
     // });
     console.log(type);
     console.log(errors);
-        if (!isMobile) {
+    if (!isMobile) {
       if (userInfo.walletAddress) {
         if (!amount || !nickName) {
           Swal.fire({
@@ -125,7 +126,11 @@ function Donation() {
       } else {
         const error = new Error(res.statusText);
         console.log(error);
-        alert("지갑 연결이 안됩니다");
+        Swal.fire(
+          "지갑 확인 오류",
+          "현재 연결된 지갑이 확인되고 있지 않습니다.",
+          "warning"
+        );
       }
     }
   };
@@ -147,14 +152,14 @@ function Donation() {
       const sol = await getBalance(userInfo.walletAddress);
       if (sol < amount) {
         Swal.fire({
-          title:
-            "The Donation price is higher than your wallet has. Please set the price again 😊",
+          title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
           showClass: {
             popup: "animate__animated animate__fadeInDown",
           },
           hideClass: {
             popup: "animate__animated animate__fadeOutUp",
           },
+          icon: "warning",
         });
         // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
         setAmount(0);
@@ -167,175 +172,177 @@ function Donation() {
   return (
     <Layout>
       <Container>
-        <DonationWrapper>
-          <CreatorWrapper>
-            <CreatorInfoWrapper>
-              <CreatorProfileImage src={creatorImgUrl} />
-              <CreatorName>{creatorName}님께 후원</CreatorName>
-            </CreatorInfoWrapper>
-            <CreatorImage />
-            <CreatorContent>❤솔둥이들 사랑해요❤</CreatorContent>
-          </CreatorWrapper>
-        </DonationWrapper>
-        <DonationForm>
-          <DonatorWrapper>
-            <DonateNameWrapper>
-              <DonateInputName>후원닉네임</DonateInputName>
-            </DonateNameWrapper>
-            <DonateInputWrapper>
-              <Input
-                {...register("nickname", {
-                  required: "필수 입력정보입니다.",
-                  pattern: {
-                    value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,15}$/,
-                    message:
-                      "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
-                  },
-                  onChange: (e) => {
-                    setNickName(e.target.value);
-                  },
-                })}
-                value={`${nickName}`}
-              />
-            </DonateInputWrapper>
-          </DonatorWrapper>
+        <MainContainer>
+          <DonationWrapper>
+            <CreatorWrapper>
+              <CreatorInfoWrapper>
+                <CreatorProfileImage src={creatorImgUrl} />
+                <CreatorName>{creatorName}님께 후원</CreatorName>
+              </CreatorInfoWrapper>
+              <CreatorImage />
+              <CreatorContent>❤솔둥이들 사랑해요❤</CreatorContent>
+            </CreatorWrapper>
+          </DonationWrapper>
+          <DonationForm>
+            <DonatorWrapper>
+              <DonateNameWrapper>
+                <DonateInputName>후원닉네임</DonateInputName>
+              </DonateNameWrapper>
+              <DonateInputWrapper>
+                <Input
+                  {...register("nickname", {
+                    required: "필수 입력정보입니다.",
+                    pattern: {
+                      value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,15}$/,
+                      message:
+                        "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
+                    },
+                    onChange: (e) => {
+                      setNickName(e.target.value);
+                    },
+                  })}
+                  value={`${nickName}`}
+                />
+              </DonateInputWrapper>
+            </DonatorWrapper>
+            <ErrorWrapper>
+              <DonateMessageWrapper></DonateMessageWrapper>
+              <DonateInputName>
+                <ErrorMessage>{errors?.nickname?.message}</ErrorMessage>
+              </DonateInputName>
+            </ErrorWrapper>
+            <DonatorWrapper>
+              <DonateNameWrapper>
+                <DonateInputName>후원금액</DonateInputName>
+              </DonateNameWrapper>
+              <DonateInputWrapper>
+                <Input
+                  {...register("amount", {
+                    pattern: {
+                      value: /^[0-9.]*$/,
+                      message: "숫자와 . 기호만 입력 가능합니다.",
+                    },
+                    onChange: (e) => {
+                      setAmount(e.target.value);
+                    },
+                  })}
+                  value={amount === 0 ? "" : `${amount}`}
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                  placeholder="후원금액을 입력해주세요."
+                />
+
+                <Select onChange={onSubmit}>
+                  <Option value="SOL">SOL</Option>
+                  <Option value="USDC">USDC</Option>
+                </Select>
+              </DonateInputWrapper>
+            </DonatorWrapper>
+            <ErrorWrapper>
+              <DonateMessageWrapper></DonateMessageWrapper>
+              <DonateInputName>
+                <ErrorMessage>{errors?.amount?.message}</ErrorMessage>
+              </DonateInputName>
+            </ErrorWrapper>
+            {type === "SOL" ? (
+              <PriceButtonWrapper>
+                <DonatePriceButton value="0.01" onClick={handleAmount}>
+                  0.01
+                </DonatePriceButton>
+                <DonatePriceButton value="0.05" onClick={handleAmount}>
+                  0.05
+                </DonatePriceButton>
+                <DonatePriceButton value="0.1" onClick={handleAmount}>
+                  0.1
+                </DonatePriceButton>
+                <DonatePriceButton value="0.5" onClick={handleAmount}>
+                  0.5
+                </DonatePriceButton>
+                <DonatePriceButton value="1" onClick={handleAmount}>
+                  1
+                </DonatePriceButton>
+                <DonatePriceButton value="5" onClick={handleAmount}>
+                  5
+                </DonatePriceButton>
+                <DonatePriceButton
+                  style={{ marginRight: "0px" }}
+                  value="10"
+                  onClick={handleAmount}
+                >
+                  10
+                </DonatePriceButton>
+              </PriceButtonWrapper>
+            ) : (
+              <PriceButtonWrapper>
+                <DonatePriceButton value="0.5" onClick={handleAmount}>
+                  0.5
+                </DonatePriceButton>
+                <DonatePriceButton value="1" onClick={handleAmount}>
+                  1
+                </DonatePriceButton>
+                <DonatePriceButton value="5" onClick={handleAmount}>
+                  5
+                </DonatePriceButton>
+                <DonatePriceButton value="10" onClick={handleAmount}>
+                  10
+                </DonatePriceButton>
+                <DonatePriceButton value="20" onClick={handleAmount}>
+                  20
+                </DonatePriceButton>
+                <DonatePriceButton value="50" onClick={handleAmount}>
+                  50
+                </DonatePriceButton>
+                <DonatePriceButton
+                  style={{ marginRight: "0px" }}
+                  value="100"
+                  onClick={handleAmount}
+                >
+                  100
+                </DonatePriceButton>
+              </PriceButtonWrapper>
+            )}
+
+            <DonatorWrapper>
+              <DonateMessageWrapper>
+                <DonateMessageName>후원메시지</DonateMessageName>
+              </DonateMessageWrapper>
+              <DonateInputWrapper>
+                <MessageTextarea
+                  {...register("message", {
+                    onChange: (e) => {
+                      if (e.target.value.length > 50) {
+                        alert("최대 글자수를 초과했습니다.");
+                      } else {
+                        setMessage(e.target.value);
+                      }
+                    },
+                  })}
+                  placeholder="후원메시지를 작성해주세요."
+                />
+              </DonateInputWrapper>
+            </DonatorWrapper>
+          </DonationForm>
           <ErrorWrapper>
             <DonateMessageWrapper></DonateMessageWrapper>
-            <DonateInputName>
-              <ErrorMessage>{errors?.nickname?.message}</ErrorMessage>
-            </DonateInputName>
+            <MessageNumberWrapper>
+              <MessageNumber>{message.length}/50</MessageNumber>
+            </MessageNumberWrapper>
           </ErrorWrapper>
-          <DonatorWrapper>
-            <DonateNameWrapper>
-              <DonateInputName>후원금액</DonateInputName>
-            </DonateNameWrapper>
-            <DonateInputWrapper>
-              <Input
-                {...register("amount", {
-                  pattern: {
-                    value: /^[0-9.]*$/,
-                    message: "숫자와 . 기호만 입력 가능합니다.",
-                  },
-                  onChange: (e) => {
-                    setAmount(e.target.value);
-                  },
-                })}
-                value={amount === 0 ? "" : `${amount}`}
-                style={{ display: "flex", justifyContent: "space-between" }}
-                placeholder="후원금액을 입력해주세요."
-              />
-
-              <Select onChange={onSubmit}>
-                <Option value="SOL">SOL</Option>
-                <Option value="USDC">USDC</Option>
-              </Select>
-            </DonateInputWrapper>
-          </DonatorWrapper>
-          <ErrorWrapper>
-            <DonateMessageWrapper></DonateMessageWrapper>
-            <DonateInputName>
-              <ErrorMessage>{errors?.amount?.message}</ErrorMessage>
-            </DonateInputName>
-          </ErrorWrapper>
-          {type === "SOL" ? (
-            <PriceButtonWrapper>
-              <DonatePriceButton value="0.01" onClick={handleAmount}>
-                0.01
-              </DonatePriceButton>
-              <DonatePriceButton value="0.05" onClick={handleAmount}>
-                0.05
-              </DonatePriceButton>
-              <DonatePriceButton value="0.1" onClick={handleAmount}>
-                0.1
-              </DonatePriceButton>
-              <DonatePriceButton value="0.5" onClick={handleAmount}>
-                0.5
-              </DonatePriceButton>
-              <DonatePriceButton value="1" onClick={handleAmount}>
-                1
-              </DonatePriceButton>
-              <DonatePriceButton value="5" onClick={handleAmount}>
-                5
-              </DonatePriceButton>
-              <DonatePriceButton
-                style={{ marginRight: "0px" }}
-                value="10"
-                onClick={handleAmount}
-              >
-                10
-              </DonatePriceButton>
-            </PriceButtonWrapper>
-          ) : (
-            <PriceButtonWrapper>
-              <DonatePriceButton value="0.5" onClick={handleAmount}>
-                0.5
-              </DonatePriceButton>
-              <DonatePriceButton value="1" onClick={handleAmount}>
-                1
-              </DonatePriceButton>
-              <DonatePriceButton value="5" onClick={handleAmount}>
-                5
-              </DonatePriceButton>
-              <DonatePriceButton value="10" onClick={handleAmount}>
-                10
-              </DonatePriceButton>
-              <DonatePriceButton value="20" onClick={handleAmount}>
-                20
-              </DonatePriceButton>
-              <DonatePriceButton value="50" onClick={handleAmount}>
-                50
-              </DonatePriceButton>
-              <DonatePriceButton
-                style={{ marginRight: "0px" }}
-                value="100"
-                onClick={handleAmount}
-              >
-                100
-              </DonatePriceButton>
-            </PriceButtonWrapper>
-          )}
-
-          <DonatorWrapper>
-            <DonateMessageWrapper>
-              <DonateMessageName>후원메시지</DonateMessageName>
-            </DonateMessageWrapper>
-            <DonateInputWrapper>
-              <MessageTextarea
-                {...register("message", {
-                  onChange: (e) => {
-                    if (e.target.value.length > 50) {
-                      alert("최대 글자수를 초과했습니다.");
-                    } else {
-                      setMessage(e.target.value);
-                    }
-                  },
-                })}
-                placeholder="후원메시지를 작성해주세요."
-              />
-            </DonateInputWrapper>
-          </DonatorWrapper>
-        </DonationForm>
-        <ErrorWrapper>
-          <DonateMessageWrapper></DonateMessageWrapper>
-          <MessageNumberWrapper>
-            <MessageNumber>{message.length}/50</MessageNumber>
-          </MessageNumberWrapper>
-        </ErrorWrapper>
-        <Hr />
-        <DonationWrapper>
-          <DonatorWrapper>
-            <TotalPrice>Total</TotalPrice>
-            <TotalUSDC>
-              {amount} {type}
-            </TotalUSDC>
-          </DonatorWrapper>
-        </DonationWrapper>
-        <DonationWrapper>
-          <ButtonWrapper>
-            <DonateButton onClick={onClick}>Donate</DonateButton>
-            {/* <DonateButton onClick={Donate}>Donate</DonateButton> */}
-          </ButtonWrapper>
-        </DonationWrapper>
+          <Hr />
+          <DonationWrapper>
+            <DonatorWrapper>
+              <TotalPrice>Total</TotalPrice>
+              <TotalUSDC>
+                {amount} {type}
+              </TotalUSDC>
+            </DonatorWrapper>
+          </DonationWrapper>
+          <DonationWrapper>
+            <ButtonWrapper>
+              <DonateButton onClick={onClick}>Donate</DonateButton>
+              {/* <DonateButton onClick={Donate}>Donate</DonateButton> */}
+            </ButtonWrapper>
+          </DonationWrapper>
+        </MainContainer>
       </Container>
     </Layout>
   );
@@ -343,9 +350,14 @@ function Donation() {
 
 const Container = styled.div`
   margin-top: 32px;
+  display: flex;
+  justify-content: center;
   @media screen and (max-width: 767px) {
     margin-top: 16px;
   }
+`;
+const MainContainer = styled.div`
+  width: 70%;
 `;
 
 const DonationWrapper = styled.div`
@@ -386,7 +398,7 @@ const CreatorProfileImage = styled.img`
 `;
 
 const CreatorImage = styled.img.attrs({
-  src: `${process.env.PUBLIC_URL}/헤이.png`,
+  src: `${process.env.PUBLIC_URL}/images/헤이.png`,
 })`
   width: 100%;
   height: auto;
