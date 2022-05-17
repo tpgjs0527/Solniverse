@@ -10,6 +10,8 @@ import CandyDrop from "pages/nft/CandyDrop";
 import Other from "pages/nft/Other";
 import CandyMachineHome from "pages/candyMachine/CandyMachineHome";
 import axios from "axios";
+import confetti from "canvas-confetti";
+import Rank from "components/Main/Rank";
 
 function SNVWorld() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -120,11 +122,11 @@ function SNVWorld() {
                   </UserName>
                 </UserInfoWrapper>
               </UserBox>
-              <UserBox>
+              <RankingBox>
                 <UserName>랭킹표시 할 자리</UserName>
-              </UserBox>
+              </RankingBox>
               <Hr />
-              <UserBox>
+              <PointBox>
                 <UserTitle>Your Balance</UserTitle>
                 <PointWrapper>
                   <PointInfoWrapper>
@@ -160,7 +162,7 @@ function SNVWorld() {
                     </PointContent>
                   </PointInfoWrapper>
                 </PointWrapper>
-              </UserBox>
+              </PointBox>
             </UserWrapper>
 
             <Tabs>
@@ -233,7 +235,17 @@ const Hello = styled.div`
   margin-top: 8px;
 `;
 const UserBox = styled.div`
-  margin-bottom: 16px;
+  padding: 8px 8px;
+  border-radius: 16px;
+  background-color: ${(props) => props.theme.subBoxColor};
+  margin-bottom: 12px;
+`;
+const RankingBox = styled(UserBox)`
+  background-color: ${(props) => props.theme.boxColor};
+`;
+const PointBox = styled(UserBox)`
+  background-color: ${(props) => props.theme.boxColor};
+  padding: 0px;
 `;
 const Hr = styled.hr`
   background-color: ${(props) => props.theme.borderColor};
@@ -251,12 +263,17 @@ const UserImage = styled.img`
 const UserInfoWrapper = styled.div``;
 const UserName = styled.div`
   margin-bottom: 4px;
+  white-space: pre-wrap;
 `;
 const PointWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 4px;
   justify-content: space-between;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: ${(props) => props.theme.subBoxColor};
+  margin-bottom: 8px;
 `;
 const PointInfoWrapper = styled.div`
   display: flex;

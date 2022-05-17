@@ -29,6 +29,7 @@ import {
 import { getProvider } from "utils/getProvider";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import { inherits } from "util";
 
 export interface ICandyMachine {
   id: anchor.web3.PublicKey;
@@ -112,7 +113,7 @@ const CandyMachineHome = () => {
 
   //@TODO candyMachineId를 바꿔야함. useEffect [] 첫 마운트 기준으로 state로 받아와야됨.
   const candyMachineId = new PublicKey(
-    "ghptYjUH7AQjBdMpxcDaL6AANJwsM3mQvbWhTDT6cDX"
+    "FddL3BuqsBcgmm35PKcuS3xrhgsNStx41RpxU8amj6wC"
   );
   const rpcUrl = clusterApiUrl("devnet");
   const connection = new anchor.web3.Connection(rpcUrl, "confirmed");
@@ -375,9 +376,9 @@ const CandyMachineHome = () => {
 
   function throwConfetti(): void {
     confetti({
-      particleCount: 400,
-      spread: 70,
-      origin: { y: 0.6 },
+      particleCount: 1000,
+      spread: 100,
+      origin: { y: 0.6, x: 0.57 },
     });
   }
 
@@ -565,6 +566,7 @@ const CandyMachineHome = () => {
     console.log(walletAddress.toBase58());
     console.log(candyMachine);
   }, [provider, candyMachine]);
+
   return (
     <Container>
       <PageTitle>NFT Candy Drop</PageTitle>
@@ -653,33 +655,7 @@ const CandyMachineHome = () => {
           <MintContainer>
             <DesContainer>
               <NFT elevation={0}>
-                {/* <div>
-                <Price
-                  label={
-                    isActive && whitelistEnabled && whitelistTokenBalance > 0
-                      ? whitelistPrice + " " + priceLabel
-                      : price + " " + priceLabel
-                  }
-                />
-              </div> */}
                 <br />
-                {/* {provider &&
-                isActive &&
-                whitelistEnabled &&
-                whitelistTokenBalance > 0 &&
-                isBurnToken && (
-                  <h3>
-                    You own {whitelistTokenBalance} WL mint{" "}
-                    {whitelistTokenBalance > 1 ? "tokens" : "token"}.
-                  </h3>
-                )}
-              {provider &&
-                isActive &&
-                whitelistEnabled &&
-                whitelistTokenBalance > 0 &&
-                !isBurnToken && (
-                  <h3>You are whitelisted and allowed to mint.</h3>
-                )} */}
                 {provider &&
                   isActive &&
                   endDate &&
@@ -703,6 +679,7 @@ const CandyMachineHome = () => {
                 )}
                 {provider && isActive && (
                   <BorderLinearProgress
+                    color="primary"
                     variant="determinate"
                     value={100 - (itemsRemaining * 100) / itemsAvailable}
                   />
@@ -916,25 +893,14 @@ const BorderLinearProgress = styled(LinearProgress)`
   border: 2px solid white;
   box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.5);
   /* background-color: ; */
-  background: linear-gradient(45deg, #870ff8, #0f3af8, #0ff8ec) !important;
-  background-image: linear-gradient(
-    270deg,
-    rgba(255, 0, 0, 0.01),
-    rgba(255, 255, 255, 0.5)
-  );
-
-  /* > div.MuiLinearProgress-barColorPrimary {
-    background-color: var(--title-text-color) !important;
-  }
-
-  > div.MuiLinearProgress-bar1Determinate {
-    border-radius: 30px !important;
+  .MuiLinearProgress-barColorPrimary {
     background-image: linear-gradient(
-      270deg,
-      rgba(255, 0, 0, 0.01),
-      rgba(255, 255, 255, 0.5)
-    );
-  } */
+      45deg,
+      #870ff8,
+      #0f3af8,
+      #0ff8ec
+    ) !important;
+  }
 `;
 
 export default CandyMachineHome;

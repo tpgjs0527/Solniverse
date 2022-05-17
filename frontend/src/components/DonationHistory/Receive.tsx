@@ -213,9 +213,9 @@ function ReceiveDonationHistory() {
 
   return (
     <Container>
-      <Gragh>
+      <Graph>
         <Chart options={state} series={state.series} type="line" />
-      </Gragh>
+      </Graph>
 
       <List>
         {isLoading ? (
@@ -348,7 +348,7 @@ const List = styled.div`
   }
 `;
 
-const Gragh = styled.div`
+const Graph = styled.div`
   @media screen and (min-width: 767px) {
     width: 630px;
   }

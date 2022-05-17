@@ -61,7 +61,7 @@ function Donation() {
         alert("후원닉네임을 정확히 입력해주세요.");
         return;
       }
-      if (errors.amount) {
+      if (!amount) {
         alert("후원금액을 정확히 입력해주세요.");
         return;
       }
@@ -189,10 +189,9 @@ function Donation() {
             <DonateInputWrapper>
               <Input
                 {...register("amount", {
-                  required: "필수 입력정보입니다.",
                   pattern: {
                     value: /^[0-9.]*$/,
-                    message: "숫자만 입력 가능합니다.",
+                    message: "숫자와 . 기호만 입력 가능합니다.",
                   },
                   onChange: (e) => {
                     setAmount(e.target.value);
@@ -280,11 +279,6 @@ function Donation() {
             <DonateInputWrapper>
               <MessageTextarea
                 {...register("message", {
-                  pattern: {
-                    value: /^[]{2,15}$/,
-                    message:
-                      "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
-                  },
                   onChange: (e) => {
                     if (e.target.value.length > 50) {
                       alert("최대 글자수를 초과했습니다.");
@@ -304,6 +298,7 @@ function Donation() {
             <MessageNumber>{message.length}/50</MessageNumber>
           </MessageNumberWrapper>
         </ErrorWrapper>
+        <Hr />
         <DonationWrapper>
           <DonatorWrapper>
             <TotalPrice>Total</TotalPrice>
@@ -336,7 +331,6 @@ const DonationWrapper = styled.div`
 
 const DonationForm = styled.form`
   margin-bottom: 0px;
-  border-bottom: 1px solid ${(props) => props.theme.borderColor};
 `;
 
 const CreatorWrapper = styled.div``;
@@ -544,6 +538,11 @@ const MessageNumberWrapper = styled.div`
   }
 `;
 const MessageNumber = styled.div``;
+
+const Hr = styled.hr`
+  margin: 32px 0px;
+  background-color: ${(props) => props.theme.borderColor};
+`;
 
 const TotalPrice = styled.div`
   font-size: 20px;
