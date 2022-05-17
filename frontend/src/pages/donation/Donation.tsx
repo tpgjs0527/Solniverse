@@ -52,26 +52,49 @@ function Donation() {
     // });
     console.log(type);
     console.log(errors);
-    if (userInfo.walletAddress) {
-      if (!amount || !nickName) {
-        alert("후원닉네임과 후원금액을 모두 입력해주세요.");
+        if (!isMobile) {
+      if (userInfo.walletAddress) {
+        if (!amount || !nickName) {
+          Swal.fire({
+            title: "입력 에러",
+            text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+            icon: "warning",
+          });
+          return;
+        }
+        if (errors.nickname) {
+          Swal.fire({
+            title: "입력 에러",
+            text: "후원닉네임을 정확히 입력해주세요.",
+            icon: "warning",
+          });
+          return;
+        }
+        if (!amount) {
+          Swal.fire({
+            title: "입력 에러",
+            text: "후원금액을 정확히 입력해주세요.",
+            icon: "warning",
+          });
+          return;
+        }
+        navigate({
+          pathname: "/payment",
+          search: `?${createSearchParams(params)}`,
+        });
+      } else {
+        Swal.fire({
+          title: "지갑 연결 필요",
+          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+          icon: "info",
+        });
         return;
       }
-      if (errors.nickname) {
-        alert("후원닉네임을 정확히 입력해주세요.");
-        return;
-      }
-      if (!amount) {
-        alert("후원금액을 정확히 입력해주세요.");
-        return;
-      }
+    } else {
       navigate({
         pathname: "/payment",
         search: `?${createSearchParams(params)}`,
       });
-    } else {
-      alert("지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.");
-      return;
     }
 
     // alert("도네이션을 진행하겠습니다");
