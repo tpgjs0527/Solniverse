@@ -3,6 +3,7 @@ import useWallet from "hooks/useWallet";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
+import { isMobile } from "react-device-detect";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function Profile() {
           <Nickname sidebarStyle={isSidebar}>{userInfo.walletAddress}</Nickname>
         </ProfileDiv>
       ) : (
-        <Login sidebarStyle={isSidebar} onClick={connectWallet}>
+        <Login onClick={connectWallet} isMobile={isMobile}>
           지갑 연결
         </Login>
       )}
@@ -69,10 +70,10 @@ export default function Profile() {
   );
 }
 
-const Login = styled.div<{ sidebarStyle: boolean }>`
+const Login = styled.div<{ isMobile: boolean }>`
   width: 152px;
   height: 28px;
-  display: flex;
+  display: ${(props) => (props.isMobile ? "none" : "flex")};
   align-items: center;
   justify-content: center;
   font-weight: 600;
@@ -83,10 +84,6 @@ const Login = styled.div<{ sidebarStyle: boolean }>`
   background: ${(props) => props.theme.ownColor};
   &:hover {
     background: ${(props) => props.theme.ownColorHover};
-  }
-
-  @media screen and (max-width: 1023px) {
-    display: ${(props) => (props.sidebarStyle ? "flex" : "none")};
   }
 `;
 

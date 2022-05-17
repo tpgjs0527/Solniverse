@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 export default function Header() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useRecoilState(toggleThemeAtom);
-  const setIsSidebar = useSetRecoilState(toggleSidebarAtom);
+  const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
   const setUserInfo = useSetRecoilState(userInfoAtom);
   const setAccessToken = useSetRecoilState(accessTokenAtom);
 
@@ -162,6 +162,10 @@ const Logout = styled.li`
   &:hover {
     color: ${(props) => props.theme.ownColor};
   }
+
+  @media screen and (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 const SearchToggle = styled.li`
@@ -170,6 +174,10 @@ const SearchToggle = styled.li`
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.ownColor};
+  }
+
+  @media screen and (max-width: 1023px) {
+    display: none;
   }
 `;
 
@@ -192,6 +200,10 @@ const ThemeToggle = styled.li`
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.ownColor};
+  }
+
+  @media screen and (max-width: 1023px) {
+    display: none;
   }
 `;
 
