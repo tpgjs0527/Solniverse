@@ -38,8 +38,8 @@ export default function Header() {
             </Link>
           </Element>
           <Element isActive={serviceCenterMatch !== null}>
-            <Link to="/service-center">
-              <Text>고객센터</Text>
+            <Link to="/service">
+              <Text>서비스 가이드</Text>
             </Link>
           </Element>
         </List>
