@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as solanaWeb3 from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 const LAMPORTS_PER_SOL = solanaWeb3.LAMPORTS_PER_SOL;
 
@@ -43,43 +44,24 @@ const getBalance = async (walletAddress: string) => {
   }
 };
 
-const getTokenBalance = async (walletAddress: string) => {
-  const tokenMintAddress = "9UGMFdqeQbNqu488mKYzsAwBu6P2gLJnsFeQZ29cGSEw";
-  const response = await axios({
-    url: `https://api.devnet.solana.com`,
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-    data: {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "getTokenAccountsByOwner",
-      params: [
-        walletAddress,
-        {
-          mint: tokenMintAddress,
-        },
-        {
-          encoding: "jsonParsed",
-        },
+async function findAssociatedTokenAddress(
+  walletAddress: solanaWeb3.PublicKey,
+  mintAddress: solanaWeb3.PublicKey
+): Promise<solanaWeb3.PublicKey> {
+  const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID = new solanaWeb3.PublicKey(
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+  );
+  return (
+    await solanaWeb3.PublicKey.findProgramAddress(
+      [
+        walletAddress.toBuffer(),
+        TOKEN_PROGRAM_ID.toBuffer(),
+        mintAddress.toBuffer(),
       ],
-    },
-  });
-  if (
-    Array.isArray(response?.data?.result?.value) &&
-    response?.data?.result?.value?.length > 0 &&
-    response?.data?.result?.value[0]?.account?.data?.parsed?.info?.tokenAmount
-      ?.amount > 0
-  ) {
-    return (
-      Number(
-        response?.data?.result?.value[0]?.account?.data?.parsed?.info
-          ?.tokenAmount?.amount
-      ) / 1000000
-    );
-  } else {
-    return 0;
-  }
-};
+      SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
+    )
+  )[0];
+}
 
 export {
   LAMPORTS_PER_SOL,
@@ -87,5 +69,5 @@ export {
   createPublicKey,
   getSolanaPrice,
   getBalance,
-  getTokenBalance,
+  findAssociatedTokenAddress,
 };
