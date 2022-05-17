@@ -93,7 +93,7 @@ function Donation() {
       }
     } else {
       navigate({
-        pathname: "/payment",
+        pathname: "/paymentMobile",
         search: `?${createSearchParams(params)}`,
       });
     }
