@@ -14,6 +14,11 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
+const {
+  getOrCreateAssociatedTokenAccount,
+  transfer,
+  mintTo,
+} = require("@solana/spl-token");
 // import * as splToken from "@solana/spl-token";
 
 interface IPayment {
@@ -129,8 +134,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         const reference = new PublicKey(
           "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
         );
+        // const res = getOrCreateAssociatedTokenAccount()
+        // console.log
         const splToken = new PublicKey(
-          "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+          "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
         );
         const url = encodeURL({
           recipient,
@@ -203,6 +210,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       finality
     );
     if (signatures.length > 0) {
+      console.log(signatures[0].signature);
       setSignature(signatures[0].signature);
     } else {
     }
@@ -233,7 +241,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       console.log(signature);
       const interval = setInterval(async () => {
         const reference = new PublicKey(`${userInfo.walletAddress}`);
-        const options = { until: `${signature}`, limit: 1000 };
+        const options = { until: `${signature}`, limit: 10 };
 
         const finality = "confirmed";
         const signatures = await connections.getSignaturesForAddress(
@@ -241,7 +249,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           options,
           finality
         );
-        console.log(signatures);
         for (let i = 0; i < signatures.length; i++) {
           const transaction = await connections.getTransaction(
             signatures[i].signature
@@ -303,7 +310,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const { connection } = useConnection();
 
   const sendTX = async () => {
-    setConnectWallet(true);
     const provider = getProvider();
     if (provider) {
       try {
@@ -345,12 +351,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
 
             const provider = getProvider();
             provider?.connect();
-            const { recipient, amount, reference, memo } = parseURL(txURL);
+            const { recipient, amount, reference, memo, splToken } =
+              parseURL(txURL);
             const publicKey = new PublicKey(userInfo.walletAddress);
-
-            const splToken = new PublicKey(
-              "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
-            );
             console.log(publicKey);
 
             // part 1
@@ -367,9 +370,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             anyTransaction.recentBlockhash = (
               await connection.getRecentBlockhash()
             ).blockhash;
-
             let blockhashObj = await connection.getRecentBlockhash();
             transaction.recentBlockhash = await blockhashObj.blockhash;
+            console.log(transaction);
             const response = await provider?.signTransaction(transaction);
             console.log("시그니처 싸인이 완료됐습니다.", response);
             let signature = await connection.sendRawTransaction(

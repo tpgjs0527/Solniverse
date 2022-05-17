@@ -16,6 +16,8 @@ import CandyDrop from "./nft/CandyDrop";
 import Other from "./nft/Other";
 import CandyMachineHome from "./candyMachine/CandyMachineHome";
 import PageNotFound from "./Error/404";
+import { isMobile } from "react-device-detect";
+import PaymentMobile from "./donation/PaymentMobile";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -24,7 +26,10 @@ function Routes() {
     <ReactRouterRoutes>
       {/* <Route path="/donation/:displayName/:platform" element={<Donation />} /> */}
       <Route path="/donation/:walletAddress" element={<Donation />} />
-      <Route path="/payment" element={<Payment />} />
+      <Route
+        path="/payment"
+        element={isMobile ? <PaymentMobile /> : <Payment />}
+      />
       <Route path="/payment/confirmed" element={<Confirmed />} />
 
       {/* URL 직접 접근 제어 */}
