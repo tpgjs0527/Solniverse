@@ -166,10 +166,6 @@ const SpinnerDiv = styled.div`
   height: 253px;
 `;
 
-const RankOpen = styled.div`
-  cursor: pointer;
-`;
-
 const Icon = styled.div`
   margin: 14px 0;
   width: 92px;
@@ -199,11 +195,15 @@ const SubBox = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   grid-gap: 50px;
-  padding: 48px 40px;
+  padding: 40px 0;
 
   @media screen and (min-width: 767px) {
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 10px;
+  }
+
+  @media screen and (min-width: 1439px) {
+    padding: 40px;
   }
 `;
 

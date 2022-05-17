@@ -16,7 +16,13 @@ function Ranking({ isModalOpen, onClose }: IProps) {
   const isDark = useRecoilValue(toggleThemeAtom);
   const [isOpen, setIsOpen] = useState(false);
 
-  const RankingList = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
+  const RankingList = [
+    { id: "test", am: 22, rank: 1 },
+    { id: "test", am: 22, rank: 2 },
+    { id: "test", am: 22, rank: 3 },
+    { id: "test", am: 22, rank: 4 },
+    { id: "test", am: 22, rank: 5 },
+  ];
 
   useEffect(() => {
     if (!!isModalOpen) {
@@ -51,27 +57,49 @@ function Ranking({ isModalOpen, onClose }: IProps) {
       }}
     >
       <SubTitle>순위 목록</SubTitle>
-      <SubBox></SubBox>
+      <SubBox>
+        {RankingList.map((ranking) => (
+          <Element key={ranking.rank}>
+            <div>{ranking.rank}</div>
+            <div>{ranking.id}</div>
+            <div>{ranking.am}</div>
+          </Element>
+        ))}
+      </SubBox>
     </ReactModal>
   );
 }
 
-const SubBox = styled.div`
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  grid-gap: 10px;
-  grid-row-gap: 50px;
-  padding: 48px 40px;
+const Element = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 24px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: ${(props) => props.theme.subBoxColor2};
 
   @media screen and (min-width: 600px) {
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 10px;
-    grid-row-gap: 50px;
+    font-size: 14px;
   }
 
   @media screen and (min-width: 900px) {
-    grid-template-columns: repeat(5, 1fr);
-    grid-gap: 10px;
+    font-size: 16px;
+  }
+`;
+
+const SubBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  @media screen and (min-width: 600px) {
+    padding: 0 20px;
+  }
+
+  @media screen and (min-width: 900px) {
+    padding: 0 40px;
   }
 `;
 
