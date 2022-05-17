@@ -121,7 +121,7 @@ function checkRank(total) {
 async function updateTransactionWithoutDuplication(tx) {
   try {
     if (!tx || !tx.meta || tx.meta.err) {
-      throw `Tx가 잘못됨 tx=${tx}`;
+      throw `Tx가 잘못됨. tx=${tx}`;
     }
     const {
       transaction,
@@ -134,7 +134,7 @@ async function updateTransactionWithoutDuplication(tx) {
       },
     } = tx;
     if (logMessages.length != 6 && logMessages.length != 8) {
-      throw `logMessages: Len=${logMessages.length} logMessages=${logMessages}`;
+      throw `logMessages의 ${logMessages.length}가 잘못됨. logMessages=${logMessages}`;
     }
 
     // sendWallet과 receiveWallet을 알아냄
@@ -219,7 +219,9 @@ async function updateTransactionWithoutDuplication(tx) {
         sendWallet.toString(),
         receiveWallet.toString(),
       );
-      logger.info(`updateTransactionWithoutDuplication New: ${createdTx}`);
+      logger.info(
+        `updateTransactionWithoutDuplication New: ${JSON.stringify(createdTx)}`,
+      );
     }
   } catch (err) {
     //getUserOrCreate, getTransactionById, createTransaction 또는 기타 에러들
@@ -322,13 +324,13 @@ function alertAndSendSnv(
       updateRank(sendWallet, receiveWallet, usdcAmount / 10 ** 6);
       sendSnvToken(toWallet, usdcAmount * 10);
     } catch (err) {
-      logger.error(`alertAndSendSnv: to=${toWallet.toString()} error=${err}`);
+      logger.error(`alertAndSendSnv: error=${err} to=${toWallet.toString()}`);
     }
   })();
   amount = amount / decimal;
 
   logger.info(
-    `donationAlert: to=${receiveWallet} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
+    `donationAlert: to=${receiveWallet} amount=${amount} displayName=${displayName} message=${message} paymentType=${paymentType}`,
   );
   io.to(receiveWallet).emit("donation", {
     displayName,
@@ -431,8 +433,6 @@ async function sendSnvToken(toWallet, amount) {
       ),
     ]);
 
-    logger.info(`SNV Transfer: tokenAccountTo=${toTokenAccount.address}`);
-
     const signature = await transfer(
       connection,
       fromWallet,
@@ -443,11 +443,11 @@ async function sendSnvToken(toWallet, amount) {
     );
 
     logger.info(
-      `SNV Transfer: tx=${signature} amount=${amount} to=${toWallet}`,
+      `SNV Transfer: to=${toWallet} amount=${amount} tx=${signature} tokenAccount=${toTokenAccount.address}`,
     );
   } catch (err) {
     logger.error(
-      `SNV Transfer: amount: ${amount} to: ${toWallet} error=${err}`,
+      `SNV Transfer: error=${err} amount: ${amount} to: ${toWallet}`,
     );
     console.log(err);
   }
