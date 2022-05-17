@@ -13,6 +13,7 @@ const {
   getOrCreateAssociatedTokenAccount,
   transfer,
   mintTo,
+  getAssociatedTokenAddress,
 } = require("@solana/spl-token");
 const { default: axios } = require("axios");
 const { Keypair, PublicKey } = web3;
@@ -29,7 +30,7 @@ var fromTokenAccount;
     fromWallet.publicKey,
   );
 })();
-
+getAssociatedTokenAddress;
 const SOL_DECIMAL = 10 ** 9;
 
 var usdPerSol;
@@ -92,8 +93,8 @@ function checkRank(total) {
  *
  * @param {Object} tx
  * @param {Object} tx.transaction
- * @param {Object} tx.transaction.
  * @param {Array<string>} tx.transaction.signatures
+ * @param {Object} tx.meta
  * @param {Array} tx.meta.preBalances
  * @param {Array} tx.meta.postBalances
  * @param {Array} tx.meta.preTokenBalances
@@ -117,9 +118,17 @@ async function updateTransactionWithoutDuplication(tx) {
         logMessages = [],
       },
     } = tx;
-    if (logMessages.length != 6 && logMessages.length != 8) {
-      throw `logMessages의 ${logMessages.length}가 잘못됨. logMessages=${logMessages}`;
+
+    let flag = false;
+    let memo;
+    for (let log of logMessages) {
+      if (log.startsWith("Program log: Memo")) {
+        flag = true;
+        memo = log;
+        break;
+      }
     }
+    if (!flag) throw `로직과 관계없는 트랜잭션임. tx=${tx}`;
 
     // sendWallet과 receiveWallet을 알아냄
     const { sendWallet, receiveWallet } =
@@ -161,7 +170,7 @@ async function updateTransactionWithoutDuplication(tx) {
     };
 
     // txid를 얻어냄.
-    const txid = getTxid(logMessages.at(1));
+    const txid = getTxid(memo);
 
     //트랜잭션이 있는지 검사
     const txData = await donationRepository.getTransactionById(txid);
@@ -439,7 +448,6 @@ async function sendSnvToken(toWallet, amount) {
     logger.error(
       `SNV Transfer: error=${err} amount: ${amount} to: ${toWallet}`,
     );
-    console.log(err);
   }
 }
 
