@@ -67,31 +67,15 @@ setInterval(getUsdPerSol, 1000 * 60 * 10);
  *
  * @param {number} preBalance
  * @param {number} postBalance
+ * @param {string} symbol
+ * @param {number} decimal
  * @returns
  */
-function getDataFromBanlance(preBalance, postBalance) {
+function getDataFromBanlance(preBalance, postBalance, symbol, decimal) {
   return {
     amount: postBalance - preBalance,
-    paymentType: "sol",
-    decimal: SOL_DECIMAL, // 원시타입이므로 Pass By Value
-  };
-}
-
-/**
- * 이전 금액과 나중 토큰 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
- * amount, paymentType, decimal을 반환한다.
- *
- * @param {number} preTokenBalance
- * @param {number} postTokenBalance
- * @param {string} symbol
- * @returns
- */
-function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
-  const senderPreToken = preTokenBalance.uiTokenAmount;
-  return {
-    amount: postTokenBalance.uiTokenAmount.amount - senderPreToken.amount,
     paymentType: symbol,
-    decimal: 10 ** senderPreToken.decimals,
+    decimal,
   };
 }
 
@@ -150,11 +134,17 @@ async function updateTransactionWithoutDuplication(tx) {
 
     const senderPreTokenBalance = preTokenBalances.at(1);
     const { amount, paymentType, decimal } = !senderPreTokenBalance
-      ? getDataFromBanlance(preBalances.at(1), postBalances.at(1))
-      : getDataFromTokenBanlance(
-          senderPreTokenBalance,
-          postTokenBalances.at(1),
+      ? getDataFromBanlance(
+          preBalances.at(1),
+          postBalances.at(1),
+          "sol",
+          SOL_DECIMAL,
+        )
+      : getDataFromBanlance(
+          senderPreTokenBalance.uiTokenAmount.amount,
+          postTokenBalances.at(1).uiTokenAmount.amount,
           getSymbolByTokenAddress(senderPreTokenBalance.mint),
+          10 ** senderPreTokenBalance.uiTokenAmount.decimals,
         );
 
     const txSignature = transaction.signatures.at(0);
