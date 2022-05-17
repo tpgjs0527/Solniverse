@@ -210,6 +210,8 @@ const PageName = styled.div`
 `;
 const MainContainer = styled.div`
   display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 64px 70px;
   @media screen and (min-width: 1439px) {
     min-width: 600px;
@@ -219,13 +221,11 @@ const MainContainer = styled.div`
   }
 `;
 const SubContainer = styled.div`
-  display: flex;
-  width: 100%;
   display: grid;
   align-items: center;
   justify-items: center;
   grid-template-columns: repeat(1, 1fr);
-  /* grid-gap: 30px; */
+  grid-gap: 30px;
   @media screen and (min-width: 1439px) {
     grid-template-columns: repeat(2, 1fr);
   }
