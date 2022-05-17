@@ -50,7 +50,7 @@ async function getUsdPerSol() {
     });
     usdPerSol = usd;
   } catch (err) {
-    logger.error("getUsdPerSol 에러 발생: error=Axios가 제대로 응답하지 않음.");
+    logger.error("getUsdPerSol: error=Axios가 제대로 응답하지 않음.");
   }
 }
 
@@ -134,7 +134,7 @@ async function updateTransactionWithoutDuplication(tx) {
       },
     } = tx;
     if (logMessages.length != 6 && logMessages.length != 8) {
-      throw `logMessages의 길이가 6 또는 8이 아님. Len=${logMessages.length} logMessages=${logMessages}`;
+      throw `logMessages: Len=${logMessages.length} logMessages=${logMessages}`;
     }
 
     // sendWallet과 receiveWallet을 알아냄
@@ -194,7 +194,7 @@ async function updateTransactionWithoutDuplication(tx) {
         receiveWallet.toString(),
       );
       logger.info(
-        `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${JSON.stringify(
+        `updateTransactionWithoutDuplication Exist: ${JSON.stringify(
           updatedTx,
         )}`,
       );
@@ -219,15 +219,11 @@ async function updateTransactionWithoutDuplication(tx) {
         sendWallet.toString(),
         receiveWallet.toString(),
       );
-      logger.info(
-        `updateTransactionWithoutDuplication 새 데이터 삽입: ${createdTx}`,
-      );
+      logger.info(`updateTransactionWithoutDuplication New: ${createdTx}`);
     }
   } catch (err) {
     //getUserOrCreate, getTransactionById, createTransaction 또는 기타 에러들
-    logger.error(
-      `updateTransactionWithoutDuplication 에러 발생: error=${err}}`,
-    );
+    logger.error(`updateTransactionWithoutDuplication: error=${err}}`);
   }
 }
 
@@ -326,15 +322,13 @@ function alertAndSendSnv(
       updateRank(sendWallet, receiveWallet, usdcAmount / 10 ** 6);
       sendSnvToken(toWallet, usdcAmount * 10);
     } catch (err) {
-      logger.error(
-        `alertAndSendSnv 에러 발생: to=${toWallet.toString()} error=${err}`,
-      );
+      logger.error(`alertAndSendSnv: to=${toWallet.toString()} error=${err}`);
     }
   })();
   amount = amount / decimal;
 
   logger.info(
-    `Donation 알림 전송 to=${receiveWallet} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
+    `donationAlert: to=${receiveWallet} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
   );
   io.to(receiveWallet).emit("donation", {
     displayName,
@@ -387,7 +381,7 @@ async function updateRank(sendWalletAddress, receiveWalletAddress, uscAmount) {
       rankRepository.updateRankBySend(send);
     }
   } catch (error) {
-    logger.error(`updateRank 에러 발생: error=${error}`);
+    logger.error(`updateRank: error=${error}`);
   }
 }
 
@@ -436,7 +430,8 @@ async function sendSnvToken(toWallet, amount) {
         amount,
       ),
     ]);
-    logger.info(`SNV Transfer tokenAccount: to=${toTokenAccount.address}`);
+
+    logger.info(`SNV Transfer: tokenAccountTo=${toTokenAccount.address}`);
 
     const signature = await transfer(
       connection,
@@ -446,12 +441,13 @@ async function sendSnvToken(toWallet, amount) {
       fromWallet.publicKey,
       amount,
     );
+
     logger.info(
       `SNV Transfer: tx=${signature} amount=${amount} to=${toWallet}`,
     );
   } catch (err) {
     logger.error(
-      `SNV Transfer 에러 발생: amount: ${amount} to: ${toWallet} error=${err}`,
+      `SNV Transfer: amount: ${amount} to: ${toWallet} error=${err}`,
     );
     console.log(err);
   }
@@ -485,11 +481,11 @@ async function logCallback(context) {
         }
       } catch (err) {
         clearInterval(interval);
-        logger.error(`logCallback interval 에러 발생: error=${err}`);
+        logger.error(`logCallback interval: error=${err}`);
       }
     }, 1000);
   } catch (err) {
-    logger.error(`logCallback 에러 발생: error=${err}`);
+    logger.error(`logCallback: error=${err}`);
   }
 }
 
@@ -515,7 +511,7 @@ async function recoverTransaction() {
         updateTransactionWithoutDuplication(transaction);
       });
   } catch (err) {
-    logger.error(`recoverTransaction 에러 발생: error=${err}`);
+    logger.error(`recoverTransaction: error=${err}`);
   }
 }
 
