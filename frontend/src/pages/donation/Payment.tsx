@@ -3,19 +3,13 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
 import { isMobile } from "react-device-detect";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { encodeURL } from "@solana/pay";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { accessTokenAtom, userInfoAtom } from "atoms";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import { getProvider } from "utils/getProvider";
-import nacl from "tweetnacl";
 import Swal from "sweetalert2";
-import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { findAssociatedTokenAddress } from "utils/solanaWeb3";
 
 export interface ITX {
   result: string;
@@ -39,7 +33,6 @@ function Payment() {
   const [getTXId, { data, loading }] = useMutation<any>(
     `${process.env.REACT_APP_BASE_URL}/donation/send`
   );
-  console.log(params);
 
   const closeModal = () => {
     setOpenModal(false);
@@ -69,10 +62,9 @@ function Payment() {
             message,
             memo,
           });
-          console.log(url);
+
           window.location.href = url;
         } else if (type === "USDC") {
-          console.log("USDC로 결제");
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
@@ -101,7 +93,7 @@ function Payment() {
             message,
             memo,
           });
-          console.log(url);
+
           window.location.href = url;
         }
       } else {
@@ -124,7 +116,6 @@ function Payment() {
         message: message,
         platform: "",
       });
-      console.log("첫 번째 랜더링입니다.");
     }
   }, []);
 
@@ -132,11 +123,8 @@ function Payment() {
     // getSignature();
     if (data) {
       setTXID(data.txid);
-      console.log("두 번째 랜더링입니다.");
     }
-    console.log("랜더링 가즈아");
   }, [data]);
-  console.log(txid);
 
   return (
     <Container>

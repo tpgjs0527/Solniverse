@@ -10,12 +10,8 @@ import {
   getBalance,
 } from "utils/solanaWeb3";
 import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
-import CandyDrop from "pages/nft/CandyDrop";
 import Other from "pages/nft/Other";
 import CandyMachineHome from "pages/candyMachine/CandyMachineHome";
-import axios from "axios";
-import confetti from "canvas-confetti";
-import Rank from "components/Main/Rank";
 import { PublicKey } from "@solana/web3.js";
 
 function SNVWorld() {
@@ -67,7 +63,7 @@ function SNVWorld() {
     const usdcResponse = await connection.getTokenAccountBalance(
       new PublicKey(usdcAddress)
     );
-    console.log(usdcResponse);
+
     const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
     if (usdcResponse) {
       setUSDCBalance(usdcAmount);
@@ -80,7 +76,7 @@ function SNVWorld() {
     const snvResponse = await connection.getTokenAccountBalance(
       new PublicKey(snvAddress)
     );
-    console.log(snvResponse);
+
     const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
     if (snvResponse) {
       setSNVBalance(snvAmount);

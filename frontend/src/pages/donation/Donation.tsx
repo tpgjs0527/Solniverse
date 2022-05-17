@@ -11,11 +11,9 @@ import {
   findAssociatedTokenAddress,
   getBalance,
 } from "utils/solanaWeb3";
-import { getProvider } from "utils/getProvider";
 import { fetchWallet } from "utils/fetcher";
 import { isMobile } from "react-device-detect";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
 
 interface IDonation {
   nickname: string;
@@ -64,7 +62,7 @@ function Donation() {
     const usdcResponse = await connection.getTokenAccountBalance(
       new PublicKey(usdcAddress)
     );
-    console.log(usdcResponse);
+
     const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
     if (usdcResponse) {
       setUSDCBalance(usdcAmount);
@@ -77,7 +75,7 @@ function Donation() {
     const snvResponse = await connection.getTokenAccountBalance(
       new PublicKey(snvAddress)
     );
-    console.log(snvResponse);
+
     const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
     if (snvResponse) {
       setSNVBalance(snvAmount);
@@ -89,8 +87,7 @@ function Donation() {
     //   pathname: "/payment",
     //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
     // });
-    console.log(type);
-    console.log(errors);
+
     if (!isMobile) {
       if (userInfo.walletAddress) {
         if (!amount || !nickName) {
@@ -138,7 +135,6 @@ function Donation() {
 
     // alert("도네이션을 진행하겠습니다");
   };
-  console.log(nickName, amount, message, walletAddress);
 
   const onSubmit = (e: any) => {
     setType(e.target.value);
@@ -155,15 +151,14 @@ function Donation() {
         throw error;
       }
     } catch (error) {
-      console.log(error);
       const res = await fetchWallet(walletAddress!, "POST");
       if (res.status >= 200 && res.status < 400) {
         const data = await res.json();
-        console.log(data);
+
         return data;
       } else {
         const error = new Error(res.statusText);
-        console.log(error);
+
         Swal.fire(
           "지갑 확인 오류",
           "현재 연결된 지갑이 확인되고 있지 않습니다.",
@@ -176,13 +171,11 @@ function Donation() {
   useEffect(() => {
     const getAsyncCreatorInfo = async () => {
       const creatorInfo = await getCreatorInfo(walletAddress!);
-      console.log(creatorInfo);
+
       setCreatorName(creatorInfo.user.twitch.displayName);
       setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
     };
     getAsyncCreatorInfo();
-
-    console.log(creatorName, creatorImgUrl);
   }, [creatorName, creatorImgUrl]);
 
   useEffect(() => {
@@ -220,7 +213,6 @@ function Donation() {
       setAmount(0);
     }
   }, [amount, snvBalance, usdcBalance]);
-  console.log(type);
 
   return (
     <Layout>

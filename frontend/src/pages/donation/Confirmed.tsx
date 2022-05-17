@@ -96,7 +96,7 @@ function Confirmed() {
       const interval = setInterval(async () => {
         try {
           const response = await connection.getSignatureStatus(state.signature);
-          // console.log(response);
+          //
           const status = response.value;
           if (status) {
             const confirmation = (status.confirmations || 0) as Confirmations;
@@ -109,9 +109,7 @@ function Confirmed() {
               setStatus("Finalized");
             }
           }
-        } catch (error: any) {
-          console.log(error);
-        }
+        } catch (error: any) {}
       }, 1000);
     }
   }, [state]);

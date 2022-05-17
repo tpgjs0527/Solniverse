@@ -9,7 +9,6 @@ import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { findAssociatedTokenAddress } from "utils/solanaWeb3";
-import { createConnection } from "net";
 
 export const CTAButton = styled(Button)`
   width: 150px;
@@ -130,7 +129,6 @@ export const MultiMintButton = ({
       // when user approves wallet verification txn
       setIsVerifying(true);
     } else if (gatewayStatus === GatewayStatus.ACTIVE && clicked) {
-      console.log("Verified human, now minting...");
       onMint(mintCount);
       setClicked(false);
     }
@@ -187,7 +185,7 @@ export const MultiMintButton = ({
     const snvResponse = await connection.getTokenAccountBalance(
       new PublicKey(snvAddress)
     );
-    console.log(snvResponse);
+
     const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
     if (snvResponse) {
       setSNVBalance(snvAmount);
@@ -225,11 +223,9 @@ export const MultiMintButton = ({
                       candyMachine?.state.gatekeeper &&
                       gatewayStatus !== GatewayStatus.ACTIVE
                     ) {
-                      console.log("Requesting gateway token");
                       setClicked(true);
                       await requestGatewayToken();
                     } else {
-                      console.log("Minting...");
                       await onMint(mintCount);
                     }
                   }
