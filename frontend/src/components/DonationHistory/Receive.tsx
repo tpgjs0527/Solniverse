@@ -193,7 +193,8 @@ function ReceiveDonationHistory() {
           const amount = el.amount / LAMPORTS_PER_SOL;
           setGraphData("sol", key, amount);
         } else {
-          setGraphData("usdc", key, el.amount);
+          const amount = el.amount / 1000000;
+          setGraphData("usdc", key, amount);
         }
       });
 
@@ -212,9 +213,9 @@ function ReceiveDonationHistory() {
 
   return (
     <Container>
-      <Gragh>
+      <Graph>
         <Chart options={state} series={state.series} type="line" />
-      </Gragh>
+      </Graph>
 
       <List>
         {isLoading ? (
@@ -347,7 +348,7 @@ const List = styled.div`
   }
 `;
 
-const Gragh = styled.div`
+const Graph = styled.div`
   @media screen and (min-width: 767px) {
     width: 630px;
   }

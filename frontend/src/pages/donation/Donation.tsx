@@ -20,7 +20,7 @@ function Donation() {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const { walletAddress } = useParams();
-  const [nickName, setNickName] = useState("");
+  const [nickName, setNickName] = useState(userInfo.twitch.displayName);
   const [amount, setAmount] = useState(0);
   const [type, setType] = useState("SOL");
   const [message, setMessage] = useState("");
@@ -51,14 +51,29 @@ function Donation() {
     //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
     // });
     console.log(type);
+    console.log(errors);
     if (userInfo.walletAddress) {
+      if (!amount || !nickName) {
+        alert("후원닉네임과 후원금액을 모두 입력해주세요.");
+        return;
+      }
+      if (errors.nickname) {
+        alert("후원닉네임을 정확히 입력해주세요.");
+        return;
+      }
+      if (!amount) {
+        alert("후원금액을 정확히 입력해주세요.");
+        return;
+      }
       navigate({
         pathname: "/payment",
         search: `?${createSearchParams(params)}`,
       });
     } else {
       alert("지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.");
+      return;
     }
+
     // alert("도네이션을 진행하겠습니다");
   };
   console.log(nickName, amount, message, walletAddress);
@@ -100,6 +115,7 @@ function Donation() {
       setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
     };
     getAsyncCreatorInfo();
+
     console.log(creatorName, creatorImgUrl);
   }, [creatorName, creatorImgUrl]);
 
@@ -148,7 +164,7 @@ function Donation() {
                 {...register("nickname", {
                   required: "필수 입력정보입니다.",
                   pattern: {
-                    value: /^[가-힣a-zA-Z0-9]{2,15}$/,
+                    value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,15}$/,
                     message:
                       "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
                   },
@@ -156,11 +172,16 @@ function Donation() {
                     setNickName(e.target.value);
                   },
                 })}
-                placeholder="후원닉네임을 입력해주세요."
+                value={`${nickName}`}
               />
-              <ErrorMessage>{errors?.nickname?.message}</ErrorMessage>
             </DonateInputWrapper>
           </DonatorWrapper>
+          <ErrorWrapper>
+            <DonateMessageWrapper></DonateMessageWrapper>
+            <DonateInputName>
+              <ErrorMessage>{errors?.nickname?.message}</ErrorMessage>
+            </DonateInputName>
+          </ErrorWrapper>
           <DonatorWrapper>
             <DonateNameWrapper>
               <DonateInputName>후원금액</DonateInputName>
@@ -168,74 +189,116 @@ function Donation() {
             <DonateInputWrapper>
               <Input
                 {...register("amount", {
-                  required: "필수 입력정보입니다.",
                   pattern: {
-                    value: /^[0-9]*$/,
-                    message: "숫자만 입력 가능합니다.",
+                    value: /^[0-9.]*$/,
+                    message: "숫자와 . 기호만 입력 가능합니다.",
                   },
                   onChange: (e) => {
                     setAmount(e.target.value);
                   },
                 })}
-                value={`${amount}`}
+                value={amount === 0 ? "" : `${amount}`}
                 style={{ display: "flex", justifyContent: "space-between" }}
                 placeholder="후원금액을 입력해주세요."
               />
-              <ErrorMessage>{errors?.amount?.message}</ErrorMessage>
+
               <Select onChange={onSubmit}>
                 <Option value="SOL">SOL</Option>
                 <Option value="USDC">USDC</Option>
               </Select>
             </DonateInputWrapper>
           </DonatorWrapper>
-          <PriceButtonWrapper>
-            <DonatePriceButton value="0.01" onClick={handleAmount}>
-              0.01
-            </DonatePriceButton>
-            <DonatePriceButton value="0.05" onClick={handleAmount}>
-              0.05
-            </DonatePriceButton>
-            <DonatePriceButton value="0.1" onClick={handleAmount}>
-              0.1
-            </DonatePriceButton>
-            <DonatePriceButton value="0.5" onClick={handleAmount}>
-              0.5
-            </DonatePriceButton>
-            <DonatePriceButton value="1" onClick={handleAmount}>
-              1
-            </DonatePriceButton>
-            <DonatePriceButton value="5" onClick={handleAmount}>
-              5
-            </DonatePriceButton>
-            <DonatePriceButton value="10" onClick={handleAmount}>
-              10
-            </DonatePriceButton>
-            <DonatePriceButton
-              style={{ marginRight: "0px" }}
-              value="20"
-              onClick={handleAmount}
-            >
-              20
-            </DonatePriceButton>
-          </PriceButtonWrapper>
+          <ErrorWrapper>
+            <DonateMessageWrapper></DonateMessageWrapper>
+            <DonateInputName>
+              <ErrorMessage>{errors?.amount?.message}</ErrorMessage>
+            </DonateInputName>
+          </ErrorWrapper>
+          {type === "SOL" ? (
+            <PriceButtonWrapper>
+              <DonatePriceButton value="0.01" onClick={handleAmount}>
+                0.01
+              </DonatePriceButton>
+              <DonatePriceButton value="0.05" onClick={handleAmount}>
+                0.05
+              </DonatePriceButton>
+              <DonatePriceButton value="0.1" onClick={handleAmount}>
+                0.1
+              </DonatePriceButton>
+              <DonatePriceButton value="0.5" onClick={handleAmount}>
+                0.5
+              </DonatePriceButton>
+              <DonatePriceButton value="1" onClick={handleAmount}>
+                1
+              </DonatePriceButton>
+              <DonatePriceButton value="5" onClick={handleAmount}>
+                5
+              </DonatePriceButton>
+              <DonatePriceButton
+                style={{ marginRight: "0px" }}
+                value="10"
+                onClick={handleAmount}
+              >
+                10
+              </DonatePriceButton>
+            </PriceButtonWrapper>
+          ) : (
+            <PriceButtonWrapper>
+              <DonatePriceButton value="0.5" onClick={handleAmount}>
+                0.5
+              </DonatePriceButton>
+              <DonatePriceButton value="1" onClick={handleAmount}>
+                1
+              </DonatePriceButton>
+              <DonatePriceButton value="5" onClick={handleAmount}>
+                5
+              </DonatePriceButton>
+              <DonatePriceButton value="10" onClick={handleAmount}>
+                10
+              </DonatePriceButton>
+              <DonatePriceButton value="20" onClick={handleAmount}>
+                20
+              </DonatePriceButton>
+              <DonatePriceButton value="50" onClick={handleAmount}>
+                50
+              </DonatePriceButton>
+              <DonatePriceButton
+                style={{ marginRight: "0px" }}
+                value="100"
+                onClick={handleAmount}
+              >
+                100
+              </DonatePriceButton>
+            </PriceButtonWrapper>
+          )}
+
           <DonatorWrapper>
-            <DoateMessageWrapper>
+            <DonateMessageWrapper>
               <DonateMessageName>후원메시지</DonateMessageName>
-            </DoateMessageWrapper>
+            </DonateMessageWrapper>
             <DonateInputWrapper>
               <MessageTextarea
                 {...register("message", {
-                  required: "필수 입력정보입니다.",
                   onChange: (e) => {
-                    setMessage(e.target.value);
+                    if (e.target.value.length > 50) {
+                      alert("최대 글자수를 초과했습니다.");
+                    } else {
+                      setMessage(e.target.value);
+                    }
                   },
                 })}
                 placeholder="후원메시지를 작성해주세요."
               />
-              <ErrorMessage>{errors?.message?.message}</ErrorMessage>
             </DonateInputWrapper>
           </DonatorWrapper>
         </DonationForm>
+        <ErrorWrapper>
+          <DonateMessageWrapper></DonateMessageWrapper>
+          <MessageNumberWrapper>
+            <MessageNumber>{message.length}/50</MessageNumber>
+          </MessageNumberWrapper>
+        </ErrorWrapper>
+        <Hr />
         <DonationWrapper>
           <DonatorWrapper>
             <TotalPrice>Total</TotalPrice>
@@ -257,8 +320,7 @@ function Donation() {
 
 const Container = styled.div`
   margin-top: 32px;
-
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     margin-top: 16px;
   }
 `;
@@ -268,40 +330,38 @@ const DonationWrapper = styled.div`
 `;
 
 const DonationForm = styled.form`
-  margin-bottom: 32px;
-  border-bottom: 1px solid ${(props) => props.theme.borderColor};
-`;
-
-export const ErrorMessage = styled.p`
-  margin-top: 3px;
-  font-size: 11px;
-  color: #ff5e57;
+  margin-bottom: 0px;
 `;
 
 const CreatorWrapper = styled.div``;
+
 const CreatorName = styled.div`
   font-size: 32px;
   font-weight: bold;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 24px;
   }
 `;
+
 const CreatorContent = styled.div`
   font-size: 24px;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 18px;
   }
 `;
+
 const CreatorInfoWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
 `;
+
 const CreatorProfileImage = styled.img`
   width: 50px;
   border-radius: 30px;
   margin-right: 8px;
 `;
+
 const CreatorImage = styled.img.attrs({
   src: `${process.env.PUBLIC_URL}/헤이.png`,
 })`
@@ -312,10 +372,13 @@ const CreatorImage = styled.img.attrs({
 const DonatorWrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  /* margin-top: 24px; */
+`;
+
+const ErrorWrapper = styled(DonatorWrapper)`
+  width: 100%;
+  margin-left: 3.5%;
   margin-bottom: 24px;
-  @media screen and (max-width: 691px) {
-    margin-bottom: 12px;
-  }
 `;
 
 const Select = styled.select`
@@ -330,10 +393,11 @@ const Select = styled.select`
   background-color: ${(props) => props.theme.boxColor};
   /* font-weight: bold; */
   margin-left: 4px;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
 `;
+
 const Option = styled.option`
   width: 30%;
   height: 40px;
@@ -345,19 +409,20 @@ const Option = styled.option`
   color: ${(props) => props.theme.subTextColor};
   background-color: ${(props) => props.theme.boxColor};
   /* font-weight: bold; */
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
 `;
 
 const PriceButtonWrapper = styled.div`
   display: flex;
+  width: 100%;
   justify-content: right;
   margin-bottom: 32px;
 `;
 
 const DonatePriceButton = styled.button`
-  width: 20%;
+  width: 10%;
   height: 30px;
   color: #ffffff;
   background-color: ${(props) => props.theme.ownColor};
@@ -367,7 +432,13 @@ const DonatePriceButton = styled.button`
   font-weight: bold;
   cursor: pointer;
   margin-right: 8px;
-  @media screen and (max-width: 691px) {
+  &:hover {
+   /* background: rgb(0,3,255); */
+background: linear-gradient(45deg, #870ff8 0%,#0f3af8 60%, #0ff8ec 100%);
+}
+}
+  }
+  @media screen and (max-width: 767px) {
     font-size: 12px;
     margin-right: 4px;
   }
@@ -378,39 +449,52 @@ const DonateInputName = styled.div`
   align-items: center;
   font-size: 16px;
   width: 100%;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
 `;
-const DoateMessageWrapper = styled.div`
+
+const DonateMessageWrapper = styled.div`
   display: flex;
   margin-top: 3px;
   font-size: 16px;
   width: 20%;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
 `;
 
 const DonateMessageName = styled.div`
   font-size: 16px;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
     margin-top: 3px;
   }
 `;
+
 const DonateNameWrapper = styled.div`
   display: flex;
   align-items: center;
   font-size: 16px;
   width: 20%;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
 `;
+
 const DonateInputWrapper = styled.div`
   width: 80%;
   display: flex;
+`;
+
+const ErrorMessage = styled.p`
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff5e57;
+  @media screen and (max-width: 767px) {
+    font-size: 12px;
+  }
 `;
 
 const Input = styled.input`
@@ -424,10 +508,11 @@ const Input = styled.input`
   color: ${(props) => props.theme.subTextColor};
   background-color: ${(props) => props.theme.boxColor};
   /* font-weight: bold; */
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
 `;
+
 const MessageTextarea = styled.textarea`
   width: 100%;
   height: 100px;
@@ -436,22 +521,41 @@ const MessageTextarea = styled.textarea`
   font-size: 16px;
   color: ${(props) => props.theme.subTextColor};
   background-color: ${(props) => props.theme.boxColor};
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 14px;
   }
+`;
+
+const MessageNumberWrapper = styled.div`
+  display: flex;
+  justify-content: right;
+  margin-right: 32px;
+  @media screen and (max-width: 767px) {
+    margin-right: 8px;
+  }
+  @media screen and (max-width: 1024px) {
+    margin-right: 24px;
+  }
+`;
+const MessageNumber = styled.div``;
+
+const Hr = styled.hr`
+  margin: 32px 0px;
+  background-color: ${(props) => props.theme.borderColor};
 `;
 
 const TotalPrice = styled.div`
   font-size: 20px;
   font-weight: bold;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 16px;
   }
 `;
+
 const TotalUSDC = styled.div`
   font-size: 24px;
   font-weight: bold;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 767px) {
     font-size: 20px;
   }
 `;
@@ -460,6 +564,7 @@ const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
 `;
+
 const DonateButton = styled.button`
   width: 30%;
   height: 40px;
@@ -470,6 +575,9 @@ const DonateButton = styled.button`
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
 `;
 
 export default Donation;

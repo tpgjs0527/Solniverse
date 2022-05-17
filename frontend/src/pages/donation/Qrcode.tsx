@@ -554,6 +554,9 @@ const ExtensionButton = styled.button`
   font-weight: bold;
   cursor: pointer;
   margin-top: 16px;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
 `;
 const QRWrapper = styled.div`
   width: 45%;
@@ -601,6 +604,9 @@ const WalletBtn = styled.button`
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
 `;
 
 const CloseBtn = styled.button``;

@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button";
 import { CircularProgress } from "@material-ui/core";
 import { GatewayStatus, useGateway } from "@civic/solana-gateway-react";
 import { CandyMachine } from "../../utils/candy-machine";
+import Spinner from "components/Spinner";
 
 export const CTAButton = styled(Button)`
   display: block !important;
@@ -33,8 +34,12 @@ export const MintButton = ({
   const { requestGatewayToken, gatewayStatus } = useGateway();
   const [clicked, setClicked] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (candyMachine) {
+      setIsLoading(false);
+    }
     setIsVerifying(false);
     if (
       gatewayStatus === GatewayStatus.COLLECTING_USER_INFORMATION &&
@@ -50,51 +55,57 @@ export const MintButton = ({
   }, [gatewayStatus, clicked, setClicked, onMint]);
 
   return (
-    <CTAButton
-      disabled={
-        clicked ||
-        candyMachine?.state.isSoldOut ||
-        isSoldOut ||
-        isMinting ||
-        isEnded ||
-        !isActive ||
-        isVerifying
-      }
-      onClick={async () => {
-        if (
-          isActive &&
-          candyMachine?.state.gatekeeper &&
-          gatewayStatus !== GatewayStatus.ACTIVE
-        ) {
-          console.log("Requesting gateway token");
-          setClicked(true);
-          await requestGatewayToken();
-        } else {
-          console.log("Minting...");
-          await onMint(1);
-        }
-      }}
-      variant="contained"
-    >
-      {!candyMachine ? (
-        "CONNECTING..."
-      ) : candyMachine?.state.isSoldOut || isSoldOut ? (
-        "SOLD OUT"
-      ) : isActive ? (
-        isVerifying ? (
-          "VERIFYING..."
-        ) : isMinting || clicked ? (
-          <CircularProgress />
-        ) : (
-          "MINT"
-        )
-      ) : isEnded ? (
-        "ENDED"
-      ) : candyMachine?.state.goLiveDate ? (
-        "SOON"
+    <>
+      {isLoading ? (
+        <Spinner />
       ) : (
-        "UNAVAILABLE"
+        <CTAButton
+          disabled={
+            clicked ||
+            candyMachine?.state.isSoldOut ||
+            isSoldOut ||
+            isMinting ||
+            isEnded ||
+            !isActive ||
+            isVerifying
+          }
+          onClick={async () => {
+            if (
+              isActive &&
+              candyMachine?.state.gatekeeper &&
+              gatewayStatus !== GatewayStatus.ACTIVE
+            ) {
+              console.log("Requesting gateway token");
+              setClicked(true);
+              await requestGatewayToken();
+            } else {
+              console.log("Minting...");
+              await onMint(1);
+            }
+          }}
+          variant="contained"
+        >
+          {!candyMachine ? (
+            "CONNECTING..."
+          ) : candyMachine?.state.isSoldOut || isSoldOut ? (
+            "SOLD OUT"
+          ) : isActive ? (
+            isVerifying ? (
+              "VERIFYING..."
+            ) : isMinting || clicked ? (
+              <CircularProgress />
+            ) : (
+              "MINT"
+            )
+          ) : isEnded ? (
+            "ENDED"
+          ) : candyMachine?.state.goLiveDate ? (
+            "SOON"
+          ) : (
+            "UNAVAILABLE"
+          )}
+        </CTAButton>
       )}
-    </CTAButton>
+    </>
   );
 };

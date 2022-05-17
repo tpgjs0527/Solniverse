@@ -72,7 +72,7 @@ function Payment() {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
-            }`;
+          }`;
 
           const message = `${params.message}`;
           const memo = `${txid}`;
@@ -129,45 +129,60 @@ function Payment() {
     <Container>
       <PageName>Payment Page</PageName>
       <Line />
-      <Wrapper>
-        <PaymentWrapper>
-          <Title>Your Information</Title>
-          <InfoWrapper>
-            <Name>{nickName}</Name>
-            <AccountTitle>Account</AccountTitle>
-            <Account>{userInfo.walletAddress}</Account>
-          </InfoWrapper>
-          <Title>Creator Information</Title>
-          <InfoWrapper>
-            <Name>{creatorName}</Name>
-            <AccountTitle>Account</AccountTitle>
-            <Account>{walletAddress}</Account>
-          </InfoWrapper>
-          <Title>Donate Information</Title>
-          <TotalPriceWrapper>
-            <PriceWrapper style={{ marginBottom: "8px" }}>
-              <Price>Donate Message</Price>
-              <Price>{message}</Price>
-            </PriceWrapper>
-            <PriceWrapper>
-              <Price>Donate Price</Price>
-              <SOL>
-                {amount} {type}
-              </SOL>
-            </PriceWrapper>
-            <Line />
-            <PriceWrapper>
-              <Price>Total</Price>
-              <SOL>
-                {amount} {type}
-              </SOL>
-            </PriceWrapper>
-          </TotalPriceWrapper>
-          <ButtonWrapper>
-            <Button onClick={onClick}>Pay</Button>
-          </ButtonWrapper>
-        </PaymentWrapper>
-      </Wrapper>
+      <MainContainer>
+        <SubContainer>
+          <Wrapper>
+            <PaymentWrapper>
+              <UserWrapper>
+                <TitleWrapper>
+                  <Title>후원자 정보</Title>
+                </TitleWrapper>
+                <InfoWrapper>
+                  <Name>후원자 닉네임 : {nickName}</Name>
+                  <AccountTitle>Account</AccountTitle>
+                  <Account>{userInfo.walletAddress}</Account>
+                </InfoWrapper>
+              </UserWrapper>
+              <UserWrapper>
+                <TitleWrapper>
+                  <Title>크리에이터 정보</Title>
+                </TitleWrapper>
+                <InfoWrapper>
+                  <Name>{creatorName}</Name>
+                  <AccountTitle>Account</AccountTitle>
+                  <Account>{walletAddress}</Account>
+                </InfoWrapper>
+              </UserWrapper>
+            </PaymentWrapper>
+          </Wrapper>
+          <Wrapper>
+            <PaymentWrapper>
+              <TotalPriceWrapper>
+                <PriceWrapper style={{ marginBottom: "8px" }}>
+                  <Price>Donate Message</Price>
+                  <Price>{message}</Price>
+                </PriceWrapper>
+                <PriceWrapper>
+                  <Price>Donate Price</Price>
+                  <SOL>
+                    {amount} {type}
+                  </SOL>
+                </PriceWrapper>
+                <Line />
+                <PriceWrapper>
+                  <Price>Total</Price>
+                  <SOL>
+                    {amount} {type}
+                  </SOL>
+                </PriceWrapper>
+              </TotalPriceWrapper>
+              <ButtonWrapper>
+                <Button onClick={onClick}>Pay</Button>
+              </ButtonWrapper>
+            </PaymentWrapper>
+          </Wrapper>
+        </SubContainer>
+      </MainContainer>
       {openModal && txid && (
         <Qrcode
           open={openModal}
@@ -193,15 +208,68 @@ const PageName = styled.div`
   font-size: 32px;
   font-weight: bold;
 `;
+const MainContainer = styled.div`
+  display: flex;
+  margin: 64px 70px;
+  @media screen and (min-width: 1439px) {
+    min-width: 600px;
+  }
+  @media screen and (max-width: 767px) {
+    max-width: 300px;
+  }
+`;
+const SubContainer = styled.div`
+  display: flex;
+  width: 100%;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  grid-template-columns: repeat(1, 1fr);
+  /* grid-gap: 30px; */
+  @media screen and (min-width: 1439px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media screen and (min-width: 1439px) {
+    min-width: 600px;
+  }
+  @media screen and (max-width: 767px) {
+    max-width: 300px;
+  }
+`;
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
+  min-width: 600px;
+  min-height: 500px;
+  border-radius: 16px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+  @media screen and (min-width: 1439px) {
+    min-width: 600px;
+  }
+  @media screen and (max-width: 767px) {
+    max-width: 300px;
+  }
 `;
 const PaymentWrapper = styled.div`
-  width: 70%;
-  min-width: 400px;
+  width: 100%;
+
+  @media screen and (min-width: 1439px) {
+    min-width: 600px;
+  }
+  @media screen and (max-width: 767px) {
+    max-width: 300px;
+  }
 `;
 
+const UserWrapper = styled.div`
+  /* display: flex;
+  justify-content: center; */
+  margin-left: 32px;
+  margin-right: 32px;
+  margin-bottom: 16px;
+`;
+const TitleWrapper = styled.div``;
 const InfoWrapper = styled.div`
   border-radius: 5px;
   padding: 20px;
@@ -227,7 +295,9 @@ const Account = styled.div`
 `;
 
 const TotalPriceWrapper = styled.div`
-  margin-top: 16px;
+  margin-left: 32px;
+  margin-right: 32px;
+  margin-bottom: 16px;
   background-color: #ececec;
   border-radius: 5px;
   padding: 20px;
@@ -265,6 +335,9 @@ const Button = styled.button`
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
 `;
 
 export default Payment;

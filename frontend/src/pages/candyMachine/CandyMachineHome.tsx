@@ -29,6 +29,7 @@ import {
 import { getProvider } from "utils/getProvider";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import { inherits } from "util";
 
 export interface ICandyMachine {
   id: anchor.web3.PublicKey;
@@ -112,7 +113,7 @@ const CandyMachineHome = () => {
 
   //@TODO candyMachineId를 바꿔야함. useEffect [] 첫 마운트 기준으로 state로 받아와야됨.
   const candyMachineId = new PublicKey(
-    "ghptYjUH7AQjBdMpxcDaL6AANJwsM3mQvbWhTDT6cDX"
+    "FddL3BuqsBcgmm35PKcuS3xrhgsNStx41RpxU8amj6wC"
   );
   const rpcUrl = clusterApiUrl("devnet");
   const connection = new anchor.web3.Connection(rpcUrl, "confirmed");
@@ -375,9 +376,9 @@ const CandyMachineHome = () => {
 
   function throwConfetti(): void {
     confetti({
-      particleCount: 400,
-      spread: 70,
-      origin: { y: 0.6 },
+      particleCount: 1000,
+      spread: 100,
+      origin: { y: 0.6, x: 0.57 },
     });
   }
 
@@ -565,6 +566,7 @@ const CandyMachineHome = () => {
     console.log(walletAddress.toBase58());
     console.log(candyMachine);
   }, [provider, candyMachine]);
+
   return (
     <Container>
       <PageTitle>NFT Candy Drop</PageTitle>
@@ -579,56 +581,51 @@ const CandyMachineHome = () => {
           </ImageWrapper>
         </MainContainer>
         <SpinContainer>
-          <SpinBtn>
-            <MintBtnWrapper>
-              <MintButtonContainer>
-                {!isActive &&
-                !isEnded &&
-                candyMachine?.state.goLiveDate &&
-                (!isWLOnly || whitelistTokenBalance > 0) ? (
-                  <Countdown
-                    date={toDate(candyMachine?.state.goLiveDate)}
-                    onMount={({ completed }) =>
-                      completed && setIsActive(!isEnded)
-                    }
-                    onComplete={() => {
-                      setIsActive(!isEnded);
-                    }}
-                    renderer={renderGoLiveDateCounter}
-                  />
-                ) : !provider ? (
-                  <ConnectButton>Connect Wallet</ConnectButton>
-                ) : !isWLOnly || whitelistTokenBalance > 0 ? (
-                  candyMachine?.state.gatekeeper &&
-                  walletAddress &&
-                  provider.signTransaction ? (
-                    <GatewayProvider
-                      wallet={{
-                        publicKey:
-                          walletAddress || new PublicKey(CANDY_MACHINE_PROGRAM),
-                        //@ts-ignore
-                        signTransaction: provider.signTransaction,
-                      }}
-                      // // Replace with following when added
-                      // gatekeeperNetwork={candyMachine.state.gatekeeper_network}
-                      gatekeeperNetwork={
-                        candyMachine?.state?.gatekeeper?.gatekeeperNetwork
-                      } // This is the ignite (captcha) network
-                      /// Don't need this for mainnet
-                      clusterUrl={rpcUrl}
-                      options={{ autoShowModal: false }}
-                    >
-                      <MintButton
-                        candyMachine={candyMachine}
-                        isMinting={isMinting}
-                        isActive={isActive}
-                        isEnded={isEnded}
-                        isSoldOut={isSoldOut}
-                        onMint={startMint}
-                      />
-                    </GatewayProvider>
-                  ) : (
-                    /*<MintButton
+          {!isActive &&
+          !isEnded &&
+          candyMachine?.state.goLiveDate &&
+          (!isWLOnly || whitelistTokenBalance > 0) ? (
+            <Countdown
+              date={toDate(candyMachine?.state.goLiveDate)}
+              onMount={({ completed }) => completed && setIsActive(!isEnded)}
+              onComplete={() => {
+                setIsActive(!isEnded);
+              }}
+              renderer={renderGoLiveDateCounter}
+            />
+          ) : !provider ? (
+            <ConnectButton>Connect Wallet</ConnectButton>
+          ) : !isWLOnly || whitelistTokenBalance > 0 ? (
+            candyMachine?.state.gatekeeper &&
+            walletAddress &&
+            provider.signTransaction ? (
+              <GatewayProvider
+                wallet={{
+                  publicKey:
+                    walletAddress || new PublicKey(CANDY_MACHINE_PROGRAM),
+                  //@ts-ignore
+                  signTransaction: provider.signTransaction,
+                }}
+                // // Replace with following when added
+                // gatekeeperNetwork={candyMachine.state.gatekeeper_network}
+                gatekeeperNetwork={
+                  candyMachine?.state?.gatekeeper?.gatekeeperNetwork
+                } // This is the ignite (captcha) network
+                /// Don't need this for mainnet
+                clusterUrl={rpcUrl}
+                options={{ autoShowModal: false }}
+              >
+                <MintButton
+                  candyMachine={candyMachine}
+                  isMinting={isMinting}
+                  isActive={isActive}
+                  isEnded={isEnded}
+                  isSoldOut={isSoldOut}
+                  onMint={startMint}
+                />
+              </GatewayProvider>
+            ) : (
+              /*<MintButton
                                                 candyMachine={candyMachine}
                                                 isMinting={isMinting}
                                                 isActive={isActive}
@@ -636,58 +633,29 @@ const CandyMachineHome = () => {
                                                 isSoldOut={isSoldOut}
                                                 onMint={startMint}
                                             />*/
-                    <MultiMintButton
-                      candyMachine={candyMachine}
-                      isMinting={isMinting}
-                      isActive={isActive}
-                      isEnded={isEnded}
-                      isSoldOut={isSoldOut}
-                      onMint={startMint}
-                      price={
-                        whitelistEnabled && whitelistTokenBalance > 0
-                          ? whitelistPrice
-                          : price
-                      }
-                    />
-                  )
-                ) : (
-                  <h1>Mint is private.</h1>
-                )}
-              </MintButtonContainer>
-            </MintBtnWrapper>
-          </SpinBtn>
+              <MultiMintButton
+                candyMachine={candyMachine}
+                isMinting={isMinting}
+                isActive={isActive}
+                isEnded={isEnded}
+                isSoldOut={isSoldOut}
+                onMint={startMint}
+                price={
+                  whitelistEnabled && whitelistTokenBalance > 0
+                    ? whitelistPrice
+                    : price
+                }
+              />
+            )
+          ) : (
+            <h1>Mint is private.</h1>
+          )}
         </SpinContainer>
         <MainContainer>
           <MintContainer>
             <DesContainer>
               <NFT elevation={0}>
-                {/* <div>
-                <Price
-                  label={
-                    isActive && whitelistEnabled && whitelistTokenBalance > 0
-                      ? whitelistPrice + " " + priceLabel
-                      : price + " " + priceLabel
-                  }
-                />
-              </div> */}
                 <br />
-                {/* {provider &&
-                isActive &&
-                whitelistEnabled &&
-                whitelistTokenBalance > 0 &&
-                isBurnToken && (
-                  <h3>
-                    You own {whitelistTokenBalance} WL mint{" "}
-                    {whitelistTokenBalance > 1 ? "tokens" : "token"}.
-                  </h3>
-                )}
-              {provider &&
-                isActive &&
-                whitelistEnabled &&
-                whitelistTokenBalance > 0 &&
-                !isBurnToken && (
-                  <h3>You are whitelisted and allowed to mint.</h3>
-                )} */}
                 {provider &&
                   isActive &&
                   endDate &&
@@ -711,6 +679,7 @@ const CandyMachineHome = () => {
                 )}
                 {provider && isActive && (
                   <BorderLinearProgress
+                    color="primary"
                     variant="determinate"
                     value={100 - (itemsRemaining * 100) / itemsAvailable}
                   />
@@ -745,15 +714,22 @@ const CandyMachineHome = () => {
   );
 };
 
-const Container = styled.div``;
+const Container = styled.div`
+  border-radius: 16px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+`;
 const PageTitle = styled.div`
   font-size: 24px;
   font-weight: bold;
   text-align: center;
+  margin-top: 32px;
   margin-bottom: 16px;
 `;
 
 const Wrapper = styled.div`
+  padding-left: 64px;
+  padding-right: 64px;
+  padding-bottom: 64px;
   display: flex;
   justify-content: center;
 `;
@@ -773,7 +749,6 @@ const MainContainer = styled.div`
 const SpinContainer = styled.div`
   display: flex;
   justify-content: center;
-  flex-direction: column;
   margin-top: 20px;
   margin-bottom: 20px;
   margin-right: 16px;
@@ -781,6 +756,7 @@ const SpinContainer = styled.div`
   text-align: center;
   align-items: center;
   width: 250px;
+  border-radius: 50%;
   background-color: ${(props) => props.theme.bgColor};
 `;
 const SpinBtn = styled.button`
@@ -795,6 +771,9 @@ const SpinBtn = styled.button`
   border-radius: 50%;
   background-color: ${(props) => props.theme.ownColor};
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
 `;
 const SpinTitle = styled.div``;
 const SvgWrapper = styled.svg`
@@ -806,7 +785,7 @@ const MintBtnWrapper = styled.div`
   height: 150px;
   position: relative;
   z-index: 0;
-  background-color: ${(props) => props.theme.ownColor};
+  background-color: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -827,6 +806,8 @@ const DesContainer = styled.div`
   flex-direction: column;
   flex: 1 1 auto;
   gap: 20px;
+  border-radius: 16px;
+  background-color: ${(props) => props.theme.boxColor} !important;
 `;
 const TitleWrapper = styled.div``;
 const Title = styled.div`
@@ -837,7 +818,7 @@ const Title = styled.div`
 
 const Card = styled(Paper)`
   display: inline-block;
-  background-color: var(--countdown-background-color) !important;
+  background-color: ${(props) => props.theme.bgColor} !important;
   margin: 5px;
   min-width: 40px;
   padding: 24px;
@@ -878,50 +859,15 @@ const ConnectButton = styled(WalletMultiButton)`
 const NFT = styled(Paper)`
   /* min-width: 500px;
   min-height: 500px; */
+  border-radius: 16px !important;
+  color: ${(props) => props.theme.textColor} !important;
   width: 100%;
   height: auto;
   margin: 0 auto;
   padding: 5px 20px 20px 20px;
   flex: 1 1 auto;
-  background-color: var(--card-background-color) !important;
+  background-color: ${(props) => props.theme.boxColor} !important;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
-`;
-
-const MintButtonContainer = styled.div`
-  button.MuiButton-contained:not(.MuiButton-containedPrimary).Mui-disabled {
-    color: #464646;
-  }
-
-  button.MuiButton-contained:not(.MuiButton-containedPrimary):hover,
-  button.MuiButton-contained:not(.MuiButton-containedPrimary):focus {
-    -webkit-animation: pulse 1s;
-    animation: pulse 1s;
-    box-shadow: 0 0 0 2em rgba(255, 255, 255, 0);
-  }
-
-  @-webkit-keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 #6eef79;
-    }
-  }
-
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 #870ff8;
-    }
-    /* 25% {
-      box-shadow: 0 0 0 0 #260ff8;
-    }
-    50% {
-      box-shadow: 0 0 0 0 #0f3af8;
-    }
-    75% {
-      box-shadow: 0 0 0 0 #0fa3f8;
-    }
-    100% {
-      box-shadow: 0 0 0 0 #0ff8ec;
-    } */
-  }
 `;
 
 const SolExplorerLink = styled.a`
@@ -947,25 +893,14 @@ const BorderLinearProgress = styled(LinearProgress)`
   border: 2px solid white;
   box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.5);
   /* background-color: ; */
-  background: linear-gradient(45deg, #870ff8, #0f3af8, #0ff8ec) !important;
-  background-image: linear-gradient(
-    270deg,
-    rgba(255, 0, 0, 0.01),
-    rgba(255, 255, 255, 0.5)
-  );
-
-  /* > div.MuiLinearProgress-barColorPrimary {
-    background-color: var(--title-text-color) !important;
-  }
-
-  > div.MuiLinearProgress-bar1Determinate {
-    border-radius: 30px !important;
+  .MuiLinearProgress-barColorPrimary {
     background-image: linear-gradient(
-      270deg,
-      rgba(255, 0, 0, 0.01),
-      rgba(255, 255, 255, 0.5)
-    );
-  } */
+      45deg,
+      #870ff8,
+      #0f3af8,
+      #0ff8ec
+    ) !important;
+  }
 `;
 
 export default CandyMachineHome;

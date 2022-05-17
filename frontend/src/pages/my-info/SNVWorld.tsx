@@ -10,6 +10,8 @@ import CandyDrop from "pages/nft/CandyDrop";
 import Other from "pages/nft/Other";
 import CandyMachineHome from "pages/candyMachine/CandyMachineHome";
 import axios from "axios";
+import confetti from "canvas-confetti";
+import Rank from "components/Main/Rank";
 
 function SNVWorld() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -28,7 +30,7 @@ function SNVWorld() {
   };
 
   const onNFT = () => {
-    navigate("/snv-world/nft");
+    navigate("/snv-world");
   };
 
   const onOther = () => {
@@ -106,42 +108,61 @@ function SNVWorld() {
         <Section>
           <Wrapper>
             <UserWrapper>
-              <UserBox>
-                <Hello>반갑습니다</Hello>
-                <UserName>
-                  {userInfo.twitch.id
-                    ? userInfo.twitch.displayName
-                    : "익명의 솔전사"}
-                  님
-                </UserName>
+              <UserBox style={{ display: "flex" }}>
+                <UserImageWrapper>
+                  <UserImage src={userInfo.twitch.profileImageUrl} />
+                </UserImageWrapper>
+                <UserInfoWrapper>
+                  <Hello>반갑습니다</Hello>
+                  <UserName>
+                    {userInfo.twitch.id
+                      ? userInfo.twitch.displayName
+                      : "익명의 솔전사"}
+                    님
+                  </UserName>
+                </UserInfoWrapper>
+              </UserBox>
+              <RankingBox>
                 <UserName>랭킹표시 할 자리</UserName>
-              </UserBox>
-              <UserBox>
+              </RankingBox>
+              <Hr />
+              <PointBox>
+                <UserTitle>Your Balance</UserTitle>
                 <PointWrapper>
-                  <PointTitle>SOL</PointTitle>
-                  <PointContent>
-                    {isLoadingGetBalance ? (
-                      <SpinnerDiv>
-                        <Spinner />
-                      </SpinnerDiv>
-                    ) : (
-                      solBalance?.toFixed(2)
-                    )}
-                  </PointContent>
+                  <PointInfoWrapper>
+                    <PointImage src={`${process.env.PUBLIC_URL}/솔라나.png`} />
+                    <PointTitle>SOL</PointTitle>
+                  </PointInfoWrapper>
+                  <PointInfoWrapper>
+                    <PointContent>
+                      {isLoadingGetBalance ? (
+                        <SpinnerDiv>
+                          <Spinner />
+                        </SpinnerDiv>
+                      ) : (
+                        solBalance?.toFixed(2)
+                      )}
+                    </PointContent>
+                  </PointInfoWrapper>
                 </PointWrapper>
                 <PointWrapper>
-                  <PointTitle>SVN</PointTitle>
-                  <PointContent>
-                    {isLoadingGetBalance ? (
-                      <SpinnerDiv>
-                        <Spinner />
-                      </SpinnerDiv>
-                    ) : (
-                      tokenBalance?.toFixed(0)
-                    )}
-                  </PointContent>
+                  <PointInfoWrapper>
+                    <PointImage src={`${process.env.PUBLIC_URL}/SNV토큰.png`} />
+                    <PointTitle>SNV</PointTitle>
+                  </PointInfoWrapper>
+                  <PointInfoWrapper>
+                    <PointContent>
+                      {isLoadingGetBalance ? (
+                        <SpinnerDiv>
+                          <Spinner />
+                        </SpinnerDiv>
+                      ) : (
+                        tokenBalance?.toFixed(2)
+                      )}
+                    </PointContent>
+                  </PointInfoWrapper>
                 </PointWrapper>
-              </UserBox>
+              </PointBox>
             </UserWrapper>
 
             <Tabs>
@@ -204,54 +225,96 @@ const SpinnerDiv = styled.div`
 `;
 const UserWrapper = styled.div`
   height: 40%;
-  background-color: ${(props) => props.theme.bgColor};
+  padding: 16px;
+  border-radius: 16px;
+  background-color: ${(props) => props.theme.boxColor};
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
 `;
 const Hello = styled.div`
   font-size: 14px;
   margin-top: 8px;
 `;
 const UserBox = styled.div`
-  margin-bottom: 16px;
+  padding: 8px 8px;
+  border-radius: 16px;
+  background-color: ${(props) => props.theme.subBoxColor};
+  margin-bottom: 12px;
 `;
+const RankingBox = styled(UserBox)`
+  background-color: ${(props) => props.theme.boxColor};
+`;
+const PointBox = styled(UserBox)`
+  background-color: ${(props) => props.theme.boxColor};
+  padding: 0px;
+`;
+const Hr = styled.hr`
+  background-color: ${(props) => props.theme.borderColor};
+`;
+const UserTitle = styled.div`
+  text-align: center;
+  margin-bottom: 8px;
+`;
+const UserImageWrapper = styled.div``;
+const UserImage = styled.img`
+  width: 50px;
+  border-radius: 30px;
+  margin-right: 8px;
+`;
+const UserInfoWrapper = styled.div``;
 const UserName = styled.div`
   margin-bottom: 4px;
+  white-space: pre-wrap;
 `;
 const PointWrapper = styled.div`
   display: flex;
+  align-items: center;
+  margin-bottom: 4px;
   justify-content: space-between;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: ${(props) => props.theme.subBoxColor};
+  margin-bottom: 8px;
+`;
+const PointInfoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+const PointImage = styled.img`
+  width: 30px;
+  margin-right: 4px;
 `;
 const PointTitle = styled.div``;
 const PointContent = styled.div`
   white-space: pre-wrap;
-  margin-bottom: 8px;
   font-weight: bold;
 `;
 
 const Tabs = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  margin: 25px 0px;
+  margin: 32px 0px;
   gap: 20px;
   height: 60%;
 `;
-const Tab = styled.span<{ isActive: boolean }>`
+const Tab = styled.div<{ isActive: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-right: 10px;
-  height: 37px;
+  height: 45px;
   padding: 0 17px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   line-height: 37px;
   border-radius: 30px;
   letter-spacing: -0.5px;
   cursor: pointer;
   text-align: center;
+  background-color: ${(props) => props.theme.subTextColor};
+  color: #ffffff;
   &:hover {
-    background: ${(props) => props.theme.ownColor};
-    color: #ffffff;
+    background: linear-gradient(45deg, #870ff8 20%, #0f3af8 60%, #0ff8ec 95%);
   }
-  color: ${(props) => (!props.isActive ? props.theme.textColor : `#ffffff`)};
-  background-color: ${(props) =>
-    props.isActive ? props.theme.ownColor : props.theme.borderColor};
 `;
 const NFTWrapper = styled.div`
   width: 70%;
