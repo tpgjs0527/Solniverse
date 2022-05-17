@@ -128,7 +128,7 @@ function Donation() {
       }
     } else {
       navigate({
-        pathname: "/paymentMobile",
+        pathname: "/payment",
         search: `?${createSearchParams(params)}`,
       });
     }
