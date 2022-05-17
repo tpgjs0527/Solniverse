@@ -1,7 +1,4 @@
 import * as solanaWeb3 from "@solana/web3.js";
-import { getProvider } from "./getProvider";
-import { fetchWallet } from "./fetcher";
-import Swal from "sweetalert2";
 
 const LAMPORTS_PER_SOL = solanaWeb3.LAMPORTS_PER_SOL;
 
@@ -45,53 +42,8 @@ const getBalance = async (walletAddress: string) => {
   }
 };
 
-const getWallet = async () => {
-  const provider = getProvider();
-
-  if (provider) {
-    const response = await provider.connect();
-    console.log(response);
-
-    try {
-      const res = await fetchWallet(response.publicKey.toString());
-      if (res.status >= 200 && res.status < 400) {
-        const data = await res.json();
-        return data;
-      } else {
-        const error = new Error(res.statusText);
-        throw error;
-      }
-    } catch (error) {
-      console.log(error);
-      const res = await fetchWallet(response.publicKey.toString(), "POST");
-      if (res.status >= 200 && res.status < 400) {
-        const data = await res.json();
-        console.log(data);
-        return data;
-      } else {
-        const error = new Error(res.statusText);
-        console.log(error);
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "There is not wallet address! Please reconnect your wallet 😊",
-          footer: '<a href="/service">Go Service Page</a>',
-        });
-      }
-    }
-  } else {
-    Swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: "There is not wallet address! Please check your wallet program😊",
-      footer: '<a href="/service">Go Service Page</a>',
-    });
-  }
-};
-
 export {
   LAMPORTS_PER_SOL,
-  getWallet,
   createConnection,
   createPublicKey,
   getSolanaPrice,

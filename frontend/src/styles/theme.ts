@@ -5,6 +5,7 @@ import { DefaultTheme } from "styled-components";
 // 밝은 테마
 export const lightTheme: DefaultTheme = {
   ownColor: "#00a8ff",
+  ownColorHover: "#0086cc",
   bgColor: "#ffffff",
   textColor: "#000000",
   subTextColor: "#666666",
@@ -16,6 +17,7 @@ export const lightTheme: DefaultTheme = {
 // 어두운 테마
 export const darkTheme: DefaultTheme = {
   ownColor: "#00a8ff",
+  ownColorHover: "#0086cc",
   bgColor: "#000000",
   textColor: "#ffffff",
   subTextColor: "#777777",
