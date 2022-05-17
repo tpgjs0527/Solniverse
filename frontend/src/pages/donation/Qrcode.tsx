@@ -14,6 +14,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
+import { findAssociatedTokenAddress } from "utils/solanaWeb3";
 const {
   getOrCreateAssociatedTokenAccount,
   transfer,
@@ -136,9 +137,15 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         );
         // const res = getOrCreateAssociatedTokenAccount()
         // console.log
+        // const tokenAccount = await findAssociatedTokenAddress(
+        //   new PublicKey(userInfo.walletAddress),
+        //   new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+        // );
+
         const splToken = new PublicKey(
           "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
         );
+        // const splToken = new PublicKey(tokenAccount);
         const url = encodeURL({
           recipient,
           amount,

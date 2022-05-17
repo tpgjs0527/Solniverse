@@ -4,7 +4,11 @@ import Spinner from "components/Spinner";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { getBalance, getTokenBalance } from "utils/solanaWeb3";
+import {
+  createConnection,
+  findAssociatedTokenAddress,
+  getBalance,
+} from "utils/solanaWeb3";
 import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
 import CandyDrop from "pages/nft/CandyDrop";
 import Other from "pages/nft/Other";
@@ -12,14 +16,17 @@ import CandyMachineHome from "pages/candyMachine/CandyMachineHome";
 import axios from "axios";
 import confetti from "canvas-confetti";
 import Rank from "components/Main/Rank";
+import { PublicKey } from "@solana/web3.js";
 
 function SNVWorld() {
   const userInfo = useRecoilValue(userInfoAtom);
   const navigate = useNavigate();
   const tokenAddress = "9UGMFdqeQbNqu488mKYzsAwBu6P2gLJnsFeQZ29cGSEw";
-  const [solBalance, setSolBalance] = useState<number>();
-  const [tokenBalance, setTokenBalance] = useState<number>();
+  const [solBalance, setSolBalance] = useState(0);
+  const [SNVBalance, setSNVBalance] = useState(0);
+  const [USDCBalance, setUSDCBalance] = useState(0);
   const [isLoadingGetBalance, setIsLoadingGetBalance] = useState(true);
+  const connection = createConnection();
   // const publicKey = new PublicKey(userInfo.walletAddress);
   const nftMatch = useMatch("/snv-world/nft");
   const otherMatch = useMatch("/snv-world/other");
@@ -52,8 +59,32 @@ function SNVWorld() {
   //   }
   // };
   const getAsyncToken = async () => {
-    const amount = await getTokenBalance(userInfo.walletAddress);
-    setTokenBalance(amount);
+    const usdcAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+    );
+
+    const usdcResponse = await connection.getTokenAccountBalance(
+      new PublicKey(usdcAddress)
+    );
+    console.log(usdcResponse);
+    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+    if (usdcResponse) {
+      setUSDCBalance(usdcAmount);
+    }
+    const snvAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+    );
+
+    const snvResponse = await connection.getTokenAccountBalance(
+      new PublicKey(snvAddress)
+    );
+    console.log(snvResponse);
+    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+    if (snvResponse) {
+      setSNVBalance(snvAmount);
+    }
   };
 
   useEffect(() => {
@@ -62,7 +93,7 @@ function SNVWorld() {
     if (solBalance) {
       setIsLoadingGetBalance(false);
     }
-  }, [solBalance, tokenBalance]);
+  }, [solBalance, SNVBalance, USDCBalance]);
 
   return (
     <Layout>
@@ -113,6 +144,25 @@ function SNVWorld() {
                 <PointWrapper>
                   <PointInfoWrapper>
                     <PointImage
+                      src={`${process.env.PUBLIC_URL}/images/usdc.png`}
+                    />
+                    <PointTitle>USDC</PointTitle>
+                  </PointInfoWrapper>
+                  <PointInfoWrapper>
+                    <PointContent>
+                      {isLoadingGetBalance ? (
+                        <SpinnerDiv>
+                          <Spinner />
+                        </SpinnerDiv>
+                      ) : (
+                        USDCBalance?.toFixed(0)
+                      )}
+                    </PointContent>
+                  </PointInfoWrapper>
+                </PointWrapper>
+                <PointWrapper>
+                  <PointInfoWrapper>
+                    <PointImage
                       src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`}
                     />
                     <PointTitle>SNV</PointTitle>
@@ -124,7 +174,7 @@ function SNVWorld() {
                           <Spinner />
                         </SpinnerDiv>
                       ) : (
-                        tokenBalance?.toFixed(2)
+                        SNVBalance?.toFixed(0)
                       )}
                     </PointContent>
                   </PointInfoWrapper>
@@ -235,9 +285,8 @@ const UserName = styled.div`
 const PointWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 16px;
   background-color: ${(props) => props.theme.subBoxColor};
   margin-bottom: 8px;

@@ -5,9 +5,11 @@ import { CircularProgress } from "@material-ui/core";
 import { GatewayStatus, useGateway } from "@civic/solana-gateway-react";
 import { CandyMachine } from "../../utils/candy-machine";
 import Spinner from "components/Spinner";
-import { getTokenBalance } from "utils/solanaWeb3";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { findAssociatedTokenAddress } from "utils/solanaWeb3";
+import { createConnection } from "net";
 
 export const CTAButton = styled(Button)`
   width: 150px;
@@ -107,13 +109,14 @@ export const MultiMintButton = ({
   price: number;
 }) => {
   const userInfo = useRecoilValue(userInfoAtom);
+  const connection = new Connection(clusterApiUrl("devnet"));
   const { requestGatewayToken, gatewayStatus } = useGateway();
   const [clicked, setClicked] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [mintCount, setMintCount] = useState(1);
   const [totalCost, setTotalCost] = useState(mintCount * (price + 0.012));
   const [isLoading, setIsLoading] = useState(true);
-  const [tokenBalance, setTokenBalance] = useState(0);
+  const [snvBalance, setSNVBalance] = useState(0);
 
   useEffect(() => {
     if (candyMachine) {
@@ -176,12 +179,23 @@ export const MultiMintButton = ({
     setTotalCost(Math.round(qty * (price + 0.012) * 1000) / 1000); // 0.012 = approx of account creation fees
   }
   const getAsyncToken = async () => {
-    const amount = await getTokenBalance(userInfo.walletAddress);
-    setTokenBalance(amount);
+    const snvAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+    );
+
+    const snvResponse = await connection.getTokenAccountBalance(
+      new PublicKey(snvAddress)
+    );
+    console.log(snvResponse);
+    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+    if (snvResponse) {
+      setSNVBalance(snvAmount);
+    }
   };
   useEffect(() => {
     getAsyncToken();
-  }, [tokenBalance]);
+  }, [snvBalance]);
 
   return (
     <>
@@ -203,7 +217,7 @@ export const MultiMintButton = ({
               isVerifying
             }
             onClick={async () => {
-              if (tokenBalance) {
+              if (snvBalance) {
                 setTimeout(async () => {
                   if (window.confirm("Candy Drop 하시겠습니까?")) {
                     if (

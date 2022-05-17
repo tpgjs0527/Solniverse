@@ -13,6 +13,9 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { getProvider } from "utils/getProvider";
 import nacl from "tweetnacl";
 import Swal from "sweetalert2";
+import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { findAssociatedTokenAddress } from "utils/solanaWeb3";
 
 export interface ITX {
   result: string;
@@ -41,7 +44,7 @@ function Payment() {
   const closeModal = () => {
     setOpenModal(false);
   };
-  const onClick = () => {
+  const onClick = async () => {
     if (txid) {
       if (isMobile) {
         if (type === "SOL") {
@@ -81,9 +84,14 @@ function Payment() {
           const reference = new PublicKey(
             "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
           );
+          // const tokenAccount = await findAssociatedTokenAddress(
+          //   new PublicKey(userInfo.walletAddress),
+          //   new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+          // );
           const splToken = new PublicKey(
             "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
           );
+          // const splToken = new PublicKey(tokenAccount);
           const url = encodeURL({
             recipient,
             amount,
@@ -252,7 +260,9 @@ const Wrapper = styled.div`
   min-height: 500px;
   border-radius: 16px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
-  @media screen and (min-width: 1439px) {
+  @media screen and (min-width: 1439px) {import { useConnection } from '@solana/wallet-adapter-react';
+import { findAssociatedTokenAddress } from 'utils/solanaWeb3';
+
     min-width: 600px;
   }
   @media screen and (max-width: 767px) {

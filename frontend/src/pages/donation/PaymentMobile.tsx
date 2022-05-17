@@ -62,7 +62,6 @@ function PaymentMobile() {
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
           }`;
-
           const message = `${params.message}`;
           const memo = `${txid}`;
           const amount = new BigNumber(Number(`${params.amount}`));
@@ -87,7 +86,7 @@ function PaymentMobile() {
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
           }`;
-
+          
           const message = `${params.message}`;
           const memo = `${txid}`;
           const amount = new BigNumber(Number(`${params.amount}`));
