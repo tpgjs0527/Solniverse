@@ -1,4 +1,7 @@
+import { useState } from "react";
 import styled from "styled-components";
+import { ColRef } from "./Dashboard";
+import Rank from "./Rank";
 
 interface IProps {
   tier: string;
@@ -7,75 +10,84 @@ interface IProps {
 }
 
 function Tier({ tier, index, dashboard }: IProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <Col>
-      {dashboard ? (
-        <ColTitle>현재 나의 등급</ColTitle>
-      ) : (
-        <ColTitleRank>{tier}</ColTitleRank>
-      )}
-      {!(tier === "Platinum") && !(tier === "Diamond") ? (
-        <Icon tier={tier}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        </Icon>
-      ) : tier === "Platinum" ? (
-        <IconHighTier>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="url(#Platinum)"
-          >
-            <defs>
-              <radialGradient id="Platinum" spreadMethod="reflect">
-                <stop offset="15%" stopColor="rgba(185, 242, 255, 1)" />
-                <stop offset="35%" stopColor="rgba(235, 251, 255, 1)" />
-                <stop offset="50%" stopColor="rgba(185, 255, 198, 1)" />
-                <stop offset="65%" stopColor="rgba(115, 125, 128, 1)" />
-                <stop offset="85%" stopColor="rgba(0, 0, 0, 1)" />
-                <stop offset="100%" stopColor="rgba(128, 128, 128, 1)" />
-              </radialGradient>
-            </defs>
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        </IconHighTier>
-      ) : (
-        <IconHighTier>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="url(#Diamond)"
-          >
-            <defs>
-              <radialGradient id="Diamond" spreadMethod="reflect">
-                <stop offset="20%" stopColor="rgba(229, 228, 226, 1)" />
-                <stop offset="40%" stopColor="rgba(255, 255, 255, 1)" />
-                <stop offset="60%" stopColor="rgba(229, 226, 227, 1)" />
-                <stop offset="80%" stopColor="rgba(128, 128, 128, 1)" />
-                <stop offset="100%" stopColor="rgba(0, 0, 0, 1)" />
-              </radialGradient>
-            </defs>
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        </IconHighTier>
-      )}
-      {dashboard ? (
-        <ColContent>{tier}</ColContent>
-      ) : (
-        <>
-          {!!index ? (
-            <ColContentRank>$ {100 * 5 ** (index - 1)}</ColContentRank>
-          ) : (
-            <ColContentRank>-</ColContentRank>
-          )}
-        </>
-      )}
-    </Col>
+    <>
+      <Col>
+        {dashboard ? (
+          <ColTitle>현재 나의 등급</ColTitle>
+        ) : (
+          <ColTitleRank>{tier}</ColTitleRank>
+        )}
+        {!(tier === "Platinum") && !(tier === "Diamond") ? (
+          <Icon tier={tier}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </Icon>
+        ) : tier === "Platinum" ? (
+          <IconHighTier>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="url(#Platinum)"
+            >
+              <defs>
+                <radialGradient id="Platinum" spreadMethod="reflect">
+                  <stop offset="15%" stopColor="rgba(185, 242, 255, 1)" />
+                  <stop offset="35%" stopColor="rgba(235, 251, 255, 1)" />
+                  <stop offset="50%" stopColor="rgba(185, 255, 198, 1)" />
+                  <stop offset="65%" stopColor="rgba(115, 125, 128, 1)" />
+                  <stop offset="85%" stopColor="rgba(0, 0, 0, 1)" />
+                  <stop offset="100%" stopColor="rgba(128, 128, 128, 1)" />
+                </radialGradient>
+              </defs>
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </IconHighTier>
+        ) : (
+          <IconHighTier>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="url(#Diamond)"
+            >
+              <defs>
+                <radialGradient id="Diamond" spreadMethod="reflect">
+                  <stop offset="20%" stopColor="rgba(229, 228, 226, 1)" />
+                  <stop offset="40%" stopColor="rgba(255, 255, 255, 1)" />
+                  <stop offset="60%" stopColor="rgba(229, 226, 227, 1)" />
+                  <stop offset="80%" stopColor="rgba(128, 128, 128, 1)" />
+                  <stop offset="100%" stopColor="rgba(0, 0, 0, 1)" />
+                </radialGradient>
+              </defs>
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </IconHighTier>
+        )}
+        {dashboard ? (
+          <>
+            <ColContent>{tier}</ColContent>
+            <ColRef onClick={() => setIsModalOpen(true)}>등급표</ColRef>
+          </>
+        ) : (
+          <>
+            {!!index ? (
+              <ColContentRank>$ {100 * 5 ** (index - 1)}</ColContentRank>
+            ) : (
+              <ColContentRank>-</ColContentRank>
+            )}
+          </>
+        )}
+      </Col>
+
+      <Rank isModalOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </>
   );
 }
 

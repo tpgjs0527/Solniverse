@@ -1,4 +1,4 @@
-// 등급표
+// 순위표
 
 import { toggleThemeAtom } from "atoms";
 import { useEffect, useState } from "react";
@@ -12,11 +12,11 @@ interface IProps {
   onClose: Function;
 }
 
-function Rank({ isModalOpen, onClose }: IProps) {
+function Ranking({ isModalOpen, onClose }: IProps) {
   const isDark = useRecoilValue(toggleThemeAtom);
   const [isOpen, setIsOpen] = useState(false);
 
-  const tierList = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
+  const RankingList = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
 
   useEffect(() => {
     if (!!isModalOpen) {
@@ -50,12 +50,8 @@ function Rank({ isModalOpen, onClose }: IProps) {
         },
       }}
     >
-      <SubTitle>등급표</SubTitle>
-      <SubBox>
-        {tierList.map((tier, index) => (
-          <Tier key={index} tier={tier} index={index} />
-        ))}
-      </SubBox>
+      <SubTitle>순위 목록</SubTitle>
+      <SubBox></SubBox>
     </ReactModal>
   );
 }
@@ -87,4 +83,4 @@ const SubTitle = styled.p`
   margin: 30px 0;
 `;
 
-export default Rank;
+export default Ranking;
