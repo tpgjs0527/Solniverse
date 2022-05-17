@@ -12,6 +12,7 @@ import useMutation from "hooks/useMutation";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { getProvider } from "utils/getProvider";
 import nacl from "tweetnacl";
+import Swal from "sweetalert2";
 
 export interface ITX {
   result: string;
@@ -99,7 +100,11 @@ function Payment() {
         setOpenModal(true);
       }
     } else {
-      alert("잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.");
+      Swal.fire(
+        "결제 경로 오류",
+        "잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.",
+        "warning"
+      );
       navigate(`/donation/${walletAddress}`);
     }
   };
@@ -157,6 +162,9 @@ function Payment() {
           </Wrapper>
           <Wrapper>
             <PaymentWrapper>
+              <TitleWrapper style={{ marginLeft: "32px", marginBottom: "8px" }}>
+                <Title>결제 정보</Title>
+              </TitleWrapper>
               <TotalPriceWrapper>
                 <PriceWrapper style={{ marginBottom: "8px" }}>
                   <Price>Donate Message</Price>
