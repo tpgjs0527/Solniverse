@@ -1,30 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import ReactDOM from "react-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
-import { isBrowser, isMobile } from "react-device-detect";
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  LAMPORTS_PER_SOL,
-} from "@solana/web3.js";
+import { isMobile } from "react-device-detect";
+import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { encodeURL } from "@solana/pay";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { accessTokenAtom, userInfoAtom } from "atoms";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import {
-  WalletConnectButton,
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
+import { WalletConnectButton } from "@solana/wallet-adapter-react-ui";
 import Swal from "sweetalert2";
 
 export interface ITX {
@@ -49,7 +34,6 @@ function PaymentMobile() {
   const [getTXId, { data, loading }] = useMutation<any>(
     `${process.env.REACT_APP_BASE_URL}/donation/send`
   );
-  console.log(params);
 
   const closeModal = () => {
     setOpenModal(false);
@@ -62,7 +46,6 @@ function PaymentMobile() {
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
           }`;
-
           const message = `${params.message}`;
           const memo = `${txid}`;
           const amount = new BigNumber(Number(`${params.amount}`));
@@ -79,10 +62,9 @@ function PaymentMobile() {
             message,
             memo,
           });
-          console.log(url);
+
           window.location.href = url;
         } else if (type === "USDC") {
-          console.log("USDC로 결제");
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
@@ -106,7 +88,7 @@ function PaymentMobile() {
             message,
             memo,
           });
-          console.log(url);
+
           window.location.href = url;
         }
       } else {
@@ -129,7 +111,6 @@ function PaymentMobile() {
         message: message,
         platform: "",
       });
-      console.log("첫 번째 랜더링입니다.");
     }
   }, []);
 
@@ -137,11 +118,8 @@ function PaymentMobile() {
     // getSignature();
     if (data) {
       setTXID(data.txid);
-      console.log("두 번째 랜더링입니다.");
     }
-    console.log("랜더링 가즈아");
   }, [data]);
-  console.log(txid);
 
   return (
     <Container>

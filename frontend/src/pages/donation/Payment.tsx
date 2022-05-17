@@ -3,15 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import Qrcode from "./Qrcode";
 import { isMobile } from "react-device-detect";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { encodeURL } from "@solana/pay";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { accessTokenAtom, userInfoAtom } from "atoms";
+import { useRecoilValue } from "recoil";
+import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import { getProvider } from "utils/getProvider";
-import nacl from "tweetnacl";
 import Swal from "sweetalert2";
 
 export interface ITX {
@@ -36,12 +33,11 @@ function Payment() {
   const [getTXId, { data, loading }] = useMutation<any>(
     `${process.env.REACT_APP_BASE_URL}/donation/send`
   );
-  console.log(params);
 
   const closeModal = () => {
     setOpenModal(false);
   };
-  const onClick = () => {
+  const onClick = async () => {
     if (txid) {
       if (isMobile) {
         if (type === "SOL") {
@@ -66,10 +62,9 @@ function Payment() {
             message,
             memo,
           });
-          console.log(url);
+
           window.location.href = url;
         } else if (type === "USDC") {
-          console.log("USDC로 결제");
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
             userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
@@ -81,9 +76,14 @@ function Payment() {
           const reference = new PublicKey(
             "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
           );
+          // const tokenAccount = await findAssociatedTokenAddress(
+          //   new PublicKey(userInfo.walletAddress),
+          //   new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+          // );
           const splToken = new PublicKey(
             "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
           );
+          // const splToken = new PublicKey(tokenAccount);
           const url = encodeURL({
             recipient,
             amount,
@@ -93,7 +93,7 @@ function Payment() {
             message,
             memo,
           });
-          console.log(url);
+
           window.location.href = url;
         }
       } else {
@@ -116,7 +116,6 @@ function Payment() {
         message: message,
         platform: "",
       });
-      console.log("첫 번째 랜더링입니다.");
     }
   }, []);
 
@@ -124,11 +123,8 @@ function Payment() {
     // getSignature();
     if (data) {
       setTXID(data.txid);
-      console.log("두 번째 랜더링입니다.");
     }
-    console.log("랜더링 가즈아");
   }, [data]);
-  console.log(txid);
 
   return (
     <Container>
@@ -252,7 +248,9 @@ const Wrapper = styled.div`
   min-height: 500px;
   border-radius: 16px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
-  @media screen and (min-width: 1439px) {
+  @media screen and (min-width: 1439px) {import { useConnection } from '@solana/wallet-adapter-react';
+import { findAssociatedTokenAddress } from 'utils/solanaWeb3';
+
     min-width: 600px;
   }
   @media screen and (max-width: 767px) {
