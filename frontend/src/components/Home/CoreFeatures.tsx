@@ -45,6 +45,13 @@ const CoreWrapper = styled(Wrapper)`
 `;
 const CardContainer = styled.div`
   display: flex;
-
   padding-top: 20px;
+
+  @media screen and (max-width: 700px) {
+    flex-direction: column;
+    margin-right: 30px;
+    height: 500px;
+    /* padding-top: 30px;
+    padding-bottom: 30px; */
+  }
 `;

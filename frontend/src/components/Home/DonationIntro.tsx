@@ -113,6 +113,10 @@ export const Content = styled.div`
     margin-top: 0.5rem;
   }
   text-align: center;
+  @media screen and (max-width: 800px) {
+    margin-top: 10px;
+    margin-bottom: 0px;
+  }
 `;
 
 const TabsContainer = styled.div`

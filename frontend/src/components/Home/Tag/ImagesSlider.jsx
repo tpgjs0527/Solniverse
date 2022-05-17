@@ -54,17 +54,12 @@ export const ImagesSlider = ({ Images }) => {
   );
 };
 
-const Text = styled.span`
-  display: block;
-  position: absolute;
-  color: black;
-`;
 const StyledUpperSwiper = styled(Swiper)`
   /* width: 800px;
   height: 550px; */
   z-index: 0;
   width: 45vw;
-  height: 70%;
+  height: 60%;
   @media screen and (min-width: 1900px) {
     width: 48vw;
     height: 95%;

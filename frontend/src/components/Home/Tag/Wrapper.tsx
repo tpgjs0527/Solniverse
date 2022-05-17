@@ -5,16 +5,12 @@ export const Wrapper = styled.div`
   justify-content: center;
   overflow-y: hidden;
   overflow-x: hidden;
-  /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  transition: 0.3s;
-  :hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-  } */
-  margin-top: 11%;
+
+  margin-top: 12%;
   margin-right: 5rem;
   margin-left: 4rem;
-  height: 700px;
-  @media screen and (min-width: 1600px) {
+  height: 800px;
+  @media screen and (min-width: 1900px) {
     height: 1050px;
   }
   @media screen and (max-width: 800px) {

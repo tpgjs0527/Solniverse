@@ -30,4 +30,7 @@ const Card = styled.div`
   margin-top: 2%;
   border-radius: 10px;
   border: 1px soild lightcoral;
+  @media screen and (max-width: 700px) {
+    height: 300px;
+  }
 `;

@@ -8,18 +8,20 @@ export const Intro = () => {
     <BasicSection
       size={100}
       introTitle="SOLNIVERSE"
-      introContent="SOL : Solana 와 UNIVERSE:세계 를 합성어 SOLNIVERSE입니다."
+      introContent="SOL(Solana) 와 UNIVERS(세계) 를 합성어 SOLNIVERSE입니다."
       imageUrl="/favicon.ico"
       title="솔니버스입니다"
     >
       <p>
-        저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-        있습니다.{" "}
+        저희 SOLNIVERSE는 SOLANA 블록체인 네트워크를 사용하는 팬텀 월렛을 통해
+        서비스를 제공합니다.{" "}
         <Phantom>
-          <Link to="/">팬텀 월렛 확장 프로그램이 아직 없으신가요?</Link>
+          <a href="https://phantom.app/">
+            팬텀 월렛 확장 프로그램이 아직 없으신가요?{" "}
+          </a>
         </Phantom>
-        당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다 예 제생각에는
-        겟핍의 소개 내용을 좀 많이 차용해야겠군요
+        <br />
+        지금 바로 솔니버스와 함께 하세요 !
       </p>
     </BasicSection>
   );

@@ -30,7 +30,7 @@ export const AlertBoxSetting = () => {
 };
 
 const Box = styled.div`
-  margin-top: 7%;
+  margin-top: 6%;
   @media screen and (min-width: 1900px) {
     width: 900px;
     height: 600px;

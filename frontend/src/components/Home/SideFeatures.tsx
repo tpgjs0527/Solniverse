@@ -13,8 +13,7 @@ export const SideFeatures = () => {
       >
         <p>
           저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다 예
-          제생각에는 겟핍의 소개 내용을 좀 많이 차용해야겠군요
+          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다
         </p>
       </BasicSection>
       <BasicSection
@@ -25,8 +24,7 @@ export const SideFeatures = () => {
       >
         <p>
           저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다 예
-          제생각에는 겟핍의 소개 내용을 좀 많이 차용해야겠군요
+          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다
         </p>
       </BasicSection>
       <BasicSection
@@ -36,8 +34,7 @@ export const SideFeatures = () => {
       >
         <p>
           저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다 예
-          제생각에는 겟핍의 소개 내용을 좀 많이 차용해야겠군요
+          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다
         </p>
       </BasicSection>
     </SideWrapper>

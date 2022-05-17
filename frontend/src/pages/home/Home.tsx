@@ -44,7 +44,7 @@ function Home() {
                 <Link to={"/"}>홈</Link>
               </li>
               <li>
-                <Link to={"/service"}>서비스</Link>
+                <Link to={"/service"}>서비스 가이드</Link>
               </li>
             </ul>
           </Menu>
@@ -182,8 +182,8 @@ const Container = styled.div`
 
 export const Logo = styled.div`
   float: left;
-  margin-left: 100px;
-  margin-top: 20px;
+  margin-left: 80px;
+  margin-top: 10px;
   img {
     width: 50px;
   }
@@ -198,7 +198,11 @@ export const Menu = styled.div`
 
   letter-spacing: 2px;
   margin-right: 150px;
-  margin-top: 30px;
+  margin-top: 22px;
+  @media screen and (min-width: 1900px) {
+    margin-top: 28px;
+    margin-left: 2px;
+  }
   /* float: right; */
   ul {
     list-style: none;
