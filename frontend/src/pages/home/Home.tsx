@@ -41,10 +41,10 @@ function Home() {
           <Menu>
             <ul>
               <li>
-                <Link to={"/service"}>서비스</Link>
+                <Link to={"/"}>홈</Link>
               </li>
               <li>
-                <Link to={"/"}>홈</Link>
+                <Link to={"/service"}>서비스 가이드</Link>
               </li>
             </ul>
           </Menu>
@@ -182,8 +182,8 @@ const Container = styled.div`
 
 export const Logo = styled.div`
   float: left;
-  margin-left: 100px;
-  margin-top: 20px;
+  margin-left: 80px;
+  margin-top: 10px;
   img {
     width: 50px;
   }
@@ -192,19 +192,23 @@ export const Logo = styled.div`
   }
 `;
 export const Menu = styled.div`
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: ${(props) => props.theme.textColor};
 
   letter-spacing: 2px;
   margin-right: 150px;
-  margin-top: 30px;
-  float: right;
+  margin-top: 22px;
+  @media screen and (min-width: 1900px) {
+    margin-top: 28px;
+    margin-left: 2px;
+  }
+  /* float: right; */
   ul {
     list-style: none;
     li {
       display: inline-block;
-      margin-left: 80px;
+      margin-right: 80px;
       &:hover {
         color: ${(props) => props.theme.ownColor};
       }

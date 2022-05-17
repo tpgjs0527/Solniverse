@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Collapse from "./Tag/Collapse";
-import Container from "./Tag/Container";
 import ThreeLayersCircle from "./Tag/ThreeLayersCircle";
 import RichText from "./Tag/RichText";
+import { Wrapper } from "./Tag/Wrapper";
 
 const TABS = [
   {
@@ -35,7 +35,7 @@ const CreatorImage = styled.img.attrs({})`
   width: 100%;
 `;
 
-export default function FeaturesGallery() {
+export default function DonationIntro() {
   const [currentTab, setCurrentTab] = useState(TABS[0]);
 
   const imagesMarkup = TABS.map((singleTab, idx) => {
@@ -76,64 +76,47 @@ export default function FeaturesGallery() {
   }
 
   return (
-    <FeaturesGalleryWrapper>
+    <DonationIntroWrapper id="donationIntro">
       <Content>
-        <OverTitle>SOLNIVERSE</OverTitle>
-        <SectionTitle>제공 서비스</SectionTitle>
+        <OverTitle>도네이션 방식</OverTitle>
       </Content>
       <GalleryWrapper>
         <TabsContainer>{tabsMarkup}</TabsContainer>
         {imagesMarkup}
       </GalleryWrapper>
-    </FeaturesGalleryWrapper>
+    </DonationIntroWrapper>
   );
 }
 
-const FeaturesGalleryWrapper = styled(Container)`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  /* justify-content: center; */
-  margin-top: 3rem;
-
-  height: 80vh;
-  @media screen and (min-width: 1800px) {
-    margin-top: 5rem;
-  }
-`;
 export const OverTitle = styled.span`
   display: block;
   margin-bottom: 1.3rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   letter-spacing: 0.02em;
   font-weight: bold;
 `;
-const SectionTitle = styled.div`
-  font-size: 2.5rem;
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  text-align: center;
+const DonationIntroWrapper = styled(Wrapper)`
+  display: flex;
+  flex-direction: column;
 `;
+
 const GalleryWrapper = styled.div`
   display: flex;
-  /* align-items: center; */
-  margin-right: 7rem;
-  margin-top: 1.5rem;
-  margin-left: 7rem;
   @media screen and (max-width: 800px) {
     flex-direction: column;
-    margin-right: 0;
-    margin-top: 0;
-    margin-left: 0;
   }
 `;
 
-const Content = styled.div`
+export const Content = styled.div`
+  margin-bottom: 10px;
   & > *:not(:first-child) {
     margin-top: 0.5rem;
   }
   text-align: center;
+  @media screen and (max-width: 800px) {
+    margin-top: 10px;
+    margin-bottom: 0px;
+  }
 `;
 
 const TabsContainer = styled.div`
@@ -158,7 +141,7 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   flex: ${(p) => (p.isActive ? "2" : "0")};
 
   box-shadow: 1rem;
-  transition-duration: 500ms;
+  /* transition-duration: 500ms; */
   &:before {
     display: block;
     content: "";
@@ -175,7 +158,8 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   }
   @media screen and (max-width: 800px) {
     width: ${(p) => (p.isActive ? "100%" : "0")};
-    display: none;
+    /* flex-direction: column; */
+    /* display: none; */
   }
 `;
 

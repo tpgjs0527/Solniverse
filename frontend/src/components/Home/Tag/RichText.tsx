@@ -4,7 +4,7 @@ const RichText = styled.div`
   font-size: 1.2rem;
   opacity: 0.8;
   line-height: 1.6;
-
+  /* text-align: justify; */
   ol,
   ul {
     list-style: none;
