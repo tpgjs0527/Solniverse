@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import Layout from "components/Layout";
-import styled, { keyframes } from "styled-components";
+import { useEffect, useState } from "react";
+import styled from "styled-components";
 import confetti from "canvas-confetti";
 import * as anchor from "@project-serum/anchor";
-import { clusterApiUrl, Connection } from "@solana/web3.js";
+import { clusterApiUrl } from "@solana/web3.js";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
@@ -19,9 +18,7 @@ import {
 import { MintButton } from "./MintButton";
 import { MultiMintButton } from "./MultiMintButton";
 import {
-  CandyMachine,
   awaitTransactionSignatureConfirmation,
-  getCandyMachineState,
   mintOneToken,
   mintMultipleToken,
   CANDY_MACHINE_PROGRAM,
@@ -29,7 +26,6 @@ import {
 import { getProvider } from "utils/getProvider";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
-import { inherits } from "util";
 
 export interface ICandyMachine {
   id: anchor.web3.PublicKey;
@@ -143,19 +139,7 @@ const CandyMachineHome = () => {
     const candyMachine: any = await program.account.candyMachine.fetch(
       candyMachineId
     );
-    console.log(candyMachine);
-    //     const txid =
-    //   "yApu8AfBQDFsF7a5b2XWfGaJEx41e7pFdHHcrKf4scc1E9UdssgDGxp2xNTwV6TioGoHz75F1ZMadAJ5f69Sfja";
-    // const timeout = 1000;
-    // const connection = program.provider.connection;
-    // console.log(program);
-    // console.log(connection);
-    // const confirmation = await awaitTransactionSignatureConfirmation(
-    //   txid,
-    //   timeout,
-    //   connection
-    // );
-    // console.log(confirmation);
+
     const itemsAvailable = candyMachine.data.itemsAvailable.toNumber();
     const itemsRedeemed = candyMachine.itemsRedeemed.toNumber();
     const itemsRemaining = itemsAvailable - itemsRedeemed;
@@ -439,14 +423,6 @@ const CandyMachineHome = () => {
           newBalance =
             (await connection.getBalance(walletAddress)) / LAMPORTS_PER_SOL;
           retry++;
-          console.log(
-            "Estimated balance (" +
-              futureBalance +
-              ") not correct yet, wait a little bit and re-check. Current balance : " +
-              newBalance +
-              ", Retry " +
-              retry
-          );
         }
       }
 
@@ -483,17 +459,13 @@ const CandyMachineHome = () => {
     if (provider && candyMachine?.program && walletAddress) {
       const mint = anchor.web3.Keypair.generate();
       await provider.connect();
-      console.log("민팅 가즈아");
-      console.log(provider.publicKey?.toBase58());
-      console.log(candyMachine);
-      console.log(walletAddress);
 
       const mintTxId = (
         await mintOneToken(candyMachine, walletAddress, mint)
       )[0];
       // const mintTxId =
       //   "2iu7QABig45Cqf8hGJZ1ntyaSrCikemQTj396T7xq8dGwzCdkMrdVgjC8ize85fyfW2aAgvajirjPhaSxJgf2E7w";
-      console.log(mintTxId, "민트아이디 발급");
+
       let status: any = { err: true };
       if (mintTxId) {
         status = await awaitTransactionSignatureConfirmation(
@@ -562,10 +534,7 @@ const CandyMachineHome = () => {
   };
 
   useEffect(refreshCandyMachineState, [provider, isEnded, isPresale]);
-  useEffect(() => {
-    console.log(walletAddress.toBase58());
-    console.log(candyMachine);
-  }, [provider, candyMachine]);
+  useEffect(() => {}, [provider, candyMachine]);
 
   return (
     <Container>

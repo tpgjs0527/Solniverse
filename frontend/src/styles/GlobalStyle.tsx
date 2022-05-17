@@ -63,6 +63,10 @@ a {
   text-decoration:none;
   color:inherit;
 }
+/* 부드러운 스크롤 */
+html {
+    scroll-behavior: smooth;
+}
 `;
 
 export default GlobalStyle;

@@ -22,7 +22,7 @@ export const Message = () => {
 
   const sound = {
     donation: new Howl({
-      src: [`${process.env.PUBLIC_URL}/images/sounds/alarm.mp3`],
+      src: [`${process.env.PUBLIC_URL}/sounds/alarm.mp3`],
     }),
   };
 

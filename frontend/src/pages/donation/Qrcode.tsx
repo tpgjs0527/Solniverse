@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Modal from "react-modal";
 // import { Modal } from "react-responsive-modal";
 import { createQR, createTransaction, encodeURL, parseURL } from "@solana/pay";
@@ -10,15 +10,10 @@ import { isMobile } from "react-device-detect";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { useNavigate } from "react-router-dom";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useConnection } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
-const {
-  getOrCreateAssociatedTokenAccount,
-  transfer,
-  mintTo,
-} = require("@solana/spl-token");
 // import * as splToken from "@solana/spl-token";
 
 interface IPayment {
@@ -63,7 +58,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const main = async () => {
     if (txid) {
       // 이 부분은 이제 결제 진행할 때 스트리머의 지갑 주소가 들어가야 한다.
-      console.log(params.type);
+
       if (params.type === "SOL") {
         const recipient = new PublicKey(`${params.walletAddress}`);
         const label = `${
@@ -86,7 +81,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           message,
           memo,
         });
-        console.log(url);
+
         setTXURL(url);
 
         const qrCode = createQR(url);
@@ -136,9 +131,15 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         );
         // const res = getOrCreateAssociatedTokenAccount()
         // console.log
+        // const tokenAccount = await findAssociatedTokenAddress(
+        //   new PublicKey(userInfo.walletAddress),
+        //   new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+        // );
+
         const splToken = new PublicKey(
           "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
         );
+        // const splToken = new PublicKey(tokenAccount);
         const url = encodeURL({
           recipient,
           amount,
@@ -148,8 +149,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           memo,
           splToken,
         });
-        console.log(url);
-        console.log(url);
+
         setTXURL(url);
 
         const qrCode = createQR(url);
@@ -210,7 +210,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       finality
     );
     if (signatures.length > 0) {
-      console.log(signatures[0].signature);
       setSignature(signatures[0].signature);
     } else {
     }
@@ -238,7 +237,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
 
   useEffect(() => {
     if (signature) {
-      console.log(signature);
       const interval = setInterval(async () => {
         const reference = new PublicKey(`${userInfo.walletAddress}`);
         const options = { until: `${signature}`, limit: 10 };
@@ -253,7 +251,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           const transaction = await connections.getTransaction(
             signatures[i].signature
           );
-          console.log(transaction);
+
           if (transaction && params.type === "SOL") {
             for (
               let j = 0;
@@ -261,14 +259,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
               j++
             ) {
               // 여기 주소 값은 recipient와 같아야 한다.
-              console.log(
-                transaction?.transaction.message.accountKeys[j].toBase58()
-              );
               if (
                 transaction?.transaction.message.accountKeys[j].toBase58() ===
                 `${params.walletAddress}`
               ) {
-                console.log("결제 내용이 블록체인에 올라갔습니다.");
                 clearInterval(interval);
                 navigate("/payment/confirmed", {
                   state: { signature: signatures[i].signature },
@@ -282,14 +276,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
               j++
             ) {
               // 여기 주소 값은 recipient와 같아야 한다.
-              console.log(
-                transaction?.transaction.message.accountKeys[j].toBase58()
-              );
               if (
                 transaction?.transaction.message.accountKeys[j].toBase58() ===
                 `Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr`
               ) {
-                console.log("결제 내용이 블록체인에 올라갔습니다.");
                 clearInterval(interval);
                 navigate("/payment/confirmed", {
                   state: { signature: signatures[i].signature },
@@ -319,7 +309,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             provider?.connect();
             const { recipient, amount, reference, memo } = parseURL(txURL);
             const publicKey = new PublicKey(userInfo.walletAddress);
-            console.log(publicKey);
 
             // part 1
             const transaction = await createTransaction(
@@ -329,7 +318,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
               amount!,
               { reference, memo }
             );
-            console.log(transaction);
+
             transaction.feePayer = publicKey;
             const anyTransaction: any = transaction;
             anyTransaction.recentBlockhash = (
@@ -339,22 +328,18 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             let blockhashObj = await connection.getRecentBlockhash();
             transaction.recentBlockhash = await blockhashObj.blockhash;
             const response = await provider?.signTransaction(transaction);
-            console.log("시그니처 싸인이 완료됐습니다.", response);
+
             let signature = await connection.sendRawTransaction(
               response!.serialize()
             );
-            console.log("트랜잭션 전송 성공~", signature);
-            const res2 = await connection.confirmTransaction(signature);
-            console.log("결제 확인까지 성공했습니다.", res2);
-          } else if (params.type === "USDC") {
-            console.log("USDC로 결제");
 
+            const res2 = await connection.confirmTransaction(signature);
+          } else if (params.type === "USDC") {
             const provider = getProvider();
             provider?.connect();
             const { recipient, amount, reference, memo, splToken } =
               parseURL(txURL);
             const publicKey = new PublicKey(userInfo.walletAddress);
-            console.log(publicKey);
 
             // part 1
             const transaction = await createTransaction(
@@ -364,7 +349,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
               amount!,
               { reference, memo, splToken }
             );
-            console.log(transaction);
+
             transaction.feePayer = publicKey;
             const anyTransaction: any = transaction;
             anyTransaction.recentBlockhash = (
@@ -372,20 +357,19 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             ).blockhash;
             let blockhashObj = await connection.getRecentBlockhash();
             transaction.recentBlockhash = await blockhashObj.blockhash;
-            console.log(transaction);
+
             const response = await provider?.signTransaction(transaction);
-            console.log("시그니처 싸인이 완료됐습니다.", response);
+
             let signature = await connection.sendRawTransaction(
               response!.serialize()
             );
-            console.log("트랜잭션 전송 성공~", signature);
+
             const res2 = await connection.confirmTransaction(signature);
-            console.log("결제 확인까지 성공했습니다.", res2);
           }
 
           // // 이부분에서 내부적으로 지갑이 있는지 체크하는데 연결된 지갑이 없다고 인식하는 문제 발생
           // const response = await sendTransaction(transaction, connection);
-          // console.log(response);
+          //
 
           // await connection.confirmTransaction(signature, "processed");
 
@@ -403,7 +387,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         }
       } catch (error) {
         console.error(error);
-        console.log(error);
       }
     } else {
       Swal.fire(

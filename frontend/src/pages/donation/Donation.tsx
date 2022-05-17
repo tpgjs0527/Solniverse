@@ -6,10 +6,14 @@ import { useForm } from "react-hook-form";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import Swal from "sweetalert2";
-import { getBalance } from "utils/solanaWeb3";
-import { getProvider } from "utils/getProvider";
+import {
+  createConnection,
+  findAssociatedTokenAddress,
+  getBalance,
+} from "utils/solanaWeb3";
 import { fetchWallet } from "utils/fetcher";
 import { isMobile } from "react-device-detect";
+import { PublicKey } from "@solana/web3.js";
 
 interface IDonation {
   nickname: string;
@@ -20,6 +24,7 @@ interface IDonation {
 function Donation() {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
+  const connection = createConnection();
   const { walletAddress } = useParams();
   const [nickName, setNickName] = useState(userInfo.twitch.displayName);
   const [amount, setAmount] = useState(0);
@@ -27,6 +32,8 @@ function Donation() {
   const [message, setMessage] = useState("");
   const [creatorName, setCreatorName] = useState("");
   const [creatorImgUrl, setCreatorImgUrl] = useState("");
+  const [snvBalance, setSNVBalance] = useState(0);
+  const [usdcBalance, setUSDCBalance] = useState(0);
   const params = {
     amount: amount.toString(),
     nickName,
@@ -46,13 +53,41 @@ function Donation() {
     e.preventDefault();
     setAmount(e.target.value);
   };
+  const getAsyncToken = async () => {
+    const usdcAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+    );
+
+    const usdcResponse = await connection.getTokenAccountBalance(
+      new PublicKey(usdcAddress)
+    );
+
+    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+    if (usdcResponse) {
+      setUSDCBalance(usdcAmount);
+    }
+    const snvAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+    );
+
+    const snvResponse = await connection.getTokenAccountBalance(
+      new PublicKey(snvAddress)
+    );
+
+    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+    if (snvResponse) {
+      setSNVBalance(snvAmount);
+    }
+  };
+
   const onClick = () => {
     // navigate({
     //   pathname: "/payment",
     //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
     // });
-    console.log(type);
-    console.log(errors);
+
     if (!isMobile) {
       if (userInfo.walletAddress) {
         if (!amount || !nickName) {
@@ -100,7 +135,6 @@ function Donation() {
 
     // alert("도네이션을 진행하겠습니다");
   };
-  console.log(nickName, amount, message, walletAddress);
 
   const onSubmit = (e: any) => {
     setType(e.target.value);
@@ -117,15 +151,14 @@ function Donation() {
         throw error;
       }
     } catch (error) {
-      console.log(error);
       const res = await fetchWallet(walletAddress!, "POST");
       if (res.status >= 200 && res.status < 400) {
         const data = await res.json();
-        console.log(data);
+
         return data;
       } else {
         const error = new Error(res.statusText);
-        console.log(error);
+
         Swal.fire(
           "지갑 확인 오류",
           "현재 연결된 지갑이 확인되고 있지 않습니다.",
@@ -138,19 +171,17 @@ function Donation() {
   useEffect(() => {
     const getAsyncCreatorInfo = async () => {
       const creatorInfo = await getCreatorInfo(walletAddress!);
-      console.log(creatorInfo);
+
       setCreatorName(creatorInfo.user.twitch.displayName);
       setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
     };
     getAsyncCreatorInfo();
-
-    console.log(creatorName, creatorImgUrl);
   }, [creatorName, creatorImgUrl]);
 
   useEffect(() => {
     const getAsyncSol = async () => {
       const sol = await getBalance(userInfo.walletAddress);
-      if (sol < amount) {
+      if (type === "SOL" && sol < amount) {
         Swal.fire({
           title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
           showClass: {
@@ -166,8 +197,22 @@ function Donation() {
       }
     };
     getAsyncSol();
-  }, [amount]);
-  console.log(type);
+    getAsyncToken();
+    if (type === "USDC" && usdcBalance < amount) {
+      Swal.fire({
+        title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+        icon: "warning",
+      });
+      // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+      setAmount(0);
+    }
+  }, [amount, snvBalance, usdcBalance]);
 
   return (
     <Layout>
@@ -180,7 +225,6 @@ function Donation() {
                 <CreatorName>{creatorName}님께 후원</CreatorName>
               </CreatorInfoWrapper>
               <CreatorImage />
-              <CreatorContent>❤솔둥이들 사랑해요❤</CreatorContent>
             </CreatorWrapper>
           </DonationWrapper>
           <DonationForm>
@@ -358,6 +402,9 @@ const Container = styled.div`
 `;
 const MainContainer = styled.div`
   width: 70%;
+  @media screen and (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 const DonationWrapper = styled.div`
