@@ -41,10 +41,10 @@ function Home() {
           <Menu>
             <ul>
               <li>
-                <Link to={"/service"}>서비스</Link>
+                <Link to={"/"}>홈</Link>
               </li>
               <li>
-                <Link to={"/"}>홈</Link>
+                <Link to={"/service"}>서비스</Link>
               </li>
             </ul>
           </Menu>
@@ -192,19 +192,19 @@ export const Logo = styled.div`
   }
 `;
 export const Menu = styled.div`
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: ${(props) => props.theme.textColor};
 
   letter-spacing: 2px;
   margin-right: 150px;
   margin-top: 30px;
-  float: right;
+  /* float: right; */
   ul {
     list-style: none;
     li {
       display: inline-block;
-      margin-left: 80px;
+      margin-right: 80px;
       &:hover {
         color: ${(props) => props.theme.ownColor};
       }
