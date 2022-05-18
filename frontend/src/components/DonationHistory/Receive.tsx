@@ -234,7 +234,7 @@ function ReceiveDonationHistory() {
                       </Top>
                       <Mid>
                         {/* UTC -> 한국 시간 */}
-                        <span>{new Date(el.blockTime).toLocaleString()}</span>
+                        <Time>{new Date(el.blockTime).toLocaleString()}</Time>
                         <span>
                           {el.paymentType === "sol"
                             ? el.amount / LAMPORTS_PER_SOL + " SOL"
@@ -284,6 +284,10 @@ const Message = styled.p`
   @media screen and (min-width: 1439px) {
     max-width: 350px;
   }
+`;
+
+const Time = styled.span`
+  color: ${(props) => props.theme.subTextColor};
 `;
 
 const Tx = styled.span`
