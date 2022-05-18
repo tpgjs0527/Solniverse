@@ -10,6 +10,8 @@ export interface BasicSectionProps {
   size: number;
   introTitle?: string;
   title2?: string;
+  title3?: string;
+  title4?: string;
   introContent?: string;
   reversed?: boolean;
 }
@@ -19,6 +21,8 @@ export default function BasicSection({
   size,
   title,
   title2,
+  title3,
+  title4,
   children,
   introTitle,
   introContent,
@@ -32,28 +36,37 @@ export default function BasicSection({
         <RichText>{introContent}</RichText>
       </ImageContainer>
       <ContentContainer>
-        <Title>{title}</Title>
-        <Title>{title2}</Title>
-
+        <div>
+          <Title>{title}</Title>
+          <Title>{title2}</Title>
+          <Title>
+            {title3} <SpecialTitle>{title4}</SpecialTitle>
+          </Title>
+        </div>
         <BasicRichText>{children}</BasicRichText>
       </ContentContainer>
     </BasicSectionWrapper>
   );
 }
 
+const SpecialTitle = styled.span`
+  color: ${(props) => props.theme.ownColor};
+`;
 export const Title = styled.h1`
-  margin-top: 1rem;
   font-size: 2.4rem;
   font-weight: bold;
-  line-height: 1.5;
-  margin-bottom: 2rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
   letter-spacing: -0.03em;
 
   @media screen and (max-width: 500px) {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
-  @media screen and (min-width: 800px) and (max-width: 1450px) {
-    font-size: 1.55rem;
+  @media screen and (min-width: 501px) and (max-width: 799px) {
+    font-size: 1.7rem;
+  }
+  @media screen and (min-width: 800px) and (max-width: 1650px) {
+    font-size: 2rem;
   }
 `;
 
@@ -66,13 +79,16 @@ const IntroTitle = styled(RichText)`
 `;
 const ImageContainer = styled.div`
   flex: 1;
-  margin-left: 8%;
+  margin-left: 4%;
   z-index: 0;
 
   flex-direction: column;
   text-align: center;
   position: relative;
   margin-right: 5%;
+  @media screen and (max-width: 700px) {
+    padding-bottom: 10px;
+  }
 `;
 const CreatorImage = styled.img<{ size: number }>`
   width: ${(props) => `${props.size}px`};
@@ -87,7 +103,8 @@ const CreatorImage = styled.img<{ size: number }>`
 `;
 const ContentContainer = styled.div`
   flex: 1;
-  margin-right: 10%;
+
+  margin-right: 5%;
   margin-left: 5%;
 `;
 type Props = Pick<BasicSectionProps, "reversed">;
@@ -95,14 +112,14 @@ type Props = Pick<BasicSectionProps, "reversed">;
 const BasicSectionWrapper = styled(Wrapper)`
   display: flex;
   align-items: center;
-  height: 550px;
+  /* height: 550px; */
   margin-top: 3%;
   flex-direction: ${(p: Props) => (p.reversed ? "row-reverse" : "row")};
   padding-top: 4%;
   @media screen and (max-width: 700px) {
     margin-top: 9%;
     flex-direction: column;
-    height: 800px;
+    /* height: 800px; */
     text-align: center;
   }
   @media screen and (min-width: 1700px) {

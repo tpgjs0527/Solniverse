@@ -11,20 +11,21 @@ export const Intro = () => {
         introTitle="SOLNIVERSE"
         introContent="SOLNIVERSE는 SOL(Solana)와 UNIVERSE 의 합성어입니다."
         imageUrl="/favicon.ico"
-        title="솔니버스에 오신 것을 환영합니다"
+        title="Solana 블록체인으로"
+        title2="국가 간의 장벽과 수수료를 내려놓은"
+        title3="새로운"
+        title4="인터넷 방송 후원 플랫폼"
       >
         <p>
           저희 솔니버스(SOLNIVERSE)는 Solana 블록체인 네트워크와 Universe가
           합쳐져 세상 모든 곳에서 손쉽게 사용할 수 있는 블록체인 결제 시스템을
           의미합니다. 현재는 팬텀 월렛을 통해 서비스를 제공합니다.
-          <br />
           <Phantom>
             <a href="https://phantom.app/">
               팬텀 월렛 확장 프로그램이 아직 없으신가요?{" "}
             </a>
           </Phantom>
-          <br />
-          쉽고 빠르게 월렛은 설치하시고 함께 솔니버스와 함께 하세요 !
+          팬텀 월렛과 함께 솔니버스를 즐겨보아요 !
         </p>
       </BasicSection>
     </Wrapper>
@@ -40,5 +41,5 @@ export const Phantom = styled.span`
 `;
 
 const Wrapper = styled.div`
-  padding-top: 7%;
+  padding-top: 10%;
 `;

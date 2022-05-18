@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { BsFillHandIndexThumbFill } from "react-icons/bs";
 export const TopButton = () => {
@@ -9,21 +9,30 @@ export const TopButton = () => {
     });
   }
   function scrollFunction() {
-    if (
-      document.body.scrollTop > 20 ||
-      document.documentElement.scrollTop > 20
-    ) {
-      document.getElementById("topButton").style.visibility = "visible";
-    } else {
-      document.getElementById("topButton").style.visibility = "hidden";
+    if (document.getElementById("topButton")) {
+      if (
+        document.body.scrollTop > 20 ||
+        document.documentElement.scrollTop > 20
+      ) {
+        document.getElementById("topButton").style.visibility = "visible";
+      } else {
+        document.getElementById("topButton").style.visibility = "hidden";
+      }
     }
   }
-  window.onscroll = function () {
-    scrollFunction();
-  };
-  window.onload = function () {
-    scrollFunction();
-  };
+  useEffect(() => {
+    window.onscroll = function () {
+      scrollFunction();
+    };
+    window.onload = function () {
+      scrollFunction();
+    };
+
+    return () => {
+      window.removeEventListener("load", scrollFunction);
+    };
+  });
+
   return (
     <Top onClick={TopEvent} id="topButton" title="Go to top">
       <BsFillHandIndexThumbFill />
@@ -38,6 +47,9 @@ const Top = styled.button`
   bottom: 20px;
   right: 30px;
   z-index: 100;
+  display: flex;
+  height: 60px;
+  align-items: center;
   border: none;
   outline: none;
   background-color: ${(props) => props.theme.ownColor};
