@@ -1,10 +1,11 @@
 import Spinner from "components/Spinner";
+import { RankingList } from "pages/my-info/Main";
 import { useState } from "react";
 import styled from "styled-components";
 import Ranking from "./Ranking";
 import Tier from "./Tier";
 
-interface IData {
+export interface IData {
   receiveCount?: number;
   receiveTotal?: number;
   receiveRank?: string;
@@ -13,6 +14,8 @@ interface IData {
   sendTotal?: number;
   sendRank?: string;
 
+  nextList: RankingList[];
+  previousList: RankingList[];
   ranking: number;
 }
 
@@ -124,7 +127,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
             <ColContent>
               {data?.ranking !== -1 ? data?.ranking : "-"}
             </ColContent>
-            <ColRef onClick={() => setIsModalOpen(true)}>순위 목록</ColRef>
+            <ColRef onClick={() => setIsModalOpen(true)}>순위표</ColRef>
           </Col>
         </SubBox>
       )}
@@ -132,6 +135,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
       <Ranking
         isModalOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        data={data}
       />
     </Box>
   );

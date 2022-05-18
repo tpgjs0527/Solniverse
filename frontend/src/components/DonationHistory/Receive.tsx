@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
@@ -238,7 +238,7 @@ function ReceiveDonationHistory() {
                         <span>
                           {el.paymentType === "sol"
                             ? el.amount / LAMPORTS_PER_SOL + " SOL"
-                            : el.amount + " USDC"}
+                            : el.amount / 1000000 + " USDC"}
                         </span>
                       </Mid>
                       <div>
@@ -248,8 +248,7 @@ function ReceiveDonationHistory() {
                         <Tx
                           onClick={() =>
                             window.open(
-                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet`, // devnet
-                              "_blank"
+                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
                             )
                           }
                         >

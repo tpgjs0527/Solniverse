@@ -4,6 +4,8 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import useToken from "hooks/useToken";
+import Swal from "sweetalert2";
+import { ColRef } from "components/Main/Dashboard";
 
 function SetDonation() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -46,6 +48,20 @@ function SetDonation() {
     return res.userKey;
   };
 
+  // 클립보드 복사
+  const handleCopyClipBoard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      Swal.fire("복사 완료", "URL 주소가 복사되었습니다.", "success");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "복사 실패",
+        text: "URL 주소 복사가 실패했습니다. 잠시 후 다시 시도해주세요.",
+      });
+    }
+  };
+
   return (
     <Section>
       <BoxWrapper>
@@ -56,6 +72,26 @@ function SetDonation() {
           </BoxDescription>
           <UrlBox>
             <Url>{`https://solniverse.net/donation/${userInfo.walletAddress}`}</Url>
+            <ExtraDiv>
+              <Extra
+                onClick={() =>
+                  handleCopyClipBoard(
+                    `https://solniverse.net/donation/${userInfo.walletAddress}`
+                  )
+                }
+              >
+                복사
+              </Extra>
+              <Extra
+                onClick={() =>
+                  window.open(
+                    `https://solniverse.net/donation/${userInfo.walletAddress}`
+                  )
+                }
+              >
+                열기
+              </Extra>
+            </ExtraDiv>
           </UrlBox>
         </Box>
       </BoxWrapper>
@@ -73,22 +109,104 @@ function SetDonation() {
               추가해주세요.
             </p>
           </BoxDescription>
+          <BoxNotice>클릭해서 URL 확인</BoxNotice>
           <AlarmUrlBox onClick={() => onCheckToken()} isUUID={UUID}>
             {isLoadingUUID ? (
               <SpinnerDiv>
                 <Spinner />
               </SpinnerDiv>
             ) : (
-              <AlarmUrl
-                isUUID={UUID}
-              >{`https://solniverse.net/donation/alertbox/${UUID}`}</AlarmUrl>
+              <>
+                <AlarmUrl
+                  isUUID={UUID}
+                >{`https://solniverse.net/donation/alertbox/${UUID}`}</AlarmUrl>
+                <ExtraDiv>
+                  <ExtraUUID
+                    isUUID={UUID}
+                    onClick={() =>
+                      handleCopyClipBoard(
+                        `https://solniverse.net/donation/alertbox/${UUID}`
+                      )
+                    }
+                  >
+                    복사
+                  </ExtraUUID>
+                  <ExtraUUID
+                    isUUID={UUID}
+                    onClick={() =>
+                      window.open(
+                        `https://solniverse.net/donation/alertbox/${UUID}`,
+                        "Solniverse AlertBox",
+                        "width=800,height=500,location=no,status=no,scrollbars=yes"
+                      )
+                    }
+                  >
+                    열기
+                  </ExtraUUID>
+                </ExtraDiv>
+              </>
             )}
           </AlarmUrlBox>
+          <TestBox>알람 테스트</TestBox>
         </Box>
       </BoxWrapper>
     </Section>
   );
 }
+
+const TestBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  line-height: 20px;
+  height: 37px;
+  width: 120px;
+  padding: 0 17px;
+  font-size: 14px;
+  border-radius: 10px;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  background: ${(props) => props.theme.subBoxColor};
+  &:hover {
+    background: ${(props) => props.theme.ownColor};
+  }
+`;
+
+const ExtraUUID = styled.div<{ isUUID?: string }>`
+  display: flex;
+  align-items: center;
+  line-height: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  background: ${(props) => props.theme.subBoxColor};
+  &:hover {
+    background: ${(props) => (props.isUUID ? props.theme.ownColor : "")};
+  }
+  filter: ${(props) => (props.isUUID ? "blur(0px)" : "blur(5px)")};
+`;
+
+const Extra = styled.div`
+  display: flex;
+  align-items: center;
+  line-height: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  background: ${(props) => props.theme.subBoxColor};
+  &:hover {
+    background: ${(props) => props.theme.ownColor};
+  }
+`;
+
+const ExtraDiv = styled.div`
+  display: flex;
+  gap: 2px;
+  font-size: 14px;
+`;
 
 const SpinnerDiv = styled.div`
   display: flex;
@@ -99,6 +217,7 @@ const SpinnerDiv = styled.div`
 `;
 
 const AlarmUrl = styled.a<{ isUUID: string }>`
+  font-size: 14px;
   word-break: break-all;
   filter: ${(props) => (props.isUUID ? "blur(0px)" : "blur(5px)")};
 `;
@@ -106,6 +225,7 @@ const AlarmUrl = styled.a<{ isUUID: string }>`
 const AlarmUrlBox = styled.div<{ isUUID: string }>`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid ${(props) => props.theme.subBoxColor};
@@ -119,12 +239,14 @@ const AlarmUrlBox = styled.div<{ isUUID: string }>`
 `;
 
 const Url = styled.a`
+  font-size: 14px;
   word-break: break-all;
 `;
 
 const UrlBox = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid ${(props) => props.theme.subBoxColor};
@@ -134,6 +256,13 @@ const UrlBox = styled.div`
   @media screen and (min-width: 767px) {
     min-height: 60px;
   }
+`;
+
+const BoxNotice = styled.p`
+  color: ${(props) => props.theme.ownColor};
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 6px;
 `;
 
 const BoxWarning = styled.p`
