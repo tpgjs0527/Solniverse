@@ -1,7 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { OverTitle } from "../DonationIntro";
-import Container from "./Container";
+
 import RichText from "./RichText";
 import { Wrapper } from "./Wrapper";
 
@@ -27,12 +26,12 @@ export default function BasicSection({
     <BasicSectionWrapper reversed={reversed}>
       <ImageContainer>
         <CreatorImage size={size} src={imageUrl} alt="/" />
-        <RichText> {introTitle}</RichText>
-        <IntroContent>{introContent}</IntroContent>
+        <IntroTitle> {introTitle}</IntroTitle>
+        <RichText>{introContent}</RichText>
       </ImageContainer>
       <ContentContainer>
         <Title>{title}</Title>
-        <RichText>{children}</RichText>
+        <BasicRichText>{children}</BasicRichText>
       </ContentContainer>
     </BasicSectionWrapper>
   );
@@ -40,32 +39,37 @@ export default function BasicSection({
 
 export const Title = styled.h1`
   margin-top: 1rem;
-  font-size: 2rem;
+  font-size: 2.3rem;
   font-weight: bold;
-  line-height: 1.1;
+  line-height: 1.5;
   margin-bottom: 2rem;
   letter-spacing: -0.03em;
 `;
-const IntroContent = styled(RichText)`
-  padding-right: 80px;
-  @media screen and (max-width: 700px) {
-    padding-right: 40px;
-  }
+
+const BasicRichText = styled(RichText)`
+  text-align: justify;
+`;
+
+const IntroTitle = styled(RichText)`
+  font-weight: 600;
 `;
 const ImageContainer = styled.div`
   flex: 1;
-  margin-left: 5%;
+  margin-left: 8%;
   z-index: 0;
 
   flex-direction: column;
+  text-align: center;
   position: relative;
   margin-right: 5%;
-  @media screen and (max-width: 700px) {
-    margin-top: 60px;
-  }
 `;
 const CreatorImage = styled.img<{ size: number }>`
   width: ${(props) => `${props.size}px`};
+  @media screen and (max-width: 700px) {
+    margin-top: 60px;
+    width: 300px;
+    margin-left: 0%;
+  }
 `;
 const ContentContainer = styled.div`
   flex: 1;
@@ -84,6 +88,8 @@ const BasicSectionWrapper = styled(Wrapper)`
   @media screen and (max-width: 700px) {
     margin-top: 9%;
     flex-direction: column;
+    height: 750px;
+    text-align: center;
   }
   @media screen and (min-width: 1900px) {
     height: 700px;

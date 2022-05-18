@@ -33,7 +33,7 @@ function useWallet() {
           return data;
         } else {
           const error = new Error(res.statusText);
-          // console.log(error);
+          console.log(error);
           Swal.fire({
             icon: "error",
             title: "Oops...",

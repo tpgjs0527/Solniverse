@@ -1,23 +1,34 @@
 import React, { createRef } from "react";
 import styled from "styled-components";
+import { OverTitle } from "../DonationIntro";
+import RichText from "./RichText";
 
-export interface ICoreProps {
-  core: {
+export interface ICardInfoProps {
+  cardInfo: {
+    imgURL: string;
     title: string;
     content: string;
   };
 }
-export const CoreCard = ({ core }: ICoreProps) => {
+export const CoreCard = ({ cardInfo }: ICardInfoProps) => {
   const imgRef = createRef();
   return (
     <>
-      <Card>{core.title} dfgsdf</Card>
+      <Card>
+        <ImageBox src={cardInfo.imgURL} alt="/" />
+        <OverTitle>{cardInfo.title}</OverTitle>
+        <RichText>{cardInfo.content}</RichText>
+      </Card>
     </>
   );
 };
 
 const Card = styled.div`
-  display: block;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
   height: 400px;
   width: 100%;
   position: relative;
@@ -32,5 +43,13 @@ const Card = styled.div`
   border: 1px soild lightcoral;
   @media screen and (max-width: 700px) {
     height: 300px;
+  }
+`;
+const ImageBox = styled.img`
+  width: 200px;
+  @media screen and (max-width: 700px) {
+    margin-top: 60px;
+    width: 300px;
+    margin-left: 0%;
   }
 `;

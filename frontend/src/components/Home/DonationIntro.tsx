@@ -7,32 +7,32 @@ import { Wrapper } from "./Tag/Wrapper";
 
 const TABS = [
   {
-    title: "원터치로 후원하기",
+    title: "QR코드 결제",
     description:
-      "휴대폰으로 방송을 보시나요? 크리에이터가 등록한 후원링크에 접속하여 원터치로 후원해보세요! QR코드결제는 당신의 손을 더 자유롭게 해줍니다!",
-    imageUrl: "/demo-illustration-3.png",
+      "도네이션 링크로 들어오니, 현재 컴퓨터에 팬텀 월렛이 없나요? 걱정 마세요! 모바일에 팬텀 월렛앱을 이용하여 QR 결제를 진행하시면 됩니다!",
+    imageUrl: "/images/QR코드 결제.png",
     baseColor: "249,82,120",
     secondColor: "221,9,57",
   },
   {
-    title: "낮은 수수료율",
+    title: "모바일 결제",
     description:
-      "수수료가 신경쓰였나요? 우리 SOLNIVERSE는 당신이 후원한 가치 그대로를 전달해드립니다. 수수료율을 최소화함으로써 당신의 크리에이터에게 후원의 가치를 전해보세요",
-    imageUrl: "/demo-illustration-4.png",
+      "모바일로 방송을 보시다가 도네이션을 하고 싶으신가요? 스트리머의 후원 링크를 클릭하여 후원 메세지를 작성한 후, 결제 버튼을 눌러보세요! 저희 SOLNIVERSE는 긴 절차 없이 원터치로 모바일 결제가 진행되도록 서비스를 제공하고 있습니다!",
+    imageUrl: "/images/모바일 결제.png",
     baseColor: "57,148,224",
     secondColor: "99,172,232",
   },
   {
-    title: "후원을 통한 오락요소",
+    title: "Extension 결제",
     description:
-      "대쉬보드에서 당신의 후원랭킹과 내역을 그래프로 만나보세요! 후원을 할수록 쌓이는 SVN 토큰 포인트를 통해 유니크한 크리에이터 NFT를 뽑고 당신을 빛내보세요. ",
-    imageUrl: "/demo-illustration-5.png",
+      "후원 메세지 작성 후, 클릭 3번으로 후원 작성부터 시그니처 검증, 결제까지 완료됩니다. 잠깐! 혹시, SOLINIVERSE에 팬텀 월렛이 연결되어있으신가요? Extension 결제 서비스는 팬텀 월렛이 연결되어 있으셔야 합니다!",
+    imageUrl: "/images/익스텐션 결제.png",
     baseColor: "88,193,132",
     secondColor: "124,207,158",
   },
 ];
 const CreatorImage = styled.img.attrs({})`
-  width: 100%;
+  width: 90%;
 `;
 
 export default function DonationIntro() {
@@ -98,6 +98,9 @@ export const OverTitle = styled.span`
 const DonationIntroWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
+  @media screen and (max-width: 800px) {
+    height: 900px;
+  }
 `;
 
 const GalleryWrapper = styled.div`
@@ -137,7 +140,7 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   position: relative;
   overflow: hidden;
   border-radius: 0.8rem;
-  margin-top: 1.5rem;
+  /* margin-top: 0rem; */
   flex: ${(p) => (p.isActive ? "2" : "0")};
 
   box-shadow: 1rem;

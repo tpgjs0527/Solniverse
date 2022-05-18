@@ -7,8 +7,8 @@ export const SideFeatures = () => {
   return (
     <SideWrapper id="sideFeatures">
       <BasicSection
-        imageUrl="/images/모니터.png"
-        title="스트리머 NFT 뽑기"
+        imageUrl="/images/후원 내역과 랭킹.png"
+        title="나의 랭킹 및 후원 내역"
         size={550}
       >
         <p>
@@ -28,8 +28,8 @@ export const SideFeatures = () => {
         </p>
       </BasicSection>
       <BasicSection
-        imageUrl="/images/모니터.png"
-        title="스트리머 NFT 뽑기"
+        imageUrl="/images/그래프.png"
+        title="후원 그래프"
         size={550}
       >
         <p>

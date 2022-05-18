@@ -79,10 +79,10 @@ export default function Sidebar() {
             <Element
               onClick={() => {
                 setIsSidebar((prev) => !prev);
-                navigate(`/service-center`);
+                navigate(`/service`);
               }}
             >
-              고객센터
+              서비스 가이드
             </Element>
           </ul>
         </Nav>
