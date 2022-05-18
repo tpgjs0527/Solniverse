@@ -44,12 +44,31 @@ class RankService {
       return res;
     }
 
-    const ranking =
-      (await rankRepository.getReceiveRankingByReceiveTotal(
-        ranklist.receiveTotal,
-      )) + 1;
+    const receiveTotal = ranklist.receiveTotal;
 
-    responseBody.ranklist = { ...ranklist, ranking };
+    /** @type {[Array<any>, Array<any>]} */
+    const [previousList, nextList] = await Promise.all([
+      rankRepository.getListByReceiveTotalAndCondAndLimit(
+        receiveTotal,
+        "$gt",
+        5,
+      ),
+      rankRepository.getListByReceiveTotalAndCondAndLimit(
+        receiveTotal,
+        "$lt",
+        5,
+      ),
+    ]);
+
+    const ranking =
+      (await rankRepository.getReceiveRankingByReceiveTotal(receiveTotal)) + 1;
+
+    responseBody.ranklist = {
+      ...ranklist,
+      ranking,
+      previousList: previousList.reverse(),
+      nextList,
+    };
     return res;
   }
 
@@ -70,10 +89,22 @@ class RankService {
       return res;
     }
 
-    const ranking =
-      (await rankRepository.getSendRankingBySendTotal(ranklist.sendTotal)) + 1;
+    const sendTotal = ranklist.sendTotal;
 
-    responseBody.ranklist = { ...ranklist, ranking };
+    const [previousList, nextList] = await Promise.all([
+      rankRepository.getListBySendTotalAndCondAndLimit(sendTotal, "$gt", 5),
+      rankRepository.getListBySendTotalAndCondAndLimit(sendTotal, "$lt", 5),
+    ]);
+
+    const ranking =
+      (await rankRepository.getSendRankingBySendTotal(sendTotal)) + 1;
+
+    responseBody.ranklist = {
+      ...ranklist,
+      ranking,
+      previousList: previousList.reverse(),
+      nextList,
+    };
     return res;
   }
 }
