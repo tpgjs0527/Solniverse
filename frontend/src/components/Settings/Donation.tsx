@@ -5,7 +5,6 @@ import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import useToken from "hooks/useToken";
 import Swal from "sweetalert2";
-import { ColRef } from "components/Main/Dashboard";
 
 function SetDonation() {
   const userInfo = useRecoilValue(userInfoAtom);
