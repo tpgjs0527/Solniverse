@@ -38,7 +38,7 @@ function useWallet() {
             icon: "error",
             title: "지갑 발견 실패",
             text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
-            footer: '<a href="/service">Go Service Page</a>',
+            footer: '<a href="/service">서비스 가이드 바로가기</a>',
           });
         }
       }
@@ -47,7 +47,7 @@ function useWallet() {
         icon: "error",
         title: "지갑 발견 실패",
         text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
-        footer: '<a href="/service">Go Service Page</a>',
+        footer: '<a href="/service">서비스 가이드 바로가기</a>',
       });
     }
   };
@@ -78,7 +78,7 @@ function useWallet() {
         icon: "error",
         title: "Connect issue!",
         text: "  The wallet is not found.  Please check the wallet program!",
-        footer: '<a href="/service">Go Service Page</a>',
+        footer: '<a href="/service">서비스 가이드 바로가기</a>',
       });
     }
   };

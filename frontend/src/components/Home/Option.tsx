@@ -1,11 +1,11 @@
+import { Logo, Menu } from "pages/home/Home";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 export const Option = () => {
   const [top, setTop] = useState(true);
-  console.log(top);
-  // detect whether user has scrolled the page down by 10px
+
   useEffect(() => {
     const scrollHandler = () => {
       window.pageYOffset > 10 ? setTop(false) : setTop(true);
@@ -16,39 +16,43 @@ export const Option = () => {
 
   return (
     <WrapperNav top={top}>
-      <li>
-        <Link to={"/"}>홈</Link>
-      </li>
+      <Logo>
+        <Link to={"/"}>
+          <img src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`} alt="" />
+        </Link>
+      </Logo>
+      <Menu>
+        <ul>
+          <li>
+            <Link to={"/"}>홈</Link>
+          </li>
 
-      <li>
-        <a href="#shortIntro">서비스 소개</a>
-      </li>
-      <li>
-        <a href="#coreFeatures">차별점</a>
-      </li>
-      <li>
-        <a href="#donationIntro">도네이션 방식</a>
-      </li>
-      <li>
-        <a href="#alertBoxSetting">후원메세지 설정</a>
-      </li>
-      <li>
-        <a href="#sideFeatures">오락요소</a>
-      </li>
+          <li>
+            <a href="#coreFeatures">차별점</a>
+          </li>
+          <li>
+            <a href="#donationIntro">도네이션 방식</a>
+          </li>
+          <li>
+            <a href="#alertBoxSetting">후원메세지 설정</a>
+          </li>
+          <li>
+            <a href="#sideFeatures">오락요소</a>
+          </li>
+        </ul>
+      </Menu>
     </WrapperNav>
   );
 };
 
 const WrapperNav = styled.div<{ top: boolean }>`
-  width: 100vw;
-  padding-bottom: 1.5%;
+  width: 100%;
   position: fixed;
   display: flex;
   z-index: 100;
-
-  padding-top: 1.5%;
+  align-items: center;
   opacity: 0.8;
-  padding-right: 10%;
+
   list-style: none;
   background-color: ${(props) => (!props.top ? props.theme.bgColor : null)};
   box-shadow: ${(props) =>
@@ -56,26 +60,27 @@ const WrapperNav = styled.div<{ top: boolean }>`
   transition: box-shadow 0.2s ease-out;
 
   li {
-    font-weight: 600;
-    font-size: 20px;
-    /* box-sizing: border-box; */
-    display: inline-block;
-    margin-left: 80px;
-    /* 
-    @media screen and (min-width: 467px) {
-      margin-left: 8px;
-      font-size: 15px;
-    } */
-    @media screen and (max-width: 466px) {
-      margin-left: 10px;
-      font-size: 11px;
-      line-height: 3;
+    @media screen and (max-width: 400px) {
+      font-size: 12px;
+      line-height: 1;
+      &:first-child {
+        display: none;
+      }
     }
-    &:hover {
-      color: ${(props) => props.theme.ownColor};
+    @media screen and (min-width: 401px) and (max-width: 500px) {
+      font-size: 14px;
+      line-height: 1;
+      &:first-child {
+        display: none;
+      }
     }
-  }
-  @media screen and (max-width: 767px) {
-    padding-right: 2%;
+    @media screen and (min-width: 501px) and (max-width: 549px) {
+      font-size: 14px;
+      line-height: 1;
+    }
+    @media screen and (min-width: 550px) and (max-width: 900px) {
+      font-size: 16px;
+      line-height: 1;
+    }
   }
 `;

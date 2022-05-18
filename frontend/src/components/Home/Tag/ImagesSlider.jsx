@@ -23,17 +23,15 @@ export const ImagesSlider = ({ Images }) => {
         thumbs={{ swiper: activeThumb }}
       >
         {Images.map((img, idx) => (
-          <>
-            <SwiperSlide key={idx}>
-              <img src={`${process.env.PUBLIC_URL}/${img.imageUrl}`} />
-            </SwiperSlide>
-          </>
+          <SwiperSlide key={idx}>
+            <img src={`${process.env.PUBLIC_URL}/${img.imageUrl}`} />
+          </SwiperSlide>
         ))}
       </StyledUpperSwiper>
       <StyledLowerSwiper
         onSwiper={setActiveThumb}
-        loop={true}
-        slidesPerView={4}
+        loop={false}
+        slidesPerView={5}
         modules={[Navigation, Thumbs]}
       >
         {Images.map((img, idx) => (
@@ -49,23 +47,21 @@ export const ImagesSlider = ({ Images }) => {
 };
 
 const StyledUpperSwiper = styled(Swiper)`
-  /* width: 800px;
-  height: 550px; */
   box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.2);
 
   z-index: 0;
-  width: 45vw;
+  width: 800px;
   height: 60%;
   @media screen and (min-width: 1700px) {
-    width: 48vw;
+    width: 930px;
     height: 72%;
   }
   @media screen and (max-width: 800px) {
-    width: 100%;
+    width: 400px;
     height: 100%;
   }
   .swiper-slide {
-    padding-top: 70%;
+    padding-top: 62%;
     @media screen and (max-width: 800px) {
       padding-top: 7%;
     }
@@ -91,12 +87,13 @@ const StyledUpperSwiper = styled(Swiper)`
 `;
 const StyledLowerSwiper = styled(Swiper)`
   box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+  width: 800px;
 
   @media screen and (min-width: 1700px) {
-    width: 48vw;
+    width: 930px;
   }
   @media screen and (max-width: 800px) {
-    width: 100%;
+    width: 400px;
     height: 20%;
   }
   .swiper-slide {

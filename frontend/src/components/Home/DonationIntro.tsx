@@ -32,7 +32,7 @@ const TABS = [
   },
 ];
 const CreatorImage = styled.img.attrs({})`
-  width: 90%;
+  width: 100%;
 `;
 
 export default function DonationIntro() {
@@ -98,6 +98,8 @@ export const OverTitle = styled.span`
 const DonationIntroWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
+  padding-left: 4%;
+  padding-right: 4%;
   @media screen and (max-width: 800px) {
     height: 900px;
   }
@@ -125,7 +127,7 @@ export const Content = styled.div`
 const TabsContainer = styled.div`
   flex: 1;
   margin-right: 3rem;
-  padding-top: 2rem;
+
   & > *:not(:first-child) {
     margin-top: 0.5rem;
   }
@@ -139,18 +141,14 @@ const TabsContainer = styled.div`
 const ImageContainer = styled.div<{ isActive: boolean }>`
   position: relative;
   overflow: hidden;
-  border-radius: 0.8rem;
 
-  /* margin-top: 0rem; */
   flex: ${(p) => (p.isActive ? "2" : "0")};
 
-  box-shadow: 1rem;
-  /* transition-duration: 500ms; */
   &:before {
     display: block;
     content: "";
     width: 100%;
-    padding-top: 10px;
+    /* padding-top: 10px; */
   }
 
   & > div {

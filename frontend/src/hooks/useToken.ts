@@ -91,9 +91,9 @@ function useToken() {
     if (!walletAddress)
       return Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "There is not wallet address! Please connect your wallet 😊",
-        footer: '<a href="/service">Go Service Page</a>',
+        title: "지갑 발견 실패",
+        text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
+        footer: '<a href="/service">서비스 가이드 바로가기</a>',
       });
     else {
       const response = await (

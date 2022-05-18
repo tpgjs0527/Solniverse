@@ -7,12 +7,12 @@ export const Wrapper = styled.div`
   overflow-x: hidden;
 
   margin-top: 12%;
-  margin-right: 5rem;
+  margin-right: 4rem;
   margin-left: 4rem;
   /* height: 800px; */
   @media screen and (min-width: 1200px) {
     /* height: 1300px; */
-    padding-top: 7%;
+    padding-top: 10%;
     padding-bottom: 3%;
   }
   @media screen and (max-width: 800px) {
