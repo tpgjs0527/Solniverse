@@ -78,7 +78,7 @@ class DonationRepository {
         ...data,
       },
       { new: true },
-    );
+    ).lean();
   }
 
   /**
@@ -90,17 +90,18 @@ class DonationRepository {
       .sort({ block: -1 })
       .limit(1)
       .where("block")
-      .ne(null);
+      .ne(null)
+      .lean();
   }
 
   /**
    * txId 에 해당하는 트랜잭션을 찾습니다.
    *
-   * @param {string} txId
+   * @param {ObjectId} txId
    * @returns {Promise<Tx>} tx
    */
   async getTransactionById(txId) {
-    return Transaction.findOne({ _id: txId });
+    return Transaction.findOne({ _id: txId }).lean();
   }
 }
 

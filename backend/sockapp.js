@@ -15,17 +15,19 @@ const sockapp = { io };
 io.on("connection", async function (socket) {
   const userKey = socket.handshake.query.userKey;
   try {
-    const { _id: userId } = await userRepository.getUserIdByUserKey(userKey);
-    if (!userId) {
+    const { walletAddress } = await userRepository.getWalletAddressByUserKey(
+      userKey,
+    );
+    if (!walletAddress) {
       socket.disconnect(true);
       return;
     }
     //연결된 소켓을 user._id로 emit받기 위해서 room에 입장.
-    socket.join(userId.toString());
+    socket.join(walletAddress.toString());
     /**
      * 연결 체크 완료
      */
-    logger.info(`유저가 소켓 연결함: ${userId.toString()}`);
+    logger.info(`유저가 소켓 연결함: wallet=${walletAddress.toString()}`);
   } catch (err) {
     socket.disconnect(true);
   }

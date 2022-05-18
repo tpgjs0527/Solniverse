@@ -44,9 +44,9 @@ class UserRepository {
    * @typedef {import("mongoose").ObjectId} ObjectId
    * @returns {Promise<ObjectId>} UserId
    */
-  async getUserIdByUserKey(userKey) {
+  async getWalletAddressByUserKey(userKey) {
     //Javascript 최적화되어 _id만 반환
-    return User.findOne({ userKey }).select("_id").lean();
+    return User.findOne({ userKey }).select("walletAddress").lean();
   }
 
   /**

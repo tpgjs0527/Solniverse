@@ -4,6 +4,8 @@ const DonationRepository = require("./donation.repository");
 const donationRepository = new DonationRepository();
 const UserRepository = require("../auth/user.repository");
 const userRepository = new UserRepository();
+const RankRepository = require("../rank/rank.repository");
+const rankRepository = new RankRepository();
 const { Types } = require("mongoose");
 const { io } = require("../../sockapp");
 const bs58 = require("bs58");
@@ -11,6 +13,7 @@ const {
   getOrCreateAssociatedTokenAccount,
   transfer,
   mintTo,
+  getAssociatedTokenAddress,
 } = require("@solana/spl-token");
 const { default: axios } = require("axios");
 const { Keypair, PublicKey } = web3;
@@ -18,7 +21,16 @@ const MINT_SECRET = process.env.DDD_MINT_SECRET_KEY;
 const USDC_TOKEN = process.env.USDC_TOKEN;
 const fromWallet = Keypair.fromSecretKey(bs58.decode(MINT_SECRET));
 const mint = new PublicKey(process.env.DDD_SNV_TOKEN);
-
+var fromTokenAccount;
+(async () => {
+  fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+    connection,
+    fromWallet,
+    mint,
+    fromWallet.publicKey,
+  );
+})();
+getAssociatedTokenAddress;
 const SOL_DECIMAL = 10 ** 9;
 
 var usdPerSol;
@@ -39,7 +51,7 @@ async function getUsdPerSol() {
     });
     usdPerSol = usd;
   } catch (err) {
-    logger.error("getUsdPerSol 에러 발생: error=Axios가 제대로 응답하지 않음.");
+    logger.error("getUsdPerSol: error=Axios가 제대로 응답하지 않음.");
   }
 }
 
@@ -50,47 +62,30 @@ async function getUsdPerSol() {
 getUsdPerSol();
 setInterval(getUsdPerSol, 1000 * 60 * 10);
 
-const fromTokenAccountGlobal = (async () => {
-  return await getOrCreateAssociatedTokenAccount(
-    connection,
-    fromWallet,
-    mint,
-    fromWallet.publicKey,
-  );
-})();
-
 /**
  * 이전 금액과 나중 sol의 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
  * amount, paymentType, decimal을 반환한다.
  *
  * @param {number} preBalance
  * @param {number} postBalance
+ * @param {string} symbol
+ * @param {number} decimal
  * @returns
  */
-function getDataFromBanlance(preBalance, postBalance) {
+function getDataFromBanlance(preBalance, postBalance, symbol, decimal) {
   return {
-    amount: postBalance - preBalance,
-    paymentType: "sol",
-    decimal: SOL_DECIMAL, // 원시타입이므로 Pass By Value
+    amount: Math.abs(postBalance - preBalance),
+    paymentType: symbol,
+    decimal,
   };
 }
 
-/**
- * 이전 금액과 나중 토큰 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
- * amount, paymentType, decimal을 반환한다.
- *
- * @param {number} preTokenBalance
- * @param {number} postTokenBalance
- * @param {string} symbol
- * @returns
- */
-function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
-  const senderPreToken = preTokenBalance.uiTokenAmount;
-  return {
-    amount: postTokenBalance.uiTokenAmount.amount - senderPreToken.amount,
-    paymentType: symbol,
-    decimal: 10 ** senderPreToken.decimals,
-  };
+function checkRank(total) {
+  if (total >= 12500) return "Diamond";
+  else if (total >= 2500) return "Platinum";
+  else if (total >= 500) return "Gold";
+  else if (total >= 100) return "Silver";
+  else return "Bronze";
 }
 
 /**
@@ -98,8 +93,8 @@ function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
  *
  * @param {Object} tx
  * @param {Object} tx.transaction
- * @param {Object} tx.transaction.
  * @param {Array<string>} tx.transaction.signatures
+ * @param {Object} tx.meta
  * @param {Array} tx.meta.preBalances
  * @param {Array} tx.meta.postBalances
  * @param {Array} tx.meta.preTokenBalances
@@ -110,8 +105,8 @@ function getDataFromTokenBanlance(preTokenBalance, postTokenBalance, symbol) {
  */
 async function updateTransactionWithoutDuplication(tx) {
   try {
-    if (!tx.meta || tx.meta.err) {
-      throw `Tx가 잘못됨 tx=${tx}`;
+    if (!tx || !tx.meta || tx.meta.err) {
+      throw `Tx가 잘못됨. tx=${tx}`;
     }
     const {
       transaction,
@@ -124,6 +119,17 @@ async function updateTransactionWithoutDuplication(tx) {
       },
     } = tx;
 
+    let flag = false;
+    let memo;
+    for (let log of logMessages) {
+      if (log.startsWith("Program log: Memo")) {
+        flag = true;
+        memo = log;
+        break;
+      }
+    }
+    if (!flag) throw `로직과 관계없는 트랜잭션임. tx=${tx}`;
+
     // sendWallet과 receiveWallet을 알아냄
     const { sendWallet, receiveWallet } =
       getSenderReceiverPublicKey(transaction);
@@ -135,13 +141,19 @@ async function updateTransactionWithoutDuplication(tx) {
       getUserOrCreate(receiveWallet.toString()),
     ]);
 
-    const senderPreTokenBalance = preTokenBalances.at(1);
-    const { amount, paymentType, decimal } = !senderPreTokenBalance
-      ? getDataFromBanlance(preBalances.at(1), postBalances.at(1))
-      : getDataFromTokenBanlance(
-          senderPreTokenBalance,
-          postTokenBalances.at(1),
-          getSymbolByTokenAddress(senderPreTokenBalance.mint),
+    const firstPreTokenBalance = preTokenBalances.at(1);
+    const { amount, paymentType, decimal } = !firstPreTokenBalance
+      ? getDataFromBanlance(
+          preBalances.at(1),
+          postBalances.at(1),
+          "sol",
+          SOL_DECIMAL,
+        )
+      : getDataFromBanlance(
+          firstPreTokenBalance.uiTokenAmount.amount,
+          postTokenBalances.at(1).uiTokenAmount.amount,
+          getSymbolByTokenAddress(firstPreTokenBalance.mint),
+          10 ** firstPreTokenBalance.uiTokenAmount.decimals,
         );
 
     const txSignature = transaction.signatures.at(0);
@@ -158,7 +170,7 @@ async function updateTransactionWithoutDuplication(tx) {
     };
 
     // txid를 얻어냄.
-    const txid = getTxid(logMessages.at(1));
+    const txid = getTxid(memo);
 
     //트랜잭션이 있는지 검사
     const txData = await donationRepository.getTransactionById(txid);
@@ -178,10 +190,12 @@ async function updateTransactionWithoutDuplication(tx) {
         decimal,
         donation,
         sendWallet.toString(),
-        updatedTx.receiveUserId.toString(),
+        receiveWallet.toString(),
       );
       logger.info(
-        `updateTransactionWithoutDuplication 기존 데이터 업데이트: ${updatedTx}`,
+        `updateTransactionWithoutDuplication Exist: ${JSON.stringify(
+          updatedTx,
+        )}`,
       );
     } else {
       // 기존 데이터를 가져옴
@@ -202,17 +216,15 @@ async function updateTransactionWithoutDuplication(tx) {
         decimal,
         donation,
         sendWallet.toString(),
-        createdTx.receiveUserId.toString(),
+        receiveWallet.toString(),
       );
       logger.info(
-        `updateTransactionWithoutDuplication 새 데이터 삽입: ${createdTx}`,
+        `updateTransactionWithoutDuplication New: ${JSON.stringify(createdTx)}`,
       );
     }
   } catch (err) {
     //getUserOrCreate, getTransactionById, createTransaction 또는 기타 에러들
-    logger.error(
-      `updateTransactionWithoutDuplication 에러 발생: error=${err}}`,
-    );
+    logger.error(`updateTransactionWithoutDuplication: error=${err}}`);
   }
 }
 
@@ -223,7 +235,6 @@ async function updateTransactionWithoutDuplication(tx) {
  * @returns
  */
 function getSymbolByTokenAddress(tokenAddress) {
-  console.log(tokenAddress);
   switch (tokenAddress) {
     case USDC_TOKEN:
       return "usdc";
@@ -301,27 +312,26 @@ function alertAndSendSnv(
   decimal,
   { displayName = "", message = "", paymentType = "", amount = 0 } = {},
   sendWallet,
-  receiveUserId,
+  receiveWallet,
 ) {
   (async () => {
     const toWallet = new web3.PublicKey(sendWallet);
     try {
-      const pointAmount =
-        ((paymentType == "sol" ? await getUsdFromSol(amount) : amount) | 0) *
-        10;
-      sendSnvToken(toWallet, pointAmount);
-    } catch (err) {
-      logger.error(
-        `SNV Transfer 에러 발생: to=${toWallet.toString()} error=${err}`,
+      const usdcAmount = Math.floor(
+        paymentType == "sol" ? await getUsdFromSol(amount) : amount,
       );
+      updateRank(sendWallet, receiveWallet, usdcAmount / 10 ** 6);
+      sendSnvToken(toWallet, usdcAmount * 10);
+    } catch (err) {
+      logger.error(`alertAndSendSnv: error=${err} to=${toWallet.toString()}`);
     }
   })();
   amount = amount / decimal;
 
   logger.info(
-    `Donation 알림 전송 to=${receiveUserId} displayName=${displayName} message=${message} paymentType=${paymentType} amount=${amount}`,
+    `donationAlert: to=${receiveWallet} amount=${amount} displayName=${displayName} message=${message} paymentType=${paymentType}`,
   );
-  io.to(receiveUserId).emit("donation", {
+  io.to(receiveWallet).emit("donation", {
     displayName,
     message,
     paymentType,
@@ -330,7 +340,54 @@ function alertAndSendSnv(
 }
 
 /**
- * Solana Amount를 입력받아 USD 환산 값을 반환하는 함수.
+ * 랭크 변경
+ *
+ * @param {string} sendWalletAddress
+ * @param {string} receiveWalletAddress
+ * @param {number} uscAmount
+ */
+async function updateRank(sendWalletAddress, receiveWalletAddress, uscAmount) {
+  try {
+    const [receive, send] = await Promise.all([
+      rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
+      rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
+    ]);
+    // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
+    if (!receive) {
+      const receiveRank = {
+        walletAddress: receiveWalletAddress,
+        receiveCount: 1,
+        receiveTotal: uscAmount,
+        receiveRank: checkRank(uscAmount),
+      };
+      rankRepository.createRankByReceive(receiveRank);
+    } else {
+      receive.receiveCount++;
+      receive.receiveTotal += uscAmount;
+      receive.receiveRank = checkRank(receive.receiveTotal);
+      rankRepository.updateRankByReceive(receive);
+    }
+    if (!send) {
+      const sendRank = {
+        walletAddress: sendWalletAddress,
+        sendCount: 1,
+        sendTotal: uscAmount,
+        sendRank: checkRank(uscAmount),
+      };
+      rankRepository.createRankBySend(sendRank);
+    } else {
+      send.sendCount++;
+      send.sendTotal += uscAmount;
+      send.sendRank = checkRank(send.sendTotal);
+      rankRepository.updateRankBySend(send);
+    }
+  } catch (error) {
+    logger.error(`updateRank: error=${error}`);
+  }
+}
+
+/**
+ * Solana Amount를 입력받아 Decimal 6의 USD 환산 값을 반환하는 함수.
  * 전역변수 usdPerSol에 의존성을 가짐.
  *
  * @param {number} amount
@@ -349,7 +406,7 @@ function getUsdFromSol(amount) {
         clearTimeout(timeout);
         clearInterval(interval);
       }, 1000);
-    } else resolve((usdPerSol * amount) / 1000);
+    } else resolve(usdPerSol * (amount / 1000));
   });
 }
 
@@ -362,16 +419,14 @@ function getUsdFromSol(amount) {
 async function sendSnvToken(toWallet, amount) {
   if (!(amount > 0)) return;
   try {
-    const fromTokenAccount = await fromTokenAccountGlobal;
-
     // 구조 분해 할당, 값 무시
     const [toTokenAccount, ,] = await Promise.all([
       getOrCreateAssociatedTokenAccount(connection, fromWallet, mint, toWallet),
       mintTo(
         connection,
         fromWallet,
-        await fromTokenAccount.mint,
-        await fromTokenAccount.address,
+        fromTokenAccount.mint,
+        fromTokenAccount.address,
         fromWallet.publicKey,
         amount,
       ),
@@ -385,12 +440,13 @@ async function sendSnvToken(toWallet, amount) {
       fromWallet.publicKey,
       amount,
     );
+
     logger.info(
-      `SNV Transfer: tx=${signature} amount=${amount} to=${toWallet}`,
+      `SNV Transfer: to=${toWallet} amount=${amount} tx=${signature} tokenAccount=${toTokenAccount.address}`,
     );
   } catch (err) {
     logger.error(
-      `SNV Transfer 에러 발생: amount: ${amount} to: ${toWallet} error=${err}`,
+      `SNV Transfer: error=${err} amount: ${amount} to: ${toWallet}`,
     );
   }
 }
@@ -401,22 +457,34 @@ async function sendSnvToken(toWallet, amount) {
  *
  * @param {*} context
  */
-function logCallback(context) {
+async function logCallback(context) {
   if (context.err) {
     logger.error(`logCallback 에러 발생: error=${context.error}`);
     return;
   }
-  connection
-    .getTransaction(context.signature)
-    .catch(() =>
-      connection
-        .getTransaction(context.signature)
-        .catch((err) =>
-          logger.error(`getTransaction 2 번 에러 발생: error=${err}`),
-        )
-        .then(updateTransactionWithoutDuplication),
-    )
-    .then(updateTransactionWithoutDuplication);
+  try {
+    const interval = setInterval(async () => {
+      try {
+        const response = await connection.getSignatureStatus(context.signature);
+        const status = response.value;
+        if (status) {
+          const confirmation = status.confirmations || 0;
+          if (confirmation >= 32 || status.confirmationStatus === "finalized") {
+            clearInterval(interval);
+            const transaction = await connection.getTransaction(
+              context.signature,
+            );
+            updateTransactionWithoutDuplication(transaction);
+          }
+        }
+      } catch (err) {
+        clearInterval(interval);
+        logger.error(`logCallback interval: error=${err}`);
+      }
+    }, 1000);
+  } catch (err) {
+    logger.error(`logCallback: error=${err}`);
+  }
 }
 
 /**
@@ -441,14 +509,29 @@ async function recoverTransaction() {
         updateTransactionWithoutDuplication(transaction);
       });
   } catch (err) {
-    logger.error(`recoverTransaction 에러 발생: error=${err}`);
+    logger.error(`recoverTransaction: error=${err}`);
   }
 }
 
-recoverTransaction(); //서버 부팅시 동작
+recoverTransaction().then(() => {
+  connection.onLogs(
+    new web3.PublicKey(process.env.DDD_SHOP_WALLET),
+    logCallback,
+    "confirmed",
+  );
+}); //서버 부팅시 동작
 
-connection.onLogs(
-  new web3.PublicKey(process.env.DDD_SHOP_WALLET),
-  logCallback,
-  "confirmed",
-);
+const WEB_RPC_OPEN = "solana webrpc opend";
+const WEB_RPC_ERROR = "solana webrpc error";
+const WEB_RPC_CLOSE = "solana webrpc closed";
+
+connection._rpcWebSocket.on("open", () => {
+  logger.info(WEB_RPC_OPEN);
+});
+connection._rpcWebSocket.on("close", () => {
+  logger.info(WEB_RPC_CLOSE);
+});
+connection._rpcWebSocket.on("error", (err) => {
+  const { error: error } = err;
+  logger.error(`${WEB_RPC_ERROR}: error=${error}`);
+});
