@@ -140,6 +140,7 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   position: relative;
   overflow: hidden;
   border-radius: 0.8rem;
+
   /* margin-top: 0rem; */
   flex: ${(p) => (p.isActive ? "2" : "0")};
 

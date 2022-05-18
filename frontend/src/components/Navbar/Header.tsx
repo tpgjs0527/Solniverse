@@ -92,19 +92,19 @@ export default function Header() {
           <Logout
             onClick={() => {
               Swal.fire({
-                title: "Logout",
-                text: "If you log out, you will go back to the landing page.",
+                title: "로그아웃",
+                text: "로그아웃을 하시면, 랜딩 페이지로 이동하게 됩니다.",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3990e0",
                 cancelButtonColor: "#e96e35",
-                confirmButtonText: "log out",
-                cancelButtonText: "stay logged in",
+                confirmButtonText: "로그아웃",
+                cancelButtonText: "취소",
               }).then((result) => {
                 if (result.isConfirmed) {
                   Swal.fire(
-                    "Disconnected!",
-                    "You has been disconnected.",
+                    "로그아웃 완료",
+                    "로그아웃이 완료되었습니다!",
                     "success"
                   );
                   setUserInfo({

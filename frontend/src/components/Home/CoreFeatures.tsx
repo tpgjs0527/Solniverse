@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { Content, OverTitle } from "./DonationIntro";
-
 import RichText from "./Tag/RichText";
 import { Wrapper } from "./Tag/Wrapper";
 import { BsChevronDoubleDown } from "react-icons/bs";
@@ -88,9 +87,8 @@ const CoreWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
   @media screen and (max-width: 700px) {
-  
-   height: 100%;
-
+    height: 100%;
+  }
 `;
 const CardContainer = styled.div`
   display: flex;

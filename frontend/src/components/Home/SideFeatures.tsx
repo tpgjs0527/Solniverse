@@ -1,11 +1,19 @@
 import React from "react";
 import styled from "styled-components";
+import { Content, OverTitle } from "./DonationIntro";
 import BasicSection from "./Tag/BasicSection";
+import RichText from "./Tag/RichText";
 import { Wrapper } from "./Tag/Wrapper";
 
 export const SideFeatures = () => {
   return (
     <SideWrapper id="sideFeatures">
+      <Content>
+        <OverTitle>오락요소</OverTitle>
+        <RichText>
+          Solniverse는 유저들의 즐거움을 위해 다양한 오락 서비스들을 제공합니다
+        </RichText>
+      </Content>
       <BasicSection
         imageUrl="/images/후원 내역과 랭킹.png"
         title="나의 랭킹 및 후원 내역"
@@ -43,5 +51,4 @@ export const SideFeatures = () => {
 
 const SideWrapper = styled(Wrapper)`
   flex-direction: column;
-  height: 110%;
 `;

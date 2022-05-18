@@ -54,7 +54,7 @@ const StyledUpperSwiper = styled(Swiper)`
   z-index: 0;
   width: 45vw;
   height: 60%;
-  @media screen and (min-width: 1900px) {
+  @media screen and (min-width: 1700px) {
     width: 48vw;
     height: 80%;
   }

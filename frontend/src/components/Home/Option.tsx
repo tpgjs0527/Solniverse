@@ -61,20 +61,21 @@ const WrapperNav = styled.div<{ top: boolean }>`
     /* box-sizing: border-box; */
     display: inline-block;
     margin-left: 80px;
-
-    @media screen and (max-width: 467px) {
+    /* 
+    @media screen and (min-width: 467px) {
       margin-left: 8px;
       font-size: 15px;
-    }
-    @media screen and (max-width: 767px) and (min-width: 468px) {
+    } */
+    @media screen and (max-width: 466px) {
       margin-left: 10px;
-      font-size: 20px;
+      font-size: 11px;
+      line-height: 3;
     }
     &:hover {
       color: ${(props) => props.theme.ownColor};
     }
   }
   @media screen and (max-width: 767px) {
-    padding-right: 7%;
+    padding-right: 2%;
   }
 `;

@@ -44,6 +44,12 @@ export const Title = styled.h1`
   line-height: 1.5;
   margin-bottom: 2rem;
   letter-spacing: -0.03em;
+  @media screen and (max-width: 500px) {
+    font-size: 1.2rem;
+  }
+  @media screen and (min-width: 800px) and (max-width: 1450px) {
+    font-size: 1.6rem;
+  }
 `;
 
 const BasicRichText = styled(RichText)`
@@ -65,6 +71,9 @@ const ImageContainer = styled.div`
 `;
 const CreatorImage = styled.img<{ size: number }>`
   width: ${(props) => `${props.size}px`};
+  @media screen and (min-width: 701px) and(max-width: 1450px) {
+    width: 330px;
+  }
   @media screen and (max-width: 700px) {
     margin-top: 60px;
     width: 300px;
@@ -82,16 +91,16 @@ const BasicSectionWrapper = styled(Wrapper)`
   display: flex;
   align-items: center;
   height: 550px;
-  margin-top: 8%;
+  margin-top: 3%;
   flex-direction: ${(p: Props) => (p.reversed ? "row-reverse" : "row")};
-
+  padding-top: 4%;
   @media screen and (max-width: 700px) {
     margin-top: 9%;
     flex-direction: column;
-    height: 750px;
+    height: 800px;
     text-align: center;
   }
-  @media screen and (min-width: 1900px) {
-    height: 700px;
+  @media screen and (min-width: 1700px) {
+    margin-top: 2%;
   }
 `;

@@ -28,14 +28,15 @@ export const AlertBoxSetting = () => {
   );
 };
 const AlertWrapper = styled(Wrapper)`
+  justify-content: center;
   @media screen and (max-width: 800px) {
     align-items: center;
     height: 600px;
   }
 `;
 const Box = styled.div`
-  margin-top: 6%;
-  @media screen and (min-width: 1900px) {
+  @media screen and (min-width: 1700px) {
+    margin-top: 2%;
     width: 900px;
     height: 580px;
   }
