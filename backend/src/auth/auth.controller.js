@@ -82,7 +82,7 @@ router.post(
  */
 router.post(
   "/refresh",
-  validate[cookie("refreshtoken").isLength({ max: 300 })],
+  validate([cookie("refreshtoken").isLength({ max: 300 })]),
   async function (req, res) {
     const refreshToken = req.cookies["refreshtoken"];
     const walletAddress = req.body["walletAddress"];
