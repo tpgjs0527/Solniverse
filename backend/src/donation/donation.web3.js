@@ -344,42 +344,43 @@ function alertAndSendSnv(
  *
  * @param {string} sendWalletAddress
  * @param {string} receiveWalletAddress
- * @param {number} uscAmount
+ * @param {number} usdAmount
  */
-async function updateRank(sendWalletAddress, receiveWalletAddress, uscAmount) {
+async function updateRank(sendWalletAddress, receiveWalletAddress, usdAmount) {
   try {
     const [receive, send] = await Promise.all([
       rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
       rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
     ]);
+
     // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
     if (!receive) {
       const receiveRank = {
         walletAddress: receiveWalletAddress,
         receiveCount: 1,
-        receiveTotal: uscAmount,
-        receiveRank: checkRank(uscAmount),
+        receiveTotal: usdAmount,
+        receiveRank: checkRank(usdAmount),
       };
-      rankRepository.createRankByReceive(receiveRank);
+      rankRepository.createRank(receiveRank);
     } else {
       receive.receiveCount++;
-      receive.receiveTotal += uscAmount;
+      receive.receiveTotal += usdAmount;
       receive.receiveRank = checkRank(receive.receiveTotal);
-      rankRepository.updateRankByReceive(receive);
+      rankRepository.updateRankByData(receive);
     }
     if (!send) {
       const sendRank = {
         walletAddress: sendWalletAddress,
         sendCount: 1,
-        sendTotal: uscAmount,
-        sendRank: checkRank(uscAmount),
+        sendTotal: usdAmount,
+        sendRank: checkRank(usdAmount),
       };
-      rankRepository.createRankBySend(sendRank);
+      rankRepository.createRank(sendRank);
     } else {
       send.sendCount++;
-      send.sendTotal += uscAmount;
+      send.sendTotal += usdAmount;
       send.sendRank = checkRank(send.sendTotal);
-      rankRepository.updateRankBySend(send);
+      rankRepository.updateRankByData(send);
     }
   } catch (error) {
     logger.error(`updateRank: error=${error}`);
