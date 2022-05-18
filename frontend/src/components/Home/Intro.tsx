@@ -5,32 +5,40 @@ import BasicSection, { Title } from "./Tag/BasicSection";
 
 export const Intro = () => {
   return (
-    <BasicSection
-      size={100}
-      introTitle="SOLNIVERSE"
-      introContent="SOL(Solana) 와 UNIVERS(세계) 를 합성어 SOLNIVERSE입니다."
-      imageUrl="/favicon.ico"
-      title="솔니버스입니다"
-    >
-      <p>
-        저희 SOLNIVERSE는 SOLANA 블록체인 네트워크를 사용하는 팬텀 월렛을 통해
-        서비스를 제공합니다.{" "}
-        <Phantom>
-          <a href="https://phantom.app/">
-            팬텀 월렛 확장 프로그램이 아직 없으신가요?{" "}
-          </a>
-        </Phantom>
-        <br />
-        지금 바로 솔니버스와 함께 하세요 !
-      </p>
-    </BasicSection>
+    <Wrapper data-aos="fade-up" data-aos-duration="2000" id="shortIntro">
+      <BasicSection
+        size={200}
+        introTitle="SOLNIVERSE"
+        introContent="SOLNIVERSE는 SOL(Solana)와 UNIVERSE 의 합성어입니다."
+        imageUrl="/favicon.ico"
+        title="솔니버스에 오신 것을 환영합니다"
+      >
+        <p>
+          저희 솔니버스(SOLNIVERSE)는 Solana 블록체인 네트워크와 Universe가
+          합쳐져 세상 모든 곳에서 손쉽게 사용할 수 있는 블록체인 결제 시스템을
+          의미합니다. 현재는 팬텀 월렛을 통해 서비스를 제공합니다.
+          <br />
+          <Phantom>
+            <a href="https://phantom.app/">
+              팬텀 월렛 확장 프로그램이 아직 없으신가요?{" "}
+            </a>
+          </Phantom>
+          <br />
+          쉽고 빠르게 월렛은 설치하시고 함께 솔니버스와 함께 하세요 !
+        </p>
+      </BasicSection>
+    </Wrapper>
   );
 };
-const Phantom = styled.span`
+export const Phantom = styled.span`
   color: ${(props) => props.theme.ownColor};
   :hover {
     background-color: ${(props) => props.theme.ownColor};
     color: white;
   }
   transition-duration: 300ms;
+`;
+
+const Wrapper = styled.div`
+  padding-top: 7%;
 `;

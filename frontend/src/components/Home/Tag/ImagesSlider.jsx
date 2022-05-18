@@ -10,15 +10,11 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
-// interface IImages {
-//   imageUrl: string;
-
 export const ImagesSlider = ({ Images }) => {
   const [activeThumb, setActiveThumb] = useState();
 
   return (
     <>
-      {/* sdfd */}
       <StyledUpperSwiper
         loop={true}
         navigation={true}
@@ -29,8 +25,6 @@ export const ImagesSlider = ({ Images }) => {
         {Images.map((img, idx) => (
           <>
             <SwiperSlide key={idx}>
-              {img.description}
-
               <img src={`${process.env.PUBLIC_URL}/${img.imageUrl}`} />
             </SwiperSlide>
           </>
@@ -57,15 +51,24 @@ export const ImagesSlider = ({ Images }) => {
 const StyledUpperSwiper = styled(Swiper)`
   /* width: 800px;
   height: 550px; */
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.2);
+
   z-index: 0;
   width: 45vw;
   height: 60%;
-  @media screen and (min-width: 1900px) {
+  @media screen and (min-width: 1700px) {
     width: 48vw;
-    height: 95%;
+    height: 72%;
+  }
+  @media screen and (max-width: 800px) {
+    width: 100%;
+    height: 100%;
   }
   .swiper-slide {
     padding-top: 70%;
+    @media screen and (max-width: 800px) {
+      padding-top: 7%;
+    }
     overflow: hidden;
     position: relative;
 
@@ -78,17 +81,23 @@ const StyledUpperSwiper = styled(Swiper)`
   }
   .swiper-button-prev {
     left: 30;
-    color: rgb(255, 255, 255);
+    color: ${(props) => props.theme.ownColor};
   }
 
   .swiper-button-next {
     right: 30;
-    color: rgb(255, 255, 255);
+    color: ${(props) => props.theme.ownColor};
   }
 `;
 const StyledLowerSwiper = styled(Swiper)`
-  @media screen and (min-width: 1900px) {
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+
+  @media screen and (min-width: 1700px) {
     width: 48vw;
+  }
+  @media screen and (max-width: 800px) {
+    width: 100%;
+    height: 20%;
   }
   .swiper-slide {
     cursor: pointer;
@@ -101,7 +110,7 @@ const StyledLowerSwiper = styled(Swiper)`
 
   .images-slider-thumbs-wrapper {
     width: 100%;
-    padding-top: 65%;
+    padding-top: 50%;
     overflow: hidden;
     position: relative;
 

@@ -1,7 +1,7 @@
 import Spinner from "components/Spinner";
 import { useState } from "react";
 import styled from "styled-components";
-import Rank from "./Rank";
+import Ranking from "./Ranking";
 import Tier from "./Tier";
 
 interface IData {
@@ -72,6 +72,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
                 ? data?.sendCount
                 : 0}
             </ColContent>
+            <ColEmpty></ColEmpty>
           </Col>
           <Col>
             <ColTitle>총 금액</ColTitle>
@@ -97,14 +98,13 @@ function Dashboard({ receive, data, isLoading }: IProps) {
                 ? data?.sendTotal.toFixed(2)
                 : 0}
             </ColContent>
+            <ColEmpty></ColEmpty>
           </Col>
-          <RankOpen onClick={() => setIsModalOpen(true)}>
-            {data?.receiveRank ? (
-              <Tier tier={data?.receiveRank} dashboard />
-            ) : data?.sendRank ? (
-              <Tier tier={data?.sendRank} dashboard />
-            ) : null}
-          </RankOpen>
+          {data?.receiveRank ? (
+            <Tier tier={data?.receiveRank} dashboard />
+          ) : data?.sendRank ? (
+            <Tier tier={data?.sendRank} dashboard />
+          ) : null}
           <Col>
             <ColTitle>현재 나의 등수</ColTitle>
             <Icon>
@@ -124,24 +124,46 @@ function Dashboard({ receive, data, isLoading }: IProps) {
             <ColContent>
               {data?.ranking !== -1 ? data?.ranking : "-"}
             </ColContent>
+            <ColRef onClick={() => setIsModalOpen(true)}>순위 목록</ColRef>
           </Col>
         </SubBox>
       )}
 
-      <Rank isModalOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <Ranking
+        isModalOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </Box>
   );
 }
+
+const ColEmpty = styled.div`
+  margin-top: 10px;
+  height: 37px;
+`;
+
+export const ColRef = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  line-height: 20px;
+  height: 37px;
+  padding: 0 17px;
+  font-size: 14px;
+  border-radius: 30px;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  background: ${(props) => props.theme.subBoxColor};
+  &:hover {
+    background: ${(props) => props.theme.ownColor};
+  }
+`;
 
 const SpinnerDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 253px;
-`;
-
-const RankOpen = styled.div`
-  cursor: pointer;
 `;
 
 const Icon = styled.div`
@@ -173,11 +195,15 @@ const SubBox = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   grid-gap: 50px;
-  padding: 48px 40px;
+  padding: 40px 0;
 
   @media screen and (min-width: 767px) {
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 10px;
+  }
+
+  @media screen and (min-width: 1439px) {
+    padding: 40px;
   }
 `;
 

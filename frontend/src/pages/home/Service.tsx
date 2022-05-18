@@ -5,14 +5,18 @@ import { Intro } from "components/Home/Intro";
 import { Option } from "components/Home/Option";
 import { ShortIntro } from "components/Home/ShortIntro";
 import { SideFeatures } from "components/Home/SideFeatures";
-
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { TopButton } from "components/Home/TopButton";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import styled from "styled-components";
 
 export const Service = () => {
+  useEffect(() => {
+    AOS.init();
+  });
   return (
     <Wrapper>
       <Option />

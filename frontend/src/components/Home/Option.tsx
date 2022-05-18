@@ -50,7 +50,7 @@ const WrapperNav = styled.div<{ top: boolean }>`
   opacity: 0.8;
   padding-right: 10%;
   list-style: none;
-  background-color: ${(props) => (!props.top ? "white" : null)};
+  background-color: ${(props) => (!props.top ? props.theme.bgColor : null)};
   box-shadow: ${(props) =>
     !props.top ? "1px 0px 10px 1px rgba(151, 151, 151, 0.25)" : null};
   transition: box-shadow 0.2s ease-out;
@@ -61,20 +61,21 @@ const WrapperNav = styled.div<{ top: boolean }>`
     /* box-sizing: border-box; */
     display: inline-block;
     margin-left: 80px;
-
-    @media screen and (max-width: 467px) {
+    /* 
+    @media screen and (min-width: 467px) {
       margin-left: 8px;
       font-size: 15px;
-    }
-    @media screen and (max-width: 767px) and (min-width: 468px) {
+    } */
+    @media screen and (max-width: 466px) {
       margin-left: 10px;
-      font-size: 20px;
+      font-size: 11px;
+      line-height: 3;
     }
     &:hover {
       color: ${(props) => props.theme.ownColor};
     }
   }
   @media screen and (max-width: 767px) {
-    padding-right: 7%;
+    padding-right: 2%;
   }
 `;

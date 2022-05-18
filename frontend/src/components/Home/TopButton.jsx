@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-
+import { BsFillHandIndexThumbFill } from "react-icons/bs";
 export const TopButton = () => {
   function TopEvent() {
     window.scrollTo({
@@ -26,13 +26,14 @@ export const TopButton = () => {
   };
   return (
     <Top onClick={TopEvent} id="topButton" title="Go to top">
-      <i className="fas fa-hand-point-up" aria-hidden="true"></i>
+      <BsFillHandIndexThumbFill />
     </Top>
   );
 };
 
 const Top = styled.button`
   visibility: hidden;
+  opacity: 0.8;
   position: fixed;
   bottom: 20px;
   right: 30px;
@@ -47,5 +48,7 @@ const Top = styled.button`
   font-size: 25px;
   :hover {
     transition: all ease-in-out 0.2s;
+    background-color: ${(props) => props.theme.ownColorHover};
+    color: white;
   }
 `;
