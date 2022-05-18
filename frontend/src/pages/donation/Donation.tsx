@@ -127,6 +127,30 @@ function Donation() {
         return;
       }
     } else {
+      if (!amount || !nickName) {
+        Swal.fire({
+          title: "입력 에러",
+          text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
+      if (errors.nickname) {
+        Swal.fire({
+          title: "입력 에러",
+          text: "후원닉네임을 정확히 입력해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
+      if (!amount) {
+        Swal.fire({
+          title: "입력 에러",
+          text: "후원금액을 정확히 입력해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
       navigate({
         pathname: "/payment",
         search: `?${createSearchParams(params)}`,
