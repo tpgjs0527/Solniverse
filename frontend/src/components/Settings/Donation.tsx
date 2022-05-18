@@ -2,14 +2,15 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
-import checkToken from "utils/checkToken";
 import Spinner from "components/Spinner";
+import useToken from "hooks/useToken";
 
 function SetDonation() {
   const userInfo = useRecoilValue(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [UUID, setUUID] = useState("");
   const [isLoadingUUID, setIsLoadingUUID] = useState(false);
+  const [, , checkToken] = useToken();
 
   // 연동 버튼 클릭 시 Token 유효한지 확인 후 uuid 받기
   const onCheckToken = async () => {
@@ -28,7 +29,6 @@ function SetDonation() {
       setUUID(uuid);
       setIsLoadingUUID(false);
     } else {
-      alert("문제 발생");
     }
   };
 

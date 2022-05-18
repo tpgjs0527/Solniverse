@@ -1,10 +1,14 @@
 import { clusterApiUrl, Connection } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import interpolate from "color-interpolate";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import styled, { keyframes } from "styled-components";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import Swal from "sweetalert2";
+import confetti from "canvas-confetti";
+import { Snackbar } from "@material-ui/core";
+import { AlertState } from "utils/candy-machine-utils";
+import { Alert } from "@material-ui/lab";
 
 // interface IState {
 //   state: { signature: string };
@@ -46,11 +50,17 @@ type Confirmations =
 
 function Confirmed() {
   const { state }: any = useLocation();
+  const navigate = useNavigate();
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   const requiredConfirmations = 32;
   const [confirmations, setConfirmations] = useState<Confirmations>(0);
   const [status, setStatus] = useState("Confirmed");
   const [isBlocking, setIsBlocking] = useState(false);
+  const [alertState, setAlertState] = useState<AlertState>({
+    open: false,
+    message: "",
+    severity: undefined,
+  });
   const progress = useMemo(
     () => confirmations / requiredConfirmations,
     [confirmations, requiredConfirmations]
@@ -80,13 +90,13 @@ function Confirmed() {
       }),
     [interpolated, value]
   );
-  console.log(state);
+
   useEffect(() => {
     if (state) {
       const interval = setInterval(async () => {
         try {
           const response = await connection.getSignatureStatus(state.signature);
-          // console.log(response);
+          //
           const status = response.value;
           if (status) {
             const confirmation = (status.confirmations || 0) as Confirmations;
@@ -99,20 +109,50 @@ function Confirmed() {
               setStatus("Finalized");
             }
           }
-        } catch (error: any) {
-          console.log(error);
-        }
+        } catch (error: any) {}
       }, 1000);
     }
   }, [state]);
   // 뒤로 가기 방지 코드
   useEffect(() => {
+    if (status === "Finalized") {
+      confetti({
+        particleCount: 1000,
+        spread: 100,
+        origin: { y: 0.7, x: 0.5 },
+      });
+      setAlertState({
+        open: true,
+        message: "결제가 완료됐습니다.",
+        severity: "success",
+      });
+      setTimeout(() => {
+        setAlertState({
+          ...alertState,
+          open: false,
+        });
+      }, 3000);
+      if (!alertState.open) {
+        setTimeout(() => {
+          setAlertState({
+            open: true,
+            message: "SNV 토큰이 발급됐습니다.",
+            severity: "success",
+          });
+        }, 4000);
+      }
+    }
     const preventGoBack = () => {
       window.history.pushState(null, "", window.location.href);
       if (status === "Finalized") {
-        alert("이미 결제 완료된 도네이션입니다.");
+        Swal.fire("Succeed!", "The Donation has already done!", "success");
+        // alert("이미 결제 완료된 도네이션입니다.");
       } else {
-        alert("결제 중인 도네이션입니다.");
+        Swal.fire({
+          title: "Now Donating!",
+          html: "We are Donating now!",
+          timerProgressBar: true,
+        });
       }
     };
     window.history.pushState(null, "", window.location.href);
@@ -126,19 +166,35 @@ function Confirmed() {
   return (
     <Container>
       <Wrapper>
-        <ProgressWrapper>
-          {text === "Donating..." ? (
-            <>
+        {text === "Donating..." ? (
+          <>
+            <ProgressWrapper>
               <SpinnerSt />
               <ProgressText>{text}</ProgressText>
-            </>
-          ) : (
-            <>
+            </ProgressWrapper>
+          </>
+        ) : (
+          <>
+            <ProgressWrapper>
               <CircularProgressbar maxValue={1} value={value} styles={styles} />
               <ProgressText>{text}</ProgressText>
-            </>
-          )}
-        </ProgressWrapper>
+
+              <SnackBar
+                open={alertState.open}
+                autoHideDuration={5000}
+                onClose={() => setAlertState({ ...alertState, open: false })}
+              >
+                <Alert
+                  onClose={() => setAlertState({ ...alertState, open: false })}
+                  severity={alertState.severity}
+                >
+                  {alertState.message}
+                </Alert>
+              </SnackBar>
+            </ProgressWrapper>
+            <HomeBtn onClick={() => navigate("/")}>Home</HomeBtn>
+          </>
+        )}
       </Wrapper>
     </Container>
   );
@@ -146,6 +202,8 @@ function Confirmed() {
 
 const Container = styled.div``;
 const Wrapper = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -154,10 +212,13 @@ const Wrapper = styled.div`
 const ProgressWrapper = styled.div`
   width: 300px;
   height: 300px;
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   @media screen and (max-width: 691px) {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
   }
 `;
 const ProgressText = styled.span`
@@ -176,6 +237,30 @@ const spin = keyframes`
     transform: rotate(360deg);
   }
 `;
+const HomeBtn = styled.button`
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 40px;
+  color: #ffffff;
+  background-color: ${(props) => props.theme.ownColor};
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  &:hover {
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
+  }
+  @media screen and (max-width: 691px) {
+    width: 80px;
+    top: 70%;
+    height: 30px;
+    font-size: 14px;
+  }
+`;
 
 const SpinnerSt = styled.div`
   border: 10px solid ${(props) => props.theme.subBoxColor};
@@ -185,8 +270,21 @@ const SpinnerSt = styled.div`
   height: 300px;
   animation: ${spin} 1s linear infinite;
   @media screen and (max-width: 691px) {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
+  }
+`;
+
+const SnackBar = styled(Snackbar)`
+  position: absolute !important;
+  top: 40% !important;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  @media screen and (max-width: 691px) {
+    position: relative !important;
+    margin-top: 32px;
+    margin-left: 90px;
   }
 `;
 

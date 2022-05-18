@@ -8,11 +8,12 @@ import {
 } from "atoms";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import Profile from "components/Navbar/Profile";
+import Swal from "sweetalert2";
 
 export default function Header() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useRecoilState(toggleThemeAtom);
-  const setIsSidebar = useSetRecoilState(toggleSidebarAtom);
+  const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
   const setUserInfo = useSetRecoilState(userInfoAtom);
   const setAccessToken = useSetRecoilState(accessTokenAtom);
 
@@ -32,13 +33,13 @@ export default function Header() {
             </Link>
           </Element>
           <Element isActive={nftRewardMatch !== null}>
-            <Link to="/nft-reward">
-              <Text>NFT 리워드</Text>
+            <Link to="/snv-world">
+              <Text>SNV World</Text>
             </Link>
           </Element>
           <Element isActive={serviceCenterMatch !== null}>
-            <Link to="/service-center">
-              <Text>고객센터</Text>
+            <Link to="/service">
+              <Text>서비스 가이드</Text>
             </Link>
           </Element>
         </List>
@@ -90,18 +91,34 @@ export default function Header() {
           </ThemeToggle>
           <Logout
             onClick={() => {
-              if (window.confirm("지갑 연결을 끊으시겠습니까?") === true) {
-                setUserInfo({
-                  twitch: {
-                    id: "",
-                    displayName: "",
-                    profileImageUrl: "",
-                  },
-                  walletAddress: "",
-                  createdAt: "",
-                });
-                setAccessToken("");
-              }
+              Swal.fire({
+                title: "Logout",
+                text: "If you log out, you will go back to the landing page.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3990e0",
+                cancelButtonColor: "#e96e35",
+                confirmButtonText: "log out",
+                cancelButtonText: "stay logged in",
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  Swal.fire(
+                    "Disconnected!",
+                    "You has been disconnected.",
+                    "success"
+                  );
+                  setUserInfo({
+                    twitch: {
+                      id: "",
+                      displayName: "",
+                      profileImageUrl: "",
+                    },
+                    walletAddress: "",
+                    createdAt: "",
+                  });
+                  setAccessToken("");
+                }
+              });
             }}
           >
             <svg
@@ -145,6 +162,10 @@ const Logout = styled.li`
   &:hover {
     color: ${(props) => props.theme.ownColor};
   }
+
+  @media screen and (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 const SearchToggle = styled.li`
@@ -153,6 +174,10 @@ const SearchToggle = styled.li`
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.ownColor};
+  }
+
+  @media screen and (max-width: 1023px) {
+    display: none;
   }
 `;
 
@@ -175,6 +200,10 @@ const ThemeToggle = styled.li`
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.ownColor};
+  }
+
+  @media screen and (max-width: 1023px) {
+    display: none;
   }
 `;
 
@@ -222,7 +251,7 @@ const Col = styled.div`
   margin: 0 auto;
   height: 60px;
   padding: 0 24px;
-  max-width: 364px;
+  max-width: 414px;
 
   @media screen and (min-width: 767px) {
     max-width: 630px;

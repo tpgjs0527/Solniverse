@@ -1,32 +1,35 @@
+import { AlertBoxSetting } from "components/Home/AlertBoxSetting";
+import { CoreFeatures } from "components/Home/CoreFeatures";
+import DonationIntro from "components/Home/DonationIntro";
+import { Intro } from "components/Home/Intro";
+import { Option } from "components/Home/Option";
+import { ShortIntro } from "components/Home/ShortIntro";
+import { SideFeatures } from "components/Home/SideFeatures";
+
+import { TopButton } from "components/Home/TopButton";
+
 import React from "react";
-import { Link } from "react-router-dom";
+
 import styled from "styled-components";
-import { Logo, Main, Menu } from "./Home";
 
 export const Service = () => {
   return (
-    <Main>
-      <Container>
-        <Logo>
-          <img src="" alt="" />
-        </Logo>
-        <Menu>
-          <ul>
-            <li>
-              <Link to={"/"}>Home</Link>
-            </li>
-            <li>
-              <Link to={"/service"}>Service</Link>
-            </li>
-          </ul>
-        </Menu>
-      </Container>
-    </Main>
+    <Wrapper>
+      <Option />
+      <ServiceWrapper>
+        <Intro />
+        <ShortIntro />
+        <CoreFeatures />
+        <DonationIntro />
+        <AlertBoxSetting />
+        <SideFeatures />
+        <TopButton />
+      </ServiceWrapper>
+    </Wrapper>
   );
 };
-
-const Container = styled.div`
-  width: 100%;
-  position: absolute;
-  top: 0%;
+const Wrapper = styled.div`
+  overflow-x: hidden;
 `;
+
+const ServiceWrapper = styled.div``;

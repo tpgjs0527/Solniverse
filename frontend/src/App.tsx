@@ -4,52 +4,39 @@ import GlobalStyle from "styles/GlobalStyle";
 import Routes from "pages/Routes";
 import { useRecoilValue } from "recoil";
 import { toggleThemeAtom } from "atoms";
-import React, { FC, ReactNode, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
-import {
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { Outlet } from "react-router-dom";
 import { clusterApiUrl } from "@solana/web3.js";
 
-const App: FC = () => {
+require("@solana/wallet-adapter-react-ui/styles.css");
+
+const App = () => {
   const isDark = useRecoilValue(toggleThemeAtom);
-
-  return (
-    <Context>
-      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-        <GlobalStyle />
-        <Routes />
-        {/* <WalletMultiButton /> */}
-      </ThemeProvider>
-    </Context>
-  );
-};
-
-const Context: FC<{ children: ReactNode }> = ({ children }) => {
   const network = WalletAdapterNetwork.Devnet;
+  // const network = process.env.REACT_APP_SOLANA_NETWORK as WalletAdapterNetwork;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
   const wallets = useMemo(() => [new PhantomWalletAdapter()], [network]);
-  useEffect(() => {
-    console.log(wallets);
-  }, [wallets]);
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  );
-};
 
-const Content: FC = () => {
-  return <WalletMultiButton />;
+  return (
+    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+      <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect={false}>
+          <WalletModalProvider>
+            <Routes />
+            <GlobalStyle />
+            <Outlet />
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    </ThemeProvider>
+  );
 };
 
 export default App;

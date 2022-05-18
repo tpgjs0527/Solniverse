@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useSocket } from "hooks/useSocket";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import io from "socket.io-client";
 import styled, { keyframes } from "styled-components";
-
-interface IDonation {
+import { Howl, Howler } from "howler";
+export interface IMessage {
   displayName: string;
   message: string;
   paymentType: string;
@@ -11,21 +11,31 @@ interface IDonation {
 }
 
 export const Message = () => {
+  Howler.autoUnlock = false;
   const params = useParams<{ uuid: string }>();
   const { uuid } = params;
-  const [queue, setQueue] = useState<IDonation[]>([]);
-  const [start, setStart] = useState(false);
+  const [queue, setQueue] = useState<IMessage[]>([]);
+  const [start, setStart] = useState(true);
   const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const socket = io(`https://solniverse.net?userKey=${uuid}`, {
-      transports: ["websocket", "polling"],
-      reconnection: !0,
-    });
-    socket.connect();
-    console.log("socket 연결 완료");
-    socket.on("donation", (data: IDonation) => {
-      console.log(data);
+  const refQueue = useMemo(() => queue, [queue]);
+  const [socket, disconnectSocket] = useSocket(uuid);
 
+  const sound = {
+    donation: new Howl({
+      src: [`${process.env.PUBLIC_URL}/sounds/alarm.mp3`],
+    }),
+  };
+
+  useEffect(() => {
+    return () => {
+      console.log("disconnect socket", uuid);
+      disconnectSocket();
+    };
+  }, [disconnectSocket, uuid]);
+
+  useEffect(() => {
+    socket?.on("donation", (data: IMessage) => {
+      console.log(data);
       setQueue((currentQueue) => [
         ...currentQueue,
         {
@@ -40,107 +50,71 @@ export const Message = () => {
         setStart(true);
       }
     });
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
-    if (queue.length) {
-      let donation = queue[0];
-
-      console.log(donation);
-      let donate = setInterval(() => {
-        setVisible(true);
-        // splice는 상태값 변경할 때 잘 안쓴다고 함!
-        const newQueue = queue.filter((value, i) => i !== 0);
-        setQueue((currentValue) => newQueue);
-        clearInterval(donate);
-        setStart(false);
-      }, 5000);
-
-      if (queue.length === 0) {
-        setStart(false);
-        return;
-      }
-      console.log(queue);
+    if (refQueue.length > 0) {
+      let context = new AudioContext();
+      // 크롬에서 자동재생을 막기 때문에, 참고(https://developer.chrome.com/blog/autoplay/) resume() 호출하도록 해야함
+      context.resume().then(async () => await sound.donation.play());
+      console.log(refQueue);
+      setStart(true);
+      setVisible(true);
+      sound.donation.play();
+      setTimeout(() => {
+        setVisible(false);
+      }, 3000);
+      setTimeout(() => {
+        setQueue(refQueue.filter((value, i) => i !== 0));
+        sound.donation.stop();
+      }, 7000);
     }
-  }, [queue]);
-  const handleBtn = () => {
-    setVisible(!visible);
-  };
-  // setInterval로 true/false 값바꾸면서 보여줄 예정
+    if (refQueue.length === 0) {
+      setStart(false);
+
+      return;
+    }
+  }, [refQueue]);
+
   return (
     <>
-      <Test visible={visible}>안녕하세요</Test>
-      <button onClick={handleBtn}>버튼</button>
+      {start && refQueue.length > 0 ? (
+        <Test visible={visible}>
+          <div>
+            <Name>{refQueue[0].displayName}</Name>님
+            <Money>
+              {refQueue[0].amount}
+              {refQueue[0].paymentType}
+            </Money>
+            감사합니다!
+          </div>
+          <div>{refQueue[0].message}</div>
+        </Test>
+      ) : null}
     </>
   );
 };
 
-const animation = keyframes`
-0% {
-  opacity: 0;
-}
-30% {
-  opacity: 0.8;
-}
-50% {
-  opacity: 1;
-}
-60% {
-  opacity: 1;
-}
-70% {
-  opacity: 1;
-}
-80% {
-  opacity: 0.8;
-}
-100% {
-  opacity: 0;
-}
-`;
-
-const Base = styled.div`
-  margin: 0 auto;
-  padding: 60px 24px 172px;
-  max-width: 364px;
-
-  @media screen and (min-width: 1439px) {
-    max-width: 1296px;
-  }
-
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  animation: ${animation} 5s;
-
-  font-size: xx-large;
-`;
-
 const fadeIn = keyframes`
-  0% {
+from {
+
     opacity: 0;
   }
-  60%{
-    opacity: 0.7;
-  }
-  100% {
+
+  to {
+    
     opacity: 1;
   }
 `;
 
 const fadeOut = keyframes`
-  0% {
+from {
+
     opacity: 1;
   }
-  50%{
-    opacity: 0.7;
-  }
-  100% {
+
+  to {
+    
     opacity: 0;
   }
 `;
@@ -152,11 +126,17 @@ const Test = styled.div<{ visible: boolean }>`
   align-items: center;
   min-height: 100vh;
   color: white;
-  font-size: 120px;
+  font-size: 70px;
   font-weight: 500;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-
-  animation: ${(props) => (props.visible ? fadeIn : fadeOut)} 2s ease-out;
+  animation: ${(props) => (props.visible ? fadeIn : fadeOut)} 3s ease-out;
   transition: visibility 1.5s ease-out;
   text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000;
+`;
+const Name = styled.span`
+  color: ${(props) => props.theme.ownColor};
+`;
+const Money = styled(Name)`
+  margin-left: 20px;
+  margin-right: 30px;
 `;

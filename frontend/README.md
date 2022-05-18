@@ -59,10 +59,10 @@ npm i @types/styled-components
 npm install --save react-apexcharts apexcharts
 ```
 
-- SWR
+- Query
 
 ```bash
-npm i swr
+npm i react-query
 ```
 
 - react-cookies
@@ -107,6 +107,18 @@ npm i react-circular-progressbar
 ```bash
 npm i socket.io-client
 npm i --save-dev @types/socket.io-client
+```
+
+- howler
+
+```bash
+npm i howler
+```
+
+-react-animate-height
+
+```bash
+npm i react-animate-height
 ```
 
 ### Provider

@@ -1,12 +1,21 @@
 import styled from "styled-components";
-import { useRecoilState } from "recoil";
-import { toggleSidebarAtom } from "atoms";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import {
+  accessTokenAtom,
+  toggleSidebarAtom,
+  toggleThemeAtom,
+  userInfoAtom,
+} from "atoms";
 import { useNavigate } from "react-router-dom";
 import Profile from "components/Navbar/Profile";
+import Swal from "sweetalert2";
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useRecoilState(toggleThemeAtom);
   const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
+  const setUserInfo = useSetRecoilState(userInfoAtom);
+  const setAccessToken = useSetRecoilState(accessTokenAtom);
 
   return (
     <SideBar isSidebar={isSidebar}>
@@ -62,10 +71,10 @@ export default function Sidebar() {
             <Element
               onClick={() => {
                 setIsSidebar((prev) => !prev);
-                navigate(`/nft-reward`);
+                navigate(`/snv-world`);
               }}
             >
-              NFT 리워드
+              SNV World
             </Element>
             <Element
               onClick={() => {
@@ -77,10 +86,138 @@ export default function Sidebar() {
             </Element>
           </ul>
         </Nav>
+        <div>
+          <IconsBottom>
+            <SearchToggle>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </SearchToggle>
+            <ThemeToggle onClick={() => setIsDark((prev) => !prev)}>
+              {isDark ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              )}
+            </ThemeToggle>
+            <Logout
+              onClick={() => {
+                setIsSidebar((prev) => !prev);
+                Swal.fire({
+                  title: "Logout",
+                  text: "If you log out, you will go back to the landing page.",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#3990e0",
+                  cancelButtonColor: "#e96e35",
+                  confirmButtonText: "log out",
+                  cancelButtonText: "stay logged in",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    Swal.fire(
+                      "Disconnected!",
+                      "You has been disconnected.",
+                      "success"
+                    );
+                    setUserInfo({
+                      twitch: {
+                        id: "",
+                        displayName: "",
+                        profileImageUrl: "",
+                      },
+                      walletAddress: "",
+                      createdAt: "",
+                    });
+                    setAccessToken("");
+                  }
+                });
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+            </Logout>
+          </IconsBottom>
+        </div>
       </Col>
     </SideBar>
   );
 }
+
+const Logout = styled.li`
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
+`;
+
+const SearchToggle = styled.li`
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
+`;
+
+const ThemeToggle = styled.li`
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.ownColor};
+  }
+`;
+
+const IconsBottom = styled.ul`
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
 
 const Element = styled.li`
   font-size: 36px;
@@ -96,6 +233,7 @@ const Element = styled.li`
 
 const Nav = styled.div`
   padding: 47px 0 66px;
+  flex: 1;
 `;
 
 const Icon = styled.div`
@@ -116,6 +254,8 @@ const Icons = styled.div`
 const Col = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 100%;
+  padding-bottom: 36px;
 `;
 
 const SideBar = styled.div<{ isSidebar: Boolean }>`

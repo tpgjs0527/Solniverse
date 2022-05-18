@@ -24,3 +24,4 @@ services:
     volumes:
       - /home/ubuntu/docker-volume/ssl2:/var/www/html
     container_name: "backend"
+      - /home/ubuntu/log:/var/log/nginx

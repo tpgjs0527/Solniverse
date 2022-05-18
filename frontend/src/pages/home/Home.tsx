@@ -1,94 +1,17 @@
-import {
-  WalletConnectButton,
-  WalletModalButton,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-import { Button } from "@solana/wallet-adapter-react-ui/lib/types/Button";
-import { userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
+import useWallet from "hooks/useWallet";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMatch, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
 import styled, { keyframes } from "styled-components";
-import { checkWallet } from "utils/checkWallet";
-
-import { getWallet } from "utils/getWallet";
-// import picture1 from "../../styles/1.png";
-// import picture2 from "../../styles/2.png";
 
 function Home() {
-  const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
-  const [isWallet, setIsWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const homeMatch = useMatch("/");
-  const serviceMatch = useMatch("/service");
-  const navigate = useNavigate();
-
-  // 기존에 지갑 있으면 연결함
-  const checkIfWalletIsConnected = async () => {
-    const data = await checkWallet();
-    if (data && data.result === "success") {
-      setIsWallet(true);
-      if (data.user.twitch) {
-        setUserInfo({
-          twitch: {
-            id: data.user.twitch.id,
-            displayName: data.user.twitch.displayName,
-            profileImageUrl: data.user.twitch.profileImageUrl,
-          },
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      } else {
-        setUserInfo({
-          ...userInfo,
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      }
-      navigate("/main");
-    } else {
-    }
-  };
-  // 지갑연결
-  const connectWallet = async () => {
-    const data = await getWallet();
-    if (data.result === "success") {
-      setIsWallet(true);
-      if (data.user.twitch) {
-        setUserInfo({
-          twitch: {
-            id: data.user.twitch.id,
-            displayName: data.user.twitch.displayName,
-            profileImageUrl: data.user.twitch.profileImageUrl,
-          },
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      } else {
-        setUserInfo({
-          ...userInfo,
-          walletAddress: data.user.walletAddress,
-          createdAt: data.user.createdAt,
-        });
-      }
-      navigate("/main");
-    } else {
-      alert("지갑연결이 실패했습니다");
-    }
-  };
+  const [, connectWallet] = useWallet();
 
   useEffect(() => {
-    const onLoad = async () => {
-      await checkIfWalletIsConnected();
-    };
-    window.addEventListener("load", onLoad);
-    return () => window.removeEventListener("load", onLoad);
+    setTimeout(() => setIsLoading(false), 1000);
   }, []);
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
-  }, []);
+
   return (
     <Main>
       {isLoading ? (
@@ -96,19 +19,21 @@ function Home() {
           <Spinner />
         </Loading>
       ) : null}
-
-      <Box1></Box1>
-      <Box2>
+      <Hand></Hand>
+      <TextBox>
         <TextArea>
-          WELCOME <br /> SOLNIVERSE <br />
-          {/* <WalletConnectButton onClick={connectWallet}> */}
-          <WalletBtn isWallet={isWallet} onClick={connectWallet}>
-            입장하기
-          </WalletBtn>
-          {/* </WalletConnectButton> */}
+          ENJOY
+          <br /> SOLNIVERSE <br />
+          <Pushable>
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <WalletMultiBtn className="front" onClick={connectWallet}>
+              입장하기
+            </WalletMultiBtn>
+          </Pushable>
         </TextArea>
-      </Box2>
-      <Box3>
+      </TextBox>
+      <NavBox>
         <Container>
           <Logo>
             <img src="" alt="" />
@@ -116,15 +41,15 @@ function Home() {
           <Menu>
             <ul>
               <li>
-                <Link to={"/"}>Home</Link>
+                <Link to={"/"}>홈</Link>
               </li>
               <li>
-                <Link to={"/service"}>Service</Link>
+                <Link to={"/service"}>서비스 가이드</Link>
               </li>
             </ul>
           </Menu>
         </Container>
-      </Box3>
+      </NavBox>
     </Main>
   );
 }
@@ -136,6 +61,8 @@ export const Main = styled.div`
   height: 100%;
   position: absolute;
   overflow: hidden;
+  /* iPhone 가로 스크롤 방지 */
+  overflow-x: hidden;
 `;
 
 const anim = keyframes`
@@ -158,25 +85,23 @@ const anim2 = keyframes`
 `;
 
 const Loading = styled.div`
-  /* position: absolute; */
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 50%;
-  /* margin-top: 45vh; */
   @media screen and (min-width: 1000px) {
     display: none;
   }
 `;
 
-const Box1 = styled.div`
+const Hand = styled.div`
   width: 530px;
   height: 625px;
   background-image: url("1.png");
   position: absolute;
   bottom: -100%;
   left: 30%;
-  animation: ${anim} 2s forwards, ${anim2} 3s forwards 2.5s;
+  animation: ${anim} 1.3s forwards, ${anim2} 2s forwards 1.2s;
   @media screen and (max-width: 1000px) {
     display: none;
   }
@@ -192,12 +117,12 @@ const Box1 = styled.div`
   }
 `;
 
-const Box2 = styled.div`
+const TextBox = styled.div`
   width: auto;
   height: auto;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
   color: white;
-  font-size: 8em;
+  font-size: 7em;
   font-weight: 500;
   line-height: 130px;
   position: absolute;
@@ -208,12 +133,17 @@ const Box2 = styled.div`
   @media screen and (max-width: 800px) {
     font-size: 6em;
     line-height: 90px;
-    left: 80px;
+    left: 20px;
   }
-  @media screen and (max-width: 550px) {
-    font-size: 4em;
+  @media screen and (max-width: 600px) {
+    font-size: 5rem;
     line-height: 90px;
-    left: 80px;
+    left: 20px;
+  }
+  @media screen and (max-width: 375px) {
+    font-size: 3.7rem;
+    line-height: 90px;
+    left: 20px;
   }
 `;
 
@@ -228,10 +158,11 @@ const anim3 = keyframes`
 const TextArea = styled.div`
   position: relative;
   left: -100%;
-  color: black;
-  animation: ${anim3} 2s forwards 3s;
+  margin-bottom: 30px;
+  color: ${(props) => props.theme.textColor};
+  animation: ${anim3} 1.5s forwards 1.3s;
 `;
-const Box3 = styled.div`
+const NavBox = styled.div`
   overflow: hidden;
 `;
 const anim4 = keyframes`
@@ -246,58 +177,119 @@ const Container = styled.div`
   width: 100%;
   position: absolute;
   top: -100%;
-  animation: ${anim4} 2s forwards 2.5s;
+  animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
 export const Logo = styled.div`
   float: left;
-  margin-left: 100px;
-  margin-top: 20px;
+  margin-left: 80px;
+  margin-top: 10px;
   img {
     width: 50px;
   }
+  @media screen and (max-width: 600px) {
+    margin-left: 40px;
+  }
 `;
 export const Menu = styled.div`
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  color: black;
+  font-size: 20px;
+  font-weight: 600;
+  color: ${(props) => props.theme.textColor};
 
   letter-spacing: 2px;
   margin-right: 150px;
-  margin-top: 20px;
-  float: right;
+  margin-top: 22px;
+  @media screen and (min-width: 1900px) {
+    margin-top: 28px;
+    margin-left: 2px;
+  }
+  /* float: right; */
   ul {
     list-style: none;
     li {
       display: inline-block;
-      margin-left: 100px;
+      margin-right: 80px;
+      &:hover {
+        color: ${(props) => props.theme.ownColor};
+      }
     }
+  }
+  @media screen and (max-width: 600px) {
+    margin-right: 40px;
+    letter-spacing: 1px;
   }
 `;
 
-const WalletBtn = styled.div<{ isWallet: boolean }>`
-  width: 143px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+const WalletMultiBtn = styled.span`
+  display: block;
+  position: relative;
+  padding: 12px 42px;
+  border-radius: 12px;
+  border-color: #696868;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
+  background: hsl(345deg 100% 47%);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+  cursor: "pointer";
+  background-color: ${(props) => props.theme.ownColor};
+  color: "#fff";
+`;
 
-  font-size: 19px;
-  font-weight: 550;
-  padding: 15px;
-
-  border-radius: 8px;
-  box-shadow: 4px 12px 30px 6px rgb(0 0 0 / 9%);
+const Pushable = styled.button`
+  position: relative;
   border: none;
-  cursor: ${(props) => (props.isWallet ? "" : "pointer")};
-  transition: transform ease-in 200ms;
-  background-color: ${(props) => (props.isWallet ? "#404144" : "#512da8")};
-  color: ${(props) => (props.isWallet ? "#999" : "#fff")};
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
 
-  &:hover {
-    transform: scale(1.03);
-    background-color: "#20134190";
+  .shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: hsl(0deg 0% 0% / 0.25);
+    will-change: transform;
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
   }
-  transition: transform ease-in 170ms;
+  .edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: ${(props) => "#283250"};
+  }
+  &:hover {
+    filter: brightness(110%);
+    .front {
+      transform: translateY(-6px);
+      transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+    }
+    .shadow {
+      transform: translateY(6px);
+      transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+    }
+  }
+  &:active {
+    .front {
+      transform: translateY(-2px);
+      transition: transform 34ms;
+    }
+    .shadow {
+      transform: translateY(1px);
+      transition: transform 34ms;
+    }
+  }
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 `;
