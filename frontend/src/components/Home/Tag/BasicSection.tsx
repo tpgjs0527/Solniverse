@@ -9,6 +9,7 @@ export interface BasicSectionProps {
   title: string;
   size: number;
   introTitle?: string;
+  title2?: string;
   introContent?: string;
   reversed?: boolean;
 }
@@ -17,6 +18,7 @@ export default function BasicSection({
   imageUrl,
   size,
   title,
+  title2,
   children,
   introTitle,
   introContent,
@@ -31,6 +33,8 @@ export default function BasicSection({
       </ImageContainer>
       <ContentContainer>
         <Title>{title}</Title>
+        <Title>{title2}</Title>
+
         <BasicRichText>{children}</BasicRichText>
       </ContentContainer>
     </BasicSectionWrapper>
@@ -39,16 +43,17 @@ export default function BasicSection({
 
 export const Title = styled.h1`
   margin-top: 1rem;
-  font-size: 2.3rem;
+  font-size: 2.4rem;
   font-weight: bold;
   line-height: 1.5;
   margin-bottom: 2rem;
   letter-spacing: -0.03em;
+
   @media screen and (max-width: 500px) {
     font-size: 1.2rem;
   }
   @media screen and (min-width: 800px) and (max-width: 1450px) {
-    font-size: 1.6rem;
+    font-size: 1.55rem;
   }
 `;
 

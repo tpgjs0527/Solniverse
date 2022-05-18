@@ -36,7 +36,7 @@ function Home() {
       <NavBox>
         <Container>
           <Logo>
-            <img src="" alt="" />
+            <img src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`} alt="" />
           </Logo>
           <Menu>
             <ul>
@@ -180,15 +180,17 @@ const Container = styled.div`
   animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
-export const Logo = styled.div`
+export const Logo = styled.image`
   float: left;
+
   margin-left: 80px;
+  margin-right: 40px;
   margin-top: 10px;
   img {
-    width: 50px;
+    width: 60px;
   }
   @media screen and (max-width: 600px) {
-    margin-left: 40px;
+    margin-left: 20px;
   }
 `;
 export const Menu = styled.div`
@@ -196,19 +198,19 @@ export const Menu = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.textColor};
 
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   margin-right: 150px;
-  margin-top: 22px;
-  @media screen and (min-width: 1900px) {
-    margin-top: 28px;
+  margin-top: 28px;
+  @media screen and (min-width: 1500px) {
     margin-left: 2px;
   }
+
   /* float: right; */
   ul {
     list-style: none;
     li {
       display: inline-block;
-      margin-right: 80px;
+      margin-right: 25px;
       &:hover {
         color: ${(props) => props.theme.ownColor};
       }

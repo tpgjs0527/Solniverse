@@ -4,11 +4,12 @@ import BasicSection from "./Tag/BasicSection";
 
 export const ShortIntro = () => {
   return (
-    <Wrapper id="shortIntro">
+    <Wrapper >
       <BasicSection
-        size={400}
+        size={450}
         imageUrl={`${process.env.PUBLIC_URL}/images/모니터.png`}
-        title="Solana 블록체인으로 가능해진 새로운 인터넷 방송 후원 플랫폼"
+        title="Solana 블록체인으로 가능해진 "
+        title2="새로운 인터넷 방송 후원 플랫폼"
       ></BasicSection>
     </Wrapper>
   );

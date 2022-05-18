@@ -50,7 +50,7 @@ const WrapperNav = styled.div<{ top: boolean }>`
   opacity: 0.8;
   padding-right: 10%;
   list-style: none;
-  background-color: ${(props) => (!props.top ? "white" : null)};
+  background-color: ${(props) => (!props.top ? props.theme.bgColor : null)};
   box-shadow: ${(props) =>
     !props.top ? "1px 0px 10px 1px rgba(151, 151, 151, 0.25)" : null};
   transition: box-shadow 0.2s ease-out;
