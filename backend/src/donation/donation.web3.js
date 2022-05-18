@@ -74,7 +74,7 @@ setInterval(getUsdPerSol, 1000 * 60 * 10);
  */
 function getDataFromBanlance(preBalance, postBalance, symbol, decimal) {
   return {
-    amount: postBalance - preBalance,
+    amount: Math.abs(postBalance - preBalance),
     paymentType: symbol,
     decimal,
   };
@@ -141,8 +141,8 @@ async function updateTransactionWithoutDuplication(tx) {
       getUserOrCreate(receiveWallet.toString()),
     ]);
 
-    const senderPreTokenBalance = preTokenBalances.at(1);
-    const { amount, paymentType, decimal } = !senderPreTokenBalance
+    const firstPreTokenBalance = preTokenBalances.at(1);
+    const { amount, paymentType, decimal } = !firstPreTokenBalance
       ? getDataFromBanlance(
           preBalances.at(1),
           postBalances.at(1),
@@ -150,10 +150,10 @@ async function updateTransactionWithoutDuplication(tx) {
           SOL_DECIMAL,
         )
       : getDataFromBanlance(
-          senderPreTokenBalance.uiTokenAmount.amount,
+          firstPreTokenBalance.uiTokenAmount.amount,
           postTokenBalances.at(1).uiTokenAmount.amount,
-          getSymbolByTokenAddress(senderPreTokenBalance.mint),
-          10 ** senderPreTokenBalance.uiTokenAmount.decimals,
+          getSymbolByTokenAddress(firstPreTokenBalance.mint),
+          10 ** firstPreTokenBalance.uiTokenAmount.decimals,
         );
 
     const txSignature = transaction.signatures.at(0);
