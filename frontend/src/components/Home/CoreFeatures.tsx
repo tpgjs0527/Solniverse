@@ -12,7 +12,7 @@ const coreFeatures = [
     Icon: <BsChevronDoubleDown />,
     title: "수수료율 절감",
     content:
-      "도네이션의 부담을 해소하기 위해 기존 시장 수수료율 10%에서 0.01%로 절감",
+      "도네이션의 부담을 해소하기 위한 0.01$ 미만 수준의 마이크로 수수료율",
   },
   {
     Icon: <IoEarth />,

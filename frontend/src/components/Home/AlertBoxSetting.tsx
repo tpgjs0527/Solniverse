@@ -29,6 +29,7 @@ export const AlertBoxSetting = () => {
 };
 const AlertWrapper = styled(Wrapper)`
   justify-content: center;
+
   @media screen and (max-width: 800px) {
     align-items: center;
     height: 600px;
@@ -37,7 +38,7 @@ const AlertWrapper = styled(Wrapper)`
 const Box = styled.div`
   @media screen and (min-width: 1700px) {
     margin-top: 2%;
-    width: 900px;
+    width: 930px;
     height: 580px;
   }
   width: 692px;

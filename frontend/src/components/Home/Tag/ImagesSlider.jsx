@@ -51,12 +51,14 @@ export const ImagesSlider = ({ Images }) => {
 const StyledUpperSwiper = styled(Swiper)`
   /* width: 800px;
   height: 550px; */
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.2);
+
   z-index: 0;
   width: 45vw;
   height: 60%;
   @media screen and (min-width: 1700px) {
     width: 48vw;
-    height: 80%;
+    height: 72%;
   }
   @media screen and (max-width: 800px) {
     width: 100%;
@@ -88,7 +90,9 @@ const StyledUpperSwiper = styled(Swiper)`
   }
 `;
 const StyledLowerSwiper = styled(Swiper)`
-  @media screen and (min-width: 1900px) {
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+
+  @media screen and (min-width: 1700px) {
     width: 48vw;
   }
   @media screen and (max-width: 800px) {

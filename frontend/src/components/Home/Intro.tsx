@@ -5,7 +5,7 @@ import BasicSection, { Title } from "./Tag/BasicSection";
 
 export const Intro = () => {
   return (
-    <Wrapper>
+    <Wrapper data-aos="fade-up" data-aos-duration="2000" id="shortIntro">
       <BasicSection
         size={200}
         introTitle="SOLNIVERSE"
