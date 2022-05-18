@@ -13,7 +13,6 @@ const {
   getOrCreateAssociatedTokenAccount,
   transfer,
   mintTo,
-  getAssociatedTokenAddress,
 } = require("@solana/spl-token");
 const { default: axios } = require("axios");
 const { Keypair, PublicKey } = web3;
@@ -30,7 +29,6 @@ var fromTokenAccount;
     fromWallet.publicKey,
   );
 })();
-getAssociatedTokenAddress;
 const SOL_DECIMAL = 10 ** 9;
 
 var usdPerSol;

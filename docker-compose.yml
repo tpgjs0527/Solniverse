@@ -13,3 +13,4 @@ services:
       - /home/ubuntu/docker-volume/ssl2:/var/www/html
       - /home/ubuntu/backlog:/usr/app/logs
     container_name: "backend"
+    hostname: "backend"

@@ -52,7 +52,9 @@ router.post("/connect", walletAndsignatureBodyCheck, async function (req, res) {
         sameSite: "strict",
       });
     else {
-      const { badCode, badBody } = new BaseResponse(BAD_REQUEST_RESPONSE);
+      const { statusCode: badCode, responseBody: badBody } = new BaseResponse(
+        BAD_REQUEST_RESPONSE,
+      );
       res.status(badCode).send(badBody);
       return;
     }
