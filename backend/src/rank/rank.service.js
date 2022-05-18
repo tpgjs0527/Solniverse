@@ -44,9 +44,10 @@ class RankService {
       return res;
     }
 
-    const ranking = await rankRepository.getReceiveRankingByReceiveTotal(
-      ranklist.receiveTotal,
-    )+1;
+    const ranking =
+      (await rankRepository.getReceiveRankingByReceiveTotal(
+        ranklist.receiveTotal,
+      )) + 1;
 
     responseBody.ranklist = { ...ranklist, ranking };
     return res;
@@ -69,9 +70,8 @@ class RankService {
       return res;
     }
 
-    const ranking = await rankRepository.getSendRankingBySendTotal(
-      ranklist.sendTotal,
-    )+1;
+    const ranking =
+      (await rankRepository.getSendRankingBySendTotal(ranklist.sendTotal)) + 1;
 
     responseBody.ranklist = { ...ranklist, ranking };
     return res;

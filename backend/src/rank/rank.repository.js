@@ -73,7 +73,7 @@ class RankRepository {
    * @returns {Number}
    */
   async getReceiveRankingByReceiveTotal(receiveTotal) {
-    return Rank.find().gt('receiveTotal', receiveTotal).count();
+    return Rank.find().gt("receiveTotal", receiveTotal).count();
   }
 
   /**
@@ -93,7 +93,7 @@ class RankRepository {
    * @returns {Number}
    */
   async getSendRankingBySendTotal(sendTotal) {
-    return Rank.find().gt('sendTotal', sendTotal).count();
+    return Rank.find().gt("sendTotal", sendTotal).count();
   }
 }
 
