@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Content, OverTitle } from "./DonationIntro";
+import { Phantom } from "./Intro";
 import BasicSection from "./Tag/BasicSection";
 import RichText from "./Tag/RichText";
 import { Wrapper } from "./Tag/Wrapper";
@@ -17,22 +18,28 @@ export const SideFeatures = () => {
       <BasicSection
         imageUrl="/images/후원 내역과 랭킹.png"
         title="나의 랭킹 및 후원 내역"
-        size={550}
+        size={500}
       >
         <p>
-          저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다
+          지금까지 후원한 혹은 후원받은 내역들을 한눈에 확인하실 수 있습니다.
+          등급표와 순위 목록을 보며 레벨 업을 해보아요!
         </p>
       </BasicSection>
       <BasicSection
-        imageUrl="/images/모니터.png"
+        imageUrl="/images/NFT 캔디드롭.png"
         title="스트리머 NFT 뽑기"
         size={550}
         reversed
       >
         <p>
-          저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다
+          SOLNIVERSE는 자체 포인트 토큰인{" "}
+          <Phantom>
+            <a href="https://solscan.io/token/9UGMFdqeQbNqu488mKYzsAwBu6P2gLJnsFeQZ29cGSEw?cluster=devnet">
+              SNV 토큰
+            </a>
+          </Phantom>{" "}
+          을 만들었습니다. 후원을 통해 얻은 SNV 토큰을 가지고, 스트리머 사진이
+          담긴 NFT를 뽑고 소장해보아요!{" "}
         </p>
       </BasicSection>
       <BasicSection
@@ -41,8 +48,12 @@ export const SideFeatures = () => {
         size={550}
       >
         <p>
-          저희 SOLNIVERSE는 블록체인 SOLANA 코인을 통해 후원을 성사시키고
-          있습니다. 당신의 후원이벤트는 이제 우리 Phantom wallet과 함께합니다
+          후원 내역에 대한 상세 정보가 궁금하신가요? 필요한 후원 정보를 그래프와
+          리스트로 보여드립니다! 상세 정보를 클릭하시면{" "}
+          <Phantom>
+            <a href="https://solscan.io/">Solscan</a>
+          </Phantom>{" "}
+          을 통해 결제 정보를 확인하실 수 있습니다.
         </p>
       </BasicSection>
     </SideWrapper>

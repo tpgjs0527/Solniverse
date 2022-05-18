@@ -11,7 +11,7 @@ export const Intro = () => {
         introTitle="SOLNIVERSE"
         introContent="SOLNIVERSE는 SOL(Solana)와 UNIVERSE 의 합성어입니다."
         imageUrl="/favicon.ico"
-        title="솔니버스에 오신것을 환영합니다"
+        title="솔니버스에 오신 것을 환영합니다"
       >
         <p>
           저희 솔니버스(SOLNIVERSE)는 Solana 블록체인 네트워크와 Universe가
@@ -30,7 +30,7 @@ export const Intro = () => {
     </Wrapper>
   );
 };
-const Phantom = styled.span`
+export const Phantom = styled.span`
   color: ${(props) => props.theme.ownColor};
   :hover {
     background-color: ${(props) => props.theme.ownColor};
