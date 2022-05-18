@@ -26,6 +26,7 @@ import {
 import { getProvider } from "utils/getProvider";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
+import Swal from "sweetalert2";
 
 export interface ICandyMachine {
   id: anchor.web3.PublicKey;
