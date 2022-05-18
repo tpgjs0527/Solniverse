@@ -438,7 +438,7 @@ const CandyMachineHome = () => {
         displaySuccess(walletAddress, quantity);
         Swal.fire(
           "민팅 성공",
-          "NFT Candy Drop에 성공하셨습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
+          "NFT Candy Drop에 성공했습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
           "success"
         );
       }
