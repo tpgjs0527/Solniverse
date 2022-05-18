@@ -1,28 +1,23 @@
 // 순위표
 
-import { toggleThemeAtom } from "atoms";
+import { toggleThemeAtom, userInfoAtom } from "atoms";
 import { useEffect, useState } from "react";
 import ReactModal from "react-modal";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
+import { IData } from "./Dashboard";
 import Tier from "./Tier";
 
 interface IProps {
   isModalOpen: boolean;
   onClose: Function;
+  data: IData | undefined;
 }
 
-function Ranking({ isModalOpen, onClose }: IProps) {
+function Ranking({ isModalOpen, onClose, data }: IProps) {
   const isDark = useRecoilValue(toggleThemeAtom);
+  const userInfo = useRecoilValue(userInfoAtom);
   const [isOpen, setIsOpen] = useState(false);
-
-  const RankingList = [
-    { id: "test", am: 22, rank: 1 },
-    { id: "test", am: 22, rank: 2 },
-    { id: "test", am: 22, rank: 3 },
-    { id: "test", am: 22, rank: 4 },
-    { id: "test", am: 22, rank: 5 },
-  ];
 
   useEffect(() => {
     if (!!isModalOpen) {
@@ -56,13 +51,73 @@ function Ranking({ isModalOpen, onClose }: IProps) {
         },
       }}
     >
-      <SubTitle>순위 목록</SubTitle>
+      <SubTitle>순위표</SubTitle>
+      <SubCon>
+        현재 나의 순위를 기준으로 ±5 에 속하는 유저를 볼 수 있습니다.
+      </SubCon>
       <SubBox>
-        {RankingList.map((ranking) => (
-          <Element key={ranking.rank}>
-            <div>{ranking.rank}</div>
-            <div>{ranking.id}</div>
-            <div>{ranking.am}</div>
+        {data?.previousList.map((el, index) => (
+          <Element key={index}>
+            <RankingSize>{data.ranking - 5 + index}</RankingSize>
+            <Tier
+              tier={el.receiveRank ? el.receiveRank : el.sendRank}
+              ranking
+            />
+            <Name>
+              {el.user.twitch
+                ? el.user.twitch.displayName
+                : el.user.walletAddress}
+            </Name>
+            <Amount>
+              ${" "}
+              {el?.receiveTotal
+                ? el?.receiveTotal.toFixed(2)
+                : el?.sendTotal
+                ? el?.sendTotal.toFixed(2)
+                : 0}
+            </Amount>
+          </Element>
+        ))}
+        <Element isActive>
+          <RankingSize>{data?.ranking}</RankingSize>
+          <Tier
+            tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
+            ranking
+          />
+          <Name>
+            {userInfo?.twitch
+              ? userInfo?.twitch.displayName
+              : userInfo?.walletAddress}
+          </Name>
+          <Amount>
+            ${" "}
+            {data?.receiveTotal
+              ? data?.receiveTotal.toFixed(2)
+              : data?.sendTotal
+              ? data?.sendTotal.toFixed(2)
+              : 0}
+          </Amount>
+        </Element>
+        {data?.nextList.map((el, index) => (
+          <Element key={index}>
+            <RankingSize>{data.ranking + index + 1}</RankingSize>
+            <Tier
+              tier={el.receiveRank ? el.receiveRank : el.sendRank}
+              ranking
+            />
+            <Name>
+              {el.user.twitch
+                ? el.user.twitch.displayName
+                : el.user.walletAddress}
+            </Name>
+            <Amount>
+              ${" "}
+              {el?.receiveTotal
+                ? el?.receiveTotal.toFixed(2)
+                : el?.sendTotal
+                ? el?.sendTotal.toFixed(2)
+                : 0}
+            </Amount>
           </Element>
         ))}
       </SubBox>
@@ -70,13 +125,67 @@ function Ranking({ isModalOpen, onClose }: IProps) {
   );
 }
 
-const Element = styled.div`
+const Amount = styled.span`
+  width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+
+  @media screen and (min-width: 600px) {
+    width: 60px;
+  }
+
+  @media screen and (min-width: 900px) {
+    width: 100px;
+  }
+`;
+
+const Name = styled.span`
+  width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media screen and (min-width: 600px) {
+    width: 100px;
+  }
+
+  @media screen and (min-width: 900px) {
+    width: 200px;
+  }
+`;
+
+const TierSize = styled.span`
+  width: 50px;
+
+  @media screen and (min-width: 600px) {
+    width: 60px;
+  }
+
+  @media screen and (min-width: 900px) {
+    width: 100px;
+  }
+`;
+
+const RankingSize = styled.span`
+  width: 24px;
+
+  @media screen and (min-width: 900px) {
+    width: 50px;
+  }
+`;
+
+const Element = styled.div<{ isActive?: boolean }>`
   display: flex;
   justify-content: space-between;
-  padding: 15px 24px;
+  padding: 15px 14px;
   border-radius: 10px;
+  line-height: 20px;
   font-size: 12px;
-  background: ${(props) => props.theme.subBoxColor2};
+  letter-spacing: -0.5px;
+  background: ${(props) =>
+    props.isActive ? props.theme.ownColor : props.theme.subBoxColor2};
+  color: ${(props) => (props.isActive ? "whitesmoke" : props.theme.textColor)};
+  font-weight: ${(props) => (props.isActive ? "600" : "")};
 
   @media screen and (min-width: 600px) {
     font-size: 14px;
@@ -84,6 +193,7 @@ const Element = styled.div`
 
   @media screen and (min-width: 900px) {
     font-size: 16px;
+    padding: 15px 20px;
   }
 `;
 
@@ -103,12 +213,20 @@ const SubBox = styled.div`
   }
 `;
 
+const SubCon = styled.p`
+  font-size: 14px;
+  letter-spacing: -0.5px;
+  text-align: center;
+  color: ${(props) => props.theme.subTextColor};
+  margin: 15px 0 30px 0;
+`;
+
 const SubTitle = styled.p`
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.5px;
   text-align: center;
-  margin: 30px 0;
+  margin-top: 15px;
 `;
 
 export default Ranking;

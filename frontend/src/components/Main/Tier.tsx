@@ -4,24 +4,30 @@ import { ColRef } from "./Dashboard";
 import Rank from "./Rank";
 
 interface IProps {
-  tier: string;
+  tier: string | undefined;
   index?: number;
   dashboard?: boolean;
+  ranking?: boolean;
 }
 
-function Tier({ tier, index, dashboard }: IProps) {
+function Tier({ tier, index, dashboard, ranking }: IProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
-      <Col>
-        {dashboard ? (
-          <ColTitle>현재 나의 등급</ColTitle>
-        ) : (
-          <ColTitleRank>{tier}</ColTitleRank>
+      <Col ranking={ranking}>
+        {ranking ? null : (
+          <>
+            {dashboard ? (
+              <ColTitle>현재 나의 등급</ColTitle>
+            ) : (
+              <ColTitleRank>{tier}</ColTitleRank>
+            )}
+          </>
         )}
+
         {!(tier === "Platinum") && !(tier === "Diamond") ? (
-          <Icon tier={tier}>
+          <Icon tier={tier} ranking={ranking}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -31,7 +37,7 @@ function Tier({ tier, index, dashboard }: IProps) {
             </svg>
           </Icon>
         ) : tier === "Platinum" ? (
-          <IconHighTier>
+          <IconHighTier ranking={ranking}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -75,6 +81,8 @@ function Tier({ tier, index, dashboard }: IProps) {
             <ColContent>{tier}</ColContent>
             <ColRef onClick={() => setIsModalOpen(true)}>등급표</ColRef>
           </>
+        ) : ranking ? (
+          <span>{tier}</span>
         ) : (
           <>
             {!!index ? (
@@ -91,16 +99,16 @@ function Tier({ tier, index, dashboard }: IProps) {
   );
 }
 
-const IconHighTier = styled.div`
-  margin: 14px 0;
-  width: 92px;
-  height: 92px;
+const IconHighTier = styled.div<{ ranking?: boolean }>`
+  margin: ${(props) => (props.ranking ? "0" : "14px 0")};
+  width: ${(props) => (props.ranking ? "20px" : "92px")};
+  height: ${(props) => (props.ranking ? "20px" : "92px")};
 `;
 
-const Icon = styled.div<{ tier: string }>`
-  margin: 14px 0;
-  width: 92px;
-  height: 92px;
+const Icon = styled.div<{ tier?: string; ranking?: boolean }>`
+  margin: ${(props) => (props.ranking ? "0" : "14px 0")};
+  width: ${(props) => (props.ranking ? "20px" : "92px")};
+  height: ${(props) => (props.ranking ? "20px" : "92px")};
   color: ${(props) =>
     props.tier === "Bronze"
       ? "#CD7F32"
@@ -134,11 +142,21 @@ const ColTitle = styled.span`
   color: ${(props) => props.theme.subTextColor};
 `;
 
-const Col = styled.div`
+const Col = styled.div<{ ranking?: boolean }>`
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: ${(props) => (props.ranking ? "row" : "column")};
+  justify-content: ${(props) => (props.ranking ? "" : "center")};
   align-items: center;
+  gap: ${(props) => (props.ranking ? "2px" : "")};
+  width: ${(props) => (props.ranking ? "70px" : "")};
+  letter-spacing: -0.5px;
+  @media screen and (min-width: 600px) {
+    width: ${(props) => (props.ranking ? "80px" : "")};
+  }
+
+  @media screen and (min-width: 900px) {
+    width: ${(props) => (props.ranking ? "110px" : "")};
+  }
 `;
 
 export default Tier;
