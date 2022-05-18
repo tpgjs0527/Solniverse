@@ -79,10 +79,10 @@ export default function Sidebar() {
             <Element
               onClick={() => {
                 setIsSidebar((prev) => !prev);
-                navigate(`/service-center`);
+                navigate(`/service`);
               }}
             >
-              고객센터
+              서비스 가이드
             </Element>
           </ul>
         </Nav>
@@ -136,8 +136,8 @@ export default function Sidebar() {
               onClick={() => {
                 setIsSidebar((prev) => !prev);
                 Swal.fire({
-                  title: "Logout",
-                  text: "If you log out, you will go back to the landing page.",
+                  title: "로그아웃",
+                  text: "로그아웃을 하시면, 랜딩 페이지로 이동하게 됩니다.",
                   icon: "warning",
                   showCancelButton: true,
                   confirmButtonColor: "#3990e0",
@@ -147,8 +147,8 @@ export default function Sidebar() {
                 }).then((result) => {
                   if (result.isConfirmed) {
                     Swal.fire(
-                      "Disconnected!",
-                      "You has been disconnected.",
+                      "로그아웃 완료",
+                      "로그아웃이 완료되었습니다!",
                       "success"
                     );
                     setUserInfo({

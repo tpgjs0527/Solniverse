@@ -188,12 +188,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       }
     } else {
       Swal.fire(
-        "Information issue",
-        "The Donation Information is not correct. <br> Please redonate 🙇‍♂️",
+        "입력 정보 오류",
+        "입력한 도네이션 정보가 옳바르지 않습니다. 다시 후원해주세요  🙇‍♂️",
         "question"
       );
-      // alert("결제정보가 잘못 입력됐습니다. 다시 후원해주세요.");
-      // navigate("/donation");
     }
   };
   const closeModal = () => {

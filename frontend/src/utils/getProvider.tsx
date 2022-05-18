@@ -43,11 +43,10 @@ export const getProvider = (): PhantomProvider | undefined => {
         }
       } else {
         Swal.fire(
-          "Network issue",
-          "TSolana Network is still around?",
+          "Solana 네트워크 이슈",
+          "Solana 네트워크가 있나요?",
           "question"
         );
-        // alert("solana를 찾지 못하였습니다. 다시 로그인해주세요!");
       }
     } catch {}
   }

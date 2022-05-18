@@ -19,9 +19,9 @@ function useToken() {
     if (!walletAddress)
       return Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "There is not wallet address! Please connect your wallet 😊",
-        footer: '<a href="/service">Go Service Page</a>',
+        title: "지갑 발견 실패",
+        text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
+        footer: '<a href="/service">서비스 가이드 바로가기</a>',
       });
     const provider = getProvider();
 
@@ -39,8 +39,8 @@ function useToken() {
       // 지금 연결된 지갑과 아톱의 지갑이 다르면 로그아웃
       if (phantom !== userInfo.walletAddress) {
         Swal.fire(
-          "Wallet issue",
-          "You have changed your wallet address ! <br> Please reconnect with the new one 😊",
+          "지갑 변경 감지",
+          "지갑을 변경하셨군요! <br> 변경한 지갑으로 재입장해주시기 바랍니다 😊",
           "question"
         );
         setUserInfo({

@@ -33,11 +33,11 @@ function useWallet() {
           return data;
         } else {
           const error = new Error(res.statusText);
-          // console.log(error);
+          console.log(error);
           Swal.fire({
             icon: "error",
-            title: "Oops...",
-            text: "There is not wallet address! Please reconnect your wallet 😊",
+            title: "지갑 발견 실패",
+            text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
             footer: '<a href="/service">Go Service Page</a>',
           });
         }
@@ -45,8 +45,8 @@ function useWallet() {
     } else {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "There is not wallet address! Please check your wallet program😊",
+        title: "지갑 발견 실패",
+        text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
         footer: '<a href="/service">Go Service Page</a>',
       });
     }
