@@ -9,6 +9,7 @@ import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { findAssociatedTokenAddress } from "utils/solanaWeb3";
+import Swal from "sweetalert2";
 
 export const CTAButton = styled(Button)`
   width: 150px;
@@ -116,6 +117,7 @@ export const MultiMintButton = ({
   const [totalCost, setTotalCost] = useState(mintCount * (price + 0.012));
   const [isLoading, setIsLoading] = useState(true);
   const [snvBalance, setSNVBalance] = useState(0);
+  const [confirmation, setconfirmation] = useState(false);
 
   useEffect(() => {
     if (candyMachine) {
@@ -171,7 +173,21 @@ export const MultiMintButton = ({
       updateAmounts(value);
     }
   }
-
+  const askMint = () => {
+    Swal.fire({
+      title: "NFT Candy Drop",
+      text: "Candy Drop 하시겠습니까?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Let's Candy Drop",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setconfirmation(true);
+      }
+    });
+  };
   function updateAmounts(qty: number) {
     setMintCount(qty);
     setTotalCost(Math.round(qty * (price + 0.012) * 1000) / 1000); // 0.012 = approx of account creation fees
@@ -215,6 +231,7 @@ export const MultiMintButton = ({
               isVerifying
             }
             onClick={async () => {
+              // askMint();
               if (snvBalance) {
                 setTimeout(async () => {
                   if (window.confirm("Candy Drop 하시겠습니까?")) {
@@ -229,7 +246,7 @@ export const MultiMintButton = ({
                       await onMint(mintCount);
                     }
                   }
-                }, 400);
+                }, 500);
               } else {
                 alert("SNV 토큰이 부족합니다.");
               }

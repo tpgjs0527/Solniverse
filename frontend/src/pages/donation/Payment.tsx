@@ -146,7 +146,7 @@ function Payment() {
               </UserWrapper>
               <UserWrapper>
                 <TitleWrapper>
-                  <Title>크리에이터 정보</Title>
+                  <Title>스트리머 정보</Title>
                 </TitleWrapper>
                 <InfoWrapper>
                   <Name>{creatorName}</Name>

@@ -30,6 +30,7 @@ function SNVWorld() {
   const getAsyncSol = async () => {
     const sol = await getBalance(userInfo.walletAddress);
     setSolBalance(Number(sol));
+    setIsLoadingGetBalance(false);
   };
 
   const onNFT = () => {
@@ -55,40 +56,35 @@ function SNVWorld() {
   //   }
   // };
   const getAsyncToken = async () => {
-    const usdcAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-    );
-
-    const usdcResponse = await connection.getTokenAccountBalance(
-      new PublicKey(usdcAddress)
-    );
-
-    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
-    if (usdcResponse) {
-      setUSDCBalance(usdcAmount);
-    }
     const snvAddress = await findAssociatedTokenAddress(
       new PublicKey(userInfo.walletAddress),
       new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
     );
-
     const snvResponse = await connection.getTokenAccountBalance(
       new PublicKey(snvAddress)
     );
-
     const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
     if (snvResponse) {
       setSNVBalance(snvAmount);
+      setIsLoadingGetBalance(false);
+    }
+    const usdcAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+    );
+    const usdcResponse = await connection.getTokenAccountBalance(
+      new PublicKey(usdcAddress)
+    );
+    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+    if (usdcResponse) {
+      setUSDCBalance(usdcAmount);
+      setIsLoadingGetBalance(false);
     }
   };
 
   useEffect(() => {
     getAsyncSol();
     getAsyncToken();
-    if (solBalance) {
-      setIsLoadingGetBalance(false);
-    }
   }, [solBalance, SNVBalance, USDCBalance]);
 
   return (
@@ -100,14 +96,20 @@ function SNVWorld() {
             <UserWrapper>
               <UserBox style={{ display: "flex" }}>
                 <UserImageWrapper>
-                  <UserImage src={userInfo.twitch.profileImageUrl} />
+                  <UserImage
+                    src={
+                      userInfo.twitch.profileImageUrl
+                        ? userInfo.twitch.profileImageUrl
+                        : `${process.env.PUBLIC_URL}/images/SNV토큰.png`
+                    }
+                  />
                 </UserImageWrapper>
                 <UserInfoWrapper>
                   <Hello>반갑습니다</Hello>
                   <UserName>
                     {userInfo.twitch.id
                       ? userInfo.twitch.displayName
-                      : "익명의 솔전사"}
+                      : "익명의 솔둥이"}
                     님
                   </UserName>
                 </UserInfoWrapper>
