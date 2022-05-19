@@ -1,4 +1,3 @@
-import axios from "axios";
 import * as solanaWeb3 from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 

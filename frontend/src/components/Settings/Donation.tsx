@@ -132,22 +132,28 @@ function SetDonation() {
                 <ExtraDiv>
                   <ExtraUUID
                     isUUID={UUID}
-                    onClick={() =>
-                      handleCopyClipBoard(
-                        `https://solniverse.net/donation/alertbox/${UUID}`
-                      )
+                    onClick={
+                      UUID
+                        ? () =>
+                            handleCopyClipBoard(
+                              `https://solniverse.net/donation/alertbox/${UUID}`
+                            )
+                        : undefined
                     }
                   >
                     복사
                   </ExtraUUID>
                   <ExtraUUID
                     isUUID={UUID}
-                    onClick={() =>
-                      window.open(
-                        `https://solniverse.net/donation/alertbox/${UUID}`,
-                        "Solniverse AlertBox",
-                        "width=800,height=500,location=no,status=no,scrollbars=yes"
-                      )
+                    onClick={
+                      UUID
+                        ? () =>
+                            window.open(
+                              `https://solniverse.net/donation/alertbox/${UUID}`,
+                              "Solniverse AlertBox",
+                              "width=800,height=500,location=no,status=no,scrollbars=yes"
+                            )
+                        : undefined
                     }
                   >
                     열기
@@ -157,9 +163,9 @@ function SetDonation() {
             )}
           </AlarmUrlBox>
           <TestBox
-            onClick={() => window.open(`http://localhost:3000/test/alertbox`)}
+            onClick={() => window.open(`https://solniverse.net/test/alertbox`)}
           >
-            알람 테스트
+            알림 테스트
           </TestBox>
         </Box>
       </BoxWrapper>
@@ -273,7 +279,6 @@ const UrlBox = styled.div`
 
 const BoxNotice = styled.p`
   color: ${(props) => props.theme.ownColor};
-  font-weight: 600;
   font-size: 14px;
   margin-bottom: 6px;
 `;
@@ -320,13 +325,16 @@ const Section = styled.div`
 `;
 
 const ServiceTitle = styled(Phantom)``;
+
 const AlertTitle = styled.span`
   font-size: 22px;
   line-height: 32px;
   font-weight: bold;
   margin-right: 10px;
 `;
+
 const AlertWrapper = styled.div`
   margin-bottom: 20px;
 `;
+
 export default SetDonation;

@@ -103,11 +103,10 @@ function Dashboard({ receive, data, isLoading }: IProps) {
             </ColContent>
             <ColEmpty></ColEmpty>
           </Col>
-          {data?.receiveRank ? (
-            <Tier tier={data?.receiveRank} dashboard />
-          ) : data?.sendRank ? (
-            <Tier tier={data?.sendRank} dashboard />
-          ) : null}
+          <Tier
+            tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
+            dashboard
+          />
           <Col>
             <ColTitle>현재 나의 등수</ColTitle>
             <Icon>
@@ -199,7 +198,6 @@ const SubBox = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   grid-gap: 50px;
-  padding: 40px 0;
 
   @media screen and (min-width: 767px) {
     grid-template-columns: repeat(4, 1fr);
@@ -207,7 +205,7 @@ const SubBox = styled.div`
   }
 
   @media screen and (min-width: 1439px) {
-    padding: 40px;
+    padding: 0 40px;
   }
 `;
 
@@ -216,6 +214,7 @@ const SubTitle = styled.p`
   font-weight: 600;
   letter-spacing: -0.5px;
   text-align: center;
+  margin-bottom: 40px;
 `;
 
 const Box = styled.div`
