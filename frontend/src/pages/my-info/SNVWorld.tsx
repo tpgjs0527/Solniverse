@@ -119,7 +119,7 @@ function SNVWorld() {
               </RankingBox>
               <Hr />
               <PointBox>
-                <UserTitle>Your Balance</UserTitle>
+                <UserTitle>현재 자산</UserTitle>
                 <PointWrapper>
                   <PointInfoWrapper>
                     <PointImage
@@ -196,12 +196,6 @@ function SNVWorld() {
                 <Route path="other" element={<Other />} />
               </Routes>
             </NFTBox>
-            <NFTBox>
-              <NFTTitle></NFTTitle>
-            </NFTBox>
-            <NFTBox>
-              <NFTContent></NFTContent>
-            </NFTBox>
           </NFTWrapper>
         </Section>
       </Container>
@@ -240,10 +234,11 @@ const SpinnerDiv = styled.div`
 `;
 const UserWrapper = styled.div`
   height: 40%;
+  width: 250px;
   padding: 16px;
   border-radius: 16px;
   background-color: ${(props) => props.theme.boxColor};
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22) !important;
 `;
 const Hello = styled.div`
   font-size: 14px;
@@ -288,6 +283,12 @@ const PointWrapper = styled.div`
   border-radius: 16px;
   background-color: ${(props) => props.theme.subBoxColor};
   margin-bottom: 8px;
+  @media screen and (max-width: 1400px) {
+    font-size: 14px;
+  }
+  @media screen and (max-width: 691px) {
+    font-size: 12px;
+  }
 `;
 const PointInfoWrapper = styled.div`
   display: flex;
@@ -297,7 +298,14 @@ const PointImage = styled.img`
   width: 30px;
   margin-right: 4px;
 `;
-const PointTitle = styled.div``;
+const PointTitle = styled.div`
+  @media screen and (max-width: 1400px) {
+    font-size: 14px;
+  }
+  @media screen and (max-width: 691px) {
+    font-size: 12px;
+  }
+`;
 const PointContent = styled.div`
   white-space: pre-wrap;
   font-weight: bold;
@@ -331,7 +339,7 @@ const Tab = styled.div<{ isActive: boolean }>`
   }
 `;
 const NFTWrapper = styled.div`
-  width: 70%;
+  width: 80%;
   margin-left: 32px;
 `;
 const NFTBox = styled.div`

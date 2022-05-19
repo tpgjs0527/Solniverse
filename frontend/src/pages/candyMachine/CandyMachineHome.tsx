@@ -110,7 +110,7 @@ const CandyMachineHome = () => {
 
   //@TODO candyMachineId를 바꿔야함. useEffect [] 첫 마운트 기준으로 state로 받아와야됨.
   const candyMachineId = new PublicKey(
-    "FddL3BuqsBcgmm35PKcuS3xrhgsNStx41RpxU8amj6wC"
+    "J1HCbni7hk9D6XoA15VbRrj19k3tAXicsPCab9NHqrSU"
   );
   const rpcUrl = clusterApiUrl("devnet");
   const connection = new anchor.web3.Connection(rpcUrl, "confirmed");
@@ -438,7 +438,7 @@ const CandyMachineHome = () => {
         displaySuccess(walletAddress, quantity);
         Swal.fire(
           "민팅 성공",
-          "NFT Candy Drop에 성공했습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
+          "NFT 랜덤 뽑기에 성공했습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
           "success"
         );
       }
@@ -486,7 +486,7 @@ const CandyMachineHome = () => {
       if (!status?.err) {
         setAlertState({
           open: true,
-          message: "Congratulations! Mint succeeded!",
+          message: "뽑기에 성공하셨어요!",
           severity: "success",
         });
 
@@ -495,7 +495,7 @@ const CandyMachineHome = () => {
       } else {
         setAlertState({
           open: true,
-          message: "Mint failed! Please try again!",
+          message: "뽑기에 실패했어요! 다시 시도해주세요.",
           severity: "error",
         });
       }
@@ -511,21 +511,21 @@ const CandyMachineHome = () => {
         await mintMany(quantityString);
       }
     } catch (error: any) {
-      let message = error.msg || "Minting failed! Please try again!";
+      let message = error.msg || "뽑기에 실패했습니다.";
       if (!error.msg) {
         if (!error.message) {
-          message = "Transaction Timeout! Please try again.";
+          message = "트랜잭션 요청시간이 만료됐습니다.";
         } else if (error.message.indexOf("0x138")) {
         } else if (error.message.indexOf("0x137")) {
-          message = `SOLD OUT!`;
+          message = `뽑기가 종료됐습니다.`;
         } else if (error.message.indexOf("0x135")) {
-          message = `Insufficient funds to mint. Please fund your wallet.`;
+          message = `잔액이 부족합니다.`;
         }
       } else {
         if (error.code === 311) {
-          message = `SOLD OUT!`;
+          message = `뽑기가 종료됐습니다!`;
         } else if (error.code === 312) {
-          message = `Minting period hasn't started yet.`;
+          message = `뽑기가 진행중이 아닙니다.`;
         }
       }
 
@@ -544,11 +544,11 @@ const CandyMachineHome = () => {
 
   return (
     <Container>
-      <PageTitle>NFT Candy Drop</PageTitle>
+      <PageTitle>NFT 랜덤 뽑기</PageTitle>
       <Wrapper>
         <MainContainer>
           <ImageWrapper>
-            <ImageTitle>NFT LIST</ImageTitle>
+            <ImageTitle>이번 랜덤 뽑기 NFT</ImageTitle>
             <Image
               src={`${process.env.PUBLIC_URL}/images/cool-cats.gif`}
               alt="NFT To Mint"
@@ -646,7 +646,7 @@ const CandyMachineHome = () => {
                   )}
                 {provider && isActive && (
                   <TitleWrapper>
-                    <Title>TOTAL MINTED :</Title>
+                    <Title>뽑기 진행현황 :</Title>
                     <Title>
                       {itemsRedeemed} / {itemsAvailable}
                     </Title>
@@ -661,7 +661,7 @@ const CandyMachineHome = () => {
                 )}
                 <br />
                 <TitleWrapper>
-                  <Title>1 Mint : 500 SNV</Title>
+                  <Title>뽑기 한 번 : 500 SNV</Title>
                 </TitleWrapper>
                 {provider && isActive && solanaExplorerLink && (
                   <SolExplorerLink href={solanaExplorerLink} target="_blank">
@@ -690,8 +690,10 @@ const CandyMachineHome = () => {
 };
 
 const Container = styled.div`
+  width: 100%;
+  margin: 1px 1px;
   border-radius: 16px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22) !important;
 `;
 const PageTitle = styled.div`
   font-size: 24px;
@@ -818,8 +820,8 @@ const ImageTitle = styled.div`
 `;
 
 const Image = styled.img`
-  height: 250px;
-  width: auto;
+  height: auto;
+  width: 100%;
   border-radius: 7px;
   box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.5);
 `;

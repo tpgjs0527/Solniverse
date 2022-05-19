@@ -117,7 +117,7 @@ export const MultiMintButton = ({
   const [totalCost, setTotalCost] = useState(mintCount * (price + 0.012));
   const [isLoading, setIsLoading] = useState(true);
   const [snvBalance, setSNVBalance] = useState(0);
-  const [confirmation, setconfirmation] = useState(false);
+  const [confirmation, setConfirmation] = useState(false);
 
   useEffect(() => {
     if (candyMachine) {
@@ -173,21 +173,44 @@ export const MultiMintButton = ({
       updateAmounts(value);
     }
   }
-  const askMint = () => {
-    Swal.fire({
-      title: "NFT Candy Drop",
-      text: "Candy Drop 하시겠습니까?",
+  const askMint = async () => {
+    if (snvBalance < 500) {
+      Swal.fire({
+        title: "잔액 부족",
+        text: "현재 잔고보다 SNV 토큰이 부족합니다.",
+        icon: "warning",
+      });
+      return;
+    }
+    if (isSoldOut) {
+      Swal.fire({
+        title: "뽑기 종료",
+        text: "이번 랜덤 뽑기가 종료되었어요ㅠㅠ",
+        icon: "info",
+      });
+    }
+    await Swal.fire({
+      title: "NFT 랜덤 뽑기",
+      text: "랜덤 뽑기하시겠습니까?",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Let's Candy Drop",
+      confirmButtonText: "뽑기",
+      cancelButtonText: "취소",
     }).then((result) => {
       if (result.isConfirmed) {
-        setconfirmation(true);
+        setConfirmation(true);
+        return;
+      } else {
+        setConfirmation(false);
+        return;
       }
     });
+
+    setConfirmation(false);
   };
+
   function updateAmounts(qty: number) {
     setMintCount(qty);
     setTotalCost(Math.round(qty * (price + 0.012) * 1000) / 1000); // 0.012 = approx of account creation fees
@@ -209,7 +232,27 @@ export const MultiMintButton = ({
   };
   useEffect(() => {
     getAsyncToken();
-  }, [snvBalance]);
+    if (snvBalance) {
+      setTimeout(async () => {
+        if (confirmation) {
+          if (
+            isActive &&
+            candyMachine?.state.gatekeeper &&
+            gatewayStatus !== GatewayStatus.ACTIVE &&
+            confirmation
+          ) {
+            setClicked(true);
+            await requestGatewayToken();
+          } else {
+            await onMint(mintCount);
+          }
+        }
+      }, 500);
+    }
+  }, [snvBalance, confirmation]);
+  // useEffect(() => {
+
+  // }, [confirmation]);
 
   return (
     <>
@@ -231,46 +274,28 @@ export const MultiMintButton = ({
               isVerifying
             }
             onClick={async () => {
-              // askMint();
-              if (snvBalance) {
-                setTimeout(async () => {
-                  if (window.confirm("Candy Drop 하시겠습니까?")) {
-                    if (
-                      isActive &&
-                      candyMachine?.state.gatekeeper &&
-                      gatewayStatus !== GatewayStatus.ACTIVE
-                    ) {
-                      setClicked(true);
-                      await requestGatewayToken();
-                    } else {
-                      await onMint(mintCount);
-                    }
-                  }
-                }, 500);
-              } else {
-                alert("SNV 토큰이 부족합니다.");
-              }
+              await askMint();
             }}
             variant="contained"
           >
             {!candyMachine ? (
-              "CONNECTING..."
+              "연결중..."
             ) : candyMachine?.state.isSoldOut || isSoldOut ? (
-              "SOLD OUT"
+              "뽑기 종료"
             ) : isActive ? (
               isVerifying ? (
-                "VERIFYING..."
+                "확인중..."
               ) : isMinting || clicked ? (
                 <CircularProgress />
               ) : (
-                `MINT`
+                `뽑기`
               )
             ) : isEnded ? (
-              "ENDED"
+              "뽑기 종료"
             ) : candyMachine?.state.goLiveDate ? (
-              "SOON"
+              "곧 시작"
             ) : (
-              "UNAVAILABLE"
+              "불가능"
             )}
           </CTAButton>
         </Pushable>
