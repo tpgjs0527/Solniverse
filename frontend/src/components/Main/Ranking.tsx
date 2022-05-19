@@ -56,7 +56,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
         현재 나의 순위를 기준으로 ±5 내에 속하는 사용자를 볼 수 있습니다.
       </SubCon>
       <SubBox>
-        {data?.previousList.map((el, index) => (
+        {data?.previousList?.map((el, index) => (
           <Element key={index}>
             <RankingSize>{data.ranking - 5 + index}</RankingSize>
             <Tier
@@ -78,27 +78,34 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
             </Amount>
           </Element>
         ))}
-        <Element isActive>
-          <RankingSize>{data?.ranking}</RankingSize>
-          <Tier
-            tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
-            ranking
-          />
-          <Name>
-            {userInfo?.twitch
-              ? userInfo?.twitch.displayName
-              : userInfo?.walletAddress}
-          </Name>
-          <Amount>
-            ${" "}
-            {data?.receiveTotal
-              ? data?.receiveTotal.toFixed(2)
-              : data?.sendTotal
-              ? data?.sendTotal.toFixed(2)
-              : 0}
-          </Amount>
-        </Element>
-        {data?.nextList.map((el, index) => (
+        {data?.ranking === -1 ? (
+          <Element>
+            <Empty>아직 후원 내역이 없어 순위를 산정할 수 없습니다.</Empty>
+          </Element>
+        ) : (
+          <Element isActive>
+            <RankingSize>{data?.ranking}</RankingSize>
+            <Tier
+              tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
+              ranking
+            />
+            <Name>
+              {userInfo?.twitch
+                ? userInfo?.twitch.displayName
+                : userInfo?.walletAddress}
+            </Name>
+            <Amount>
+              ${" "}
+              {data?.receiveTotal
+                ? data?.receiveTotal.toFixed(2)
+                : data?.sendTotal
+                ? data?.sendTotal.toFixed(2)
+                : 0}
+            </Amount>
+          </Element>
+        )}
+
+        {data?.nextList?.map((el, index) => (
           <Element key={index}>
             <RankingSize>{data.ranking + index + 1}</RankingSize>
             <Tier
@@ -124,6 +131,10 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
     </ReactModal>
   );
 }
+
+const Empty = styled.span`
+  margin: auto;
+`;
 
 const Amount = styled.span`
   width: 50px;
