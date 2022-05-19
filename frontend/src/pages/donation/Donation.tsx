@@ -30,14 +30,14 @@ function Donation() {
   const [amount, setAmount] = useState(0);
   const [type, setType] = useState("SOL");
   const [message, setMessage] = useState("");
-  const [creatorName, setCreatorName] = useState("");
+  const [creatorName, setCreatorName] = useState<string | undefined>();
   const [creatorImgUrl, setCreatorImgUrl] = useState("");
   const [snvBalance, setSNVBalance] = useState(0);
   const [usdcBalance, setUSDCBalance] = useState(0);
   const params = {
     amount: amount.toString(),
     nickName,
-    creatorName,
+    creatorName: creatorName!,
     message,
     walletAddress: walletAddress!.toString(),
     type,
@@ -87,6 +87,23 @@ function Donation() {
     //   pathname: "/payment",
     //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
     // });
+    if (userInfo.walletAddress) {
+      if (!(amount > 0)) {
+        Swal.fire({
+          title: "잔고 부족",
+          text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
+    } else {
+      Swal.fire({
+        title: "지갑 연결 필요",
+        text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+        icon: "info",
+      });
+      return;
+    }
 
     if (!isMobile) {
       if (userInfo.walletAddress) {
@@ -106,7 +123,7 @@ function Donation() {
           });
           return;
         }
-        if (!amount) {
+        if (errors.amount) {
           Swal.fire({
             title: "입력 에러",
             text: "후원금액을 정확히 입력해주세요.",
@@ -118,15 +135,32 @@ function Donation() {
           pathname: "/payment",
           search: `?${createSearchParams(params)}`,
         });
-      } else {
+      }
+    } else {
+      if (!amount || !nickName) {
         Swal.fire({
-          title: "지갑 연결 필요",
-          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
-          icon: "info",
+          title: "입력 에러",
+          text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+          icon: "warning",
         });
         return;
       }
-    } else {
+      if (errors.nickname) {
+        Swal.fire({
+          title: "입력 에러",
+          text: "후원닉네임을 정확히 입력해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
+      if (!amount) {
+        Swal.fire({
+          title: "입력 에러",
+          text: "후원금액을 정확히 입력해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
       navigate({
         pathname: "/payment",
         search: `?${createSearchParams(params)}`,
@@ -167,16 +201,39 @@ function Donation() {
       }
     }
   };
-
-  useEffect(() => {
-    const getAsyncCreatorInfo = async () => {
-      const creatorInfo = await getCreatorInfo(walletAddress!);
-
+  const getAsyncCreatorInfo = async () => {
+    const creatorInfo = await getCreatorInfo(walletAddress!);
+    const displayName = walletAddress?.slice(0, 10);
+    if (!creatorInfo.user.twitch) {
+      setCreatorName(displayName);
+      setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
+    } else {
       setCreatorName(creatorInfo.user.twitch.displayName);
       setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
-    };
+    }
+  };
+
+  useEffect(() => {
     getAsyncCreatorInfo();
-  }, [creatorName, creatorImgUrl]);
+    if (!userInfo.walletAddress) {
+      Swal.fire({
+        title: "첫 방문이신가요?",
+        text: "서비스 이용 가이드를 확인하시겠습니까?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "확인",
+        cancelButtonText: "취소",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/service");
+          return;
+        }
+      });
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     const getAsyncSol = async () => {
@@ -237,7 +294,7 @@ function Donation() {
                   {...register("nickname", {
                     required: "필수 입력정보입니다.",
                     pattern: {
-                      value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,15}$/,
+                      value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9 ]{2,15}$/,
                       message:
                         "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
                     },
@@ -382,7 +439,7 @@ function Donation() {
           </DonationWrapper>
           <DonationWrapper>
             <ButtonWrapper>
-              <DonateButton onClick={onClick}>Donate</DonateButton>
+              <DonateButton onClick={onClick}>후원하기</DonateButton>
               {/* <DonateButton onClick={Donate}>Donate</DonateButton> */}
             </ButtonWrapper>
           </DonationWrapper>

@@ -58,7 +58,6 @@ function SendDonationHistory() {
     //   refetchInterval: 5000,
     // }
   );
-  console.log(data);
 
   const graphData: IData = { sol: {}, usdc: {} };
 
@@ -208,19 +207,27 @@ function SendDonationHistory() {
                   {data?.transaction?.map((el) => (
                     <Element key={el.block}>
                       <Top>
-                        <span>
-                          {el.receiveUserId.twitch
-                            ? el.receiveUserId.twitch.displayName
-                            : el.receiveUserId.walletAddress}
-                        </span>
+                        {el.receiveUserId.twitch ? (
+                          <TwitchId
+                            onClick={() =>
+                              window.open(
+                                `https://www.twitch.tv/${el.receiveUserId.twitch?.displayName}`
+                              )
+                            }
+                          >
+                            {el.receiveUserId.twitch.displayName}
+                          </TwitchId>
+                        ) : (
+                          <span>{el.receiveUserId.walletAddress}</span>
+                        )}
                       </Top>
                       <Mid>
                         {/* UTC -> 한국 시간 */}
-                        <span>{new Date(el.blockTime).toLocaleString()}</span>
+                        <Time>{new Date(el.blockTime).toLocaleString()}</Time>
                         <span>
                           {el.paymentType === "sol"
                             ? el.amount / LAMPORTS_PER_SOL + " SOL"
-                            : el.amount + " USDC"}
+                            : el.amount / 1000000 + " USDC"}
                         </span>
                       </Mid>
                       <div>
@@ -230,8 +237,7 @@ function SendDonationHistory() {
                         <Tx
                           onClick={() =>
                             window.open(
-                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet`, // devnet
-                              "_blank"
+                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
                             )
                           }
                         >
@@ -267,6 +273,15 @@ const Message = styled.p`
   @media screen and (min-width: 1439px) {
     max-width: 350px;
   }
+`;
+
+const Time = styled.span`
+  color: ${(props) => props.theme.subTextColor};
+`;
+
+const TwitchId = styled.span`
+  color: #9147ff;
+  cursor: pointer;
 `;
 
 const Tx = styled.span`

@@ -10,15 +10,11 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
-// interface IImages {
-//   imageUrl: string;
-
 export const ImagesSlider = ({ Images }) => {
   const [activeThumb, setActiveThumb] = useState();
 
   return (
     <>
-      {/* sdfd */}
       <StyledUpperSwiper
         loop={true}
         navigation={true}
@@ -27,19 +23,15 @@ export const ImagesSlider = ({ Images }) => {
         thumbs={{ swiper: activeThumb }}
       >
         {Images.map((img, idx) => (
-          <>
-            <SwiperSlide key={idx}>
-              {img.description}
-
-              <img src={`${process.env.PUBLIC_URL}/${img.imageUrl}`} />
-            </SwiperSlide>
-          </>
+          <SwiperSlide key={idx}>
+            <img src={`${process.env.PUBLIC_URL}/${img.imageUrl}`} />
+          </SwiperSlide>
         ))}
       </StyledUpperSwiper>
       <StyledLowerSwiper
         onSwiper={setActiveThumb}
-        loop={true}
-        slidesPerView={4}
+        loop={false}
+        slidesPerView={5}
         modules={[Navigation, Thumbs]}
       >
         {Images.map((img, idx) => (
@@ -55,17 +47,24 @@ export const ImagesSlider = ({ Images }) => {
 };
 
 const StyledUpperSwiper = styled(Swiper)`
-  /* width: 800px;
-  height: 550px; */
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.2);
+
   z-index: 0;
-  width: 45vw;
+  width: 800px;
   height: 60%;
-  @media screen and (min-width: 1900px) {
-    width: 48vw;
-    height: 95%;
+  @media screen and (min-width: 1700px) {
+    width: 930px;
+    height: 72%;
+  }
+  @media screen and (max-width: 800px) {
+    width: 400px;
+    height: 100%;
   }
   .swiper-slide {
-    padding-top: 70%;
+    padding-top: 62%;
+    @media screen and (max-width: 800px) {
+      padding-top: 7%;
+    }
     overflow: hidden;
     position: relative;
 
@@ -78,17 +77,24 @@ const StyledUpperSwiper = styled(Swiper)`
   }
   .swiper-button-prev {
     left: 30;
-    color: rgb(255, 255, 255);
+    color: ${(props) => props.theme.ownColor};
   }
 
   .swiper-button-next {
     right: 30;
-    color: rgb(255, 255, 255);
+    color: ${(props) => props.theme.ownColor};
   }
 `;
 const StyledLowerSwiper = styled(Swiper)`
-  @media screen and (min-width: 1900px) {
-    width: 48vw;
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+  width: 800px;
+
+  @media screen and (min-width: 1700px) {
+    width: 930px;
+  }
+  @media screen and (max-width: 800px) {
+    width: 400px;
+    height: 20%;
   }
   .swiper-slide {
     cursor: pointer;
@@ -101,7 +107,7 @@ const StyledLowerSwiper = styled(Swiper)`
 
   .images-slider-thumbs-wrapper {
     width: 100%;
-    padding-top: 65%;
+    padding-top: 50%;
     overflow: hidden;
     position: relative;
 

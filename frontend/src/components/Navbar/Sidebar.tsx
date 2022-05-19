@@ -79,16 +79,16 @@ export default function Sidebar() {
             <Element
               onClick={() => {
                 setIsSidebar((prev) => !prev);
-                navigate(`/service-center`);
+                navigate(`/service`);
               }}
             >
-              고객센터
+              서비스 안내
             </Element>
           </ul>
         </Nav>
         <div>
           <IconsBottom>
-            <SearchToggle>
+            {/* <SearchToggle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -101,7 +101,7 @@ export default function Sidebar() {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </SearchToggle>
+            </SearchToggle> */}
             <ThemeToggle onClick={() => setIsDark((prev) => !prev)}>
               {isDark ? (
                 <svg
@@ -136,19 +136,19 @@ export default function Sidebar() {
               onClick={() => {
                 setIsSidebar((prev) => !prev);
                 Swal.fire({
-                  title: "Logout",
-                  text: "If you log out, you will go back to the landing page.",
+                  title: "로그아웃",
+                  text: "지갑 연결을 끊으시겠습니까?",
                   icon: "warning",
                   showCancelButton: true,
                   confirmButtonColor: "#3990e0",
                   cancelButtonColor: "#e96e35",
-                  confirmButtonText: "log out",
-                  cancelButtonText: "stay logged in",
+                  confirmButtonText: "확인",
+                  cancelButtonText: "취소",
                 }).then((result) => {
                   if (result.isConfirmed) {
                     Swal.fire(
-                      "Disconnected!",
-                      "You has been disconnected.",
+                      "로그아웃 완료",
+                      "로그아웃이 완료되었습니다!",
                       "success"
                     );
                     setUserInfo({

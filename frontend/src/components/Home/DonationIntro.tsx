@@ -7,26 +7,26 @@ import { Wrapper } from "./Tag/Wrapper";
 
 const TABS = [
   {
-    title: "원터치로 후원하기",
+    title: "QR코드 결제",
     description:
-      "휴대폰으로 방송을 보시나요? 크리에이터가 등록한 후원링크에 접속하여 원터치로 후원해보세요! QR코드결제는 당신의 손을 더 자유롭게 해줍니다!",
-    imageUrl: "/demo-illustration-3.png",
+      "후원 메세지 작성 후, 모바일 내 팬텀앱으로 QR 결제를 진행해보세요",
+    imageUrl: "/images/QR코드 결제.png",
     baseColor: "249,82,120",
     secondColor: "221,9,57",
   },
   {
-    title: "낮은 수수료율",
+    title: "모바일 결제",
     description:
-      "수수료가 신경쓰였나요? 우리 SOLNIVERSE는 당신이 후원한 가치 그대로를 전달해드립니다. 수수료율을 최소화함으로써 당신의 크리에이터에게 후원의 가치를 전해보세요",
-    imageUrl: "/demo-illustration-4.png",
+      "스트리머가 등록한 후원 링크를 터치하면 팬텀앱으로 바로 결제가 됩니다",
+    imageUrl: "/images/모바일 결제.png",
     baseColor: "57,148,224",
     secondColor: "99,172,232",
   },
   {
-    title: "후원을 통한 오락요소",
+    title: "Extension 결제",
     description:
-      "대쉬보드에서 당신의 후원랭킹과 내역을 그래프로 만나보세요! 후원을 할수록 쌓이는 SVN 토큰 포인트를 통해 유니크한 크리에이터 NFT를 뽑고 당신을 빛내보세요. ",
-    imageUrl: "/demo-illustration-5.png",
+      "바로결제 클릭 후, 팬텀 월렛 시그니처 검증을 완료 하시면 결제가 진행됩니다",
+    imageUrl: "/images/익스텐션 결제.png",
     baseColor: "88,193,132",
     secondColor: "124,207,158",
   },
@@ -78,7 +78,7 @@ export default function DonationIntro() {
   return (
     <DonationIntroWrapper id="donationIntro">
       <Content>
-        <OverTitle>도네이션 방식</OverTitle>
+        <OverTitle>후원 방식</OverTitle>
       </Content>
       <GalleryWrapper>
         <TabsContainer>{tabsMarkup}</TabsContainer>
@@ -98,6 +98,12 @@ export const OverTitle = styled.span`
 const DonationIntroWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
+  padding-left: 4%;
+  padding-right: 4%;
+
+  @media screen and (max-width: 800px) {
+    height: 900px;
+  }
 `;
 
 const GalleryWrapper = styled.div`
@@ -120,9 +126,10 @@ export const Content = styled.div`
 `;
 
 const TabsContainer = styled.div`
-  flex: 1;
+  width: 34%;
+
   margin-right: 3rem;
-  padding-top: 2rem;
+
   & > *:not(:first-child) {
     margin-top: 0.5rem;
   }
@@ -134,19 +141,14 @@ const TabsContainer = styled.div`
 `;
 
 const ImageContainer = styled.div<{ isActive: boolean }>`
-  position: relative;
   overflow: hidden;
-  border-radius: 0.8rem;
-  margin-top: 1.5rem;
+
   flex: ${(p) => (p.isActive ? "2" : "0")};
 
-  box-shadow: 1rem;
-  /* transition-duration: 500ms; */
   &:before {
     display: block;
     content: "";
     width: 100%;
-    padding-top: 10px;
   }
 
   & > div {
@@ -158,16 +160,21 @@ const ImageContainer = styled.div<{ isActive: boolean }>`
   }
   @media screen and (max-width: 800px) {
     width: ${(p) => (p.isActive ? "100%" : "0")};
-    /* flex-direction: column; */
-    /* display: none; */
   }
 `;
 
 const Tab = styled.div<{ isActive: boolean }>`
+  box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.2);
+  :hover {
+    box-shadow: 0 13px 20px 0 rgba(0, 0, 0, 0.2);
+  }
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
-  padding: 1rem 1rem;
-  background: rgb(var(--cardBackground));
+
+  padding: 1.2rem 1.2rem;
+  background-color: ${(p) =>
+    p.isActive ? null : "rgba(241, 240, 240, 0.801)"};
 
   opacity: ${(p) => (p.isActive ? 1 : 0.6)};
   cursor: pointer;
@@ -175,6 +182,9 @@ const Tab = styled.div<{ isActive: boolean }>`
 
   font-size: 1.3rem;
   font-weight: bold;
+  @media screen and (min-width: 1700px) {
+    padding: 2.7rem 1.2rem;
+  }
   @media screen and (max-width: 800px) {
     width: 100%;
   }

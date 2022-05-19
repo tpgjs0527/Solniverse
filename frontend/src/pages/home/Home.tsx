@@ -7,6 +7,7 @@ import styled, { keyframes } from "styled-components";
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [, connectWallet] = useWallet();
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
@@ -36,7 +37,12 @@ function Home() {
       <NavBox>
         <Container>
           <Logo>
-            <img src="" alt="" />
+            <Link to={"/"}>
+              <img
+                src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`}
+                alt=""
+              />
+            </Link>
           </Logo>
           <Menu>
             <ul>
@@ -44,7 +50,7 @@ function Home() {
                 <Link to={"/"}>홈</Link>
               </li>
               <li>
-                <Link to={"/service"}>서비스 가이드</Link>
+                <Link to={"/service"}>서비스 안내</Link>
               </li>
             </ul>
           </Menu>
@@ -59,6 +65,7 @@ export default Home;
 export const Main = styled.div`
   width: 100%;
   height: 100%;
+
   position: absolute;
   overflow: hidden;
   /* iPhone 가로 스크롤 방지 */
@@ -95,8 +102,9 @@ const Loading = styled.div`
 `;
 
 const Hand = styled.div`
-  width: 530px;
-  height: 625px;
+  width: 700px;
+  height: 500px;
+
   background-image: url("1.png");
   position: absolute;
   bottom: -100%;
@@ -105,15 +113,26 @@ const Hand = styled.div`
   @media screen and (max-width: 1000px) {
     display: none;
   }
-
+  /* @media screen and (min-width: 1001px) and (max-width: 1599px) {
+  } */
+  @media screen and (min-width: 1600px) {
+    height: 550px;
+    background-image: url("큰1.png");
+    width: 780px;
+  }
   &:after {
     content: "";
     position: absolute;
-    width: 530px;
-    height: 625px;
+    width: 700px;
+    height: 600px;
     background-image: url("2.png");
     left: 0px;
     z-index: -1;
+    @media screen and (min-width: 1600px) {
+      height: 550px;
+      background-image: url("큰2.png");
+      width: 780px;
+    }
   }
 `;
 
@@ -174,21 +193,30 @@ const anim4 = keyframes`
         }
 `;
 const Container = styled.div`
+  display: flex;
+  align-items: center;
   width: 100%;
   position: absolute;
   top: -100%;
   animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
-export const Logo = styled.div`
+export const Logo = styled.image`
   float: left;
-  margin-left: 80px;
+
+  margin-left: 40px;
+  margin-right: 40px;
   margin-top: 10px;
   img {
-    width: 50px;
+    width: 60px;
   }
-  @media screen and (max-width: 600px) {
-    margin-left: 40px;
+  @media screen and (min-width: 0px) and (max-width: 499px) {
+    margin-left: 5px;
+    margin-right: 10px;
+  }
+  @media screen and (min-width: 500px) and (max-width: 1000px) {
+    margin-left: 15px;
+    margin-right: 30px;
   }
 `;
 export const Menu = styled.div`
@@ -196,27 +224,30 @@ export const Menu = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.textColor};
 
-  letter-spacing: 2px;
-  margin-right: 150px;
-  margin-top: 22px;
-  @media screen and (min-width: 1900px) {
-    margin-top: 28px;
+  letter-spacing: 1px;
+  /* margin-right: 150px; */
+
+  @media screen and (min-width: 1500px) {
     margin-left: 2px;
   }
-  /* float: right; */
+
   ul {
     list-style: none;
     li {
       display: inline-block;
-      margin-right: 80px;
+      margin-right: 25px;
+      @media screen and (max-width: 600px) {
+        margin-right: 10px;
+      }
       &:hover {
         color: ${(props) => props.theme.ownColor};
       }
     }
   }
   @media screen and (max-width: 600px) {
-    margin-right: 40px;
-    letter-spacing: 1px;
+    margin-right: 0px;
+    margin-top: 0px;
+    letter-spacing: 0px;
   }
 `;
 

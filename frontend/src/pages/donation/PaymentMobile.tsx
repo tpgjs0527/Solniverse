@@ -105,6 +105,7 @@ function PaymentMobile() {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!data) {
       getTXId({
         displayName: nickName,
@@ -127,19 +128,19 @@ function PaymentMobile() {
       <Line />
       <Wrapper>
         <PaymentWrapper>
-          <Title>Your Information</Title>
+          <Title>후원자 정보</Title>
           <InfoWrapper>
             <Name>{nickName}</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>{userInfo.walletAddress}</Account>
           </InfoWrapper>
-          <Title>Creator Information</Title>
+          <Title>크리에이터 정보</Title>
           <InfoWrapper>
             <Name>홀리냥</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>{walletAddress}</Account>
           </InfoWrapper>
-          <Title>Donate Information</Title>
+          <Title>도네이션 정보</Title>
           <TotalPriceWrapper>
             <PriceWrapper style={{ marginBottom: "8px" }}>
               <Price>Donate Message</Price>
@@ -147,12 +148,16 @@ function PaymentMobile() {
             </PriceWrapper>
             <PriceWrapper>
               <Price>Donate Price</Price>
-              <SOL>{amount} SOL</SOL>
+              <SOL>
+                {amount} {type}
+              </SOL>
             </PriceWrapper>
             <Line />
             <PriceWrapper>
               <Price>Total</Price>
-              <SOL>{amount} SOL</SOL>
+              <SOL>
+                {amount} {type}
+              </SOL>
             </PriceWrapper>
           </TotalPriceWrapper>
           <ButtonWrapper>
@@ -177,7 +182,12 @@ function PaymentMobile() {
 }
 const Container = styled.div`
   margin: 32px 64px;
-  min-width: 400px;
+  min-width: 300px;
+  @media screen and (max-width: 767px) {
+    width: 100%;
+    height: 100%;
+    margin: 4px;
+  }
 `;
 
 const PageName = styled.div`

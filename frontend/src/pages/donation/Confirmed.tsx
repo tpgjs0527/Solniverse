@@ -145,12 +145,15 @@ function Confirmed() {
     const preventGoBack = () => {
       window.history.pushState(null, "", window.location.href);
       if (status === "Finalized") {
-        Swal.fire("Succeed!", "The Donation has already done!", "success");
-        // alert("이미 결제 완료된 도네이션입니다.");
+        Swal.fire(
+          "도네이션 성공",
+          "이미 결제 완료한 도네이션 입니다!",
+          "success"
+        );
       } else {
         Swal.fire({
-          title: "Now Donating!",
-          html: "We are Donating now!",
+          title: "도네이션 진행 중",
+          html: "현재 도네이션 중입니다!",
           timerProgressBar: true,
         });
       }

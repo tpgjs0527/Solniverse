@@ -6,7 +6,29 @@ import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { fetchReceiveDashboard, fetchSendDashboard } from "utils/fetcher";
 
+interface IUser {
+  twitch?: {
+    displayName: string;
+  };
+  walletAddress: string;
+  _id: string;
+}
+
+export interface RankingList {
+  sendCount?: number;
+  sendTotal?: number;
+  sendRank?: string;
+
+  receiveCount?: number;
+  receiveTotal?: number;
+  receiveRank?: string;
+
+  user: IUser;
+}
+
 interface ISend {
+  nextList: RankingList[];
+  previousList: RankingList[];
   sendCount: number;
   sendTotal: number;
   sendRank: string;
@@ -14,6 +36,8 @@ interface ISend {
 }
 
 interface IReceive {
+  nextList: RankingList[];
+  previousList: RankingList[];
   receiveCount: number;
   receiveTotal: number;
   receiveRank: string;

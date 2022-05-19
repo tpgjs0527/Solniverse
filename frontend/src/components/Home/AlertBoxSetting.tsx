@@ -6,36 +6,51 @@ import RichText from "./Tag/RichText";
 import { Wrapper } from "./Tag/Wrapper";
 
 const Images = [
-  { description: "첫번째 단계 !", imageUrl: "images/alertImg/slider01.jpg" },
-  { description: "첫번째 단계 !", imageUrl: "images/alertImg/slider02.jpg" },
-  { description: "첫번째 단계 !", imageUrl: "images/alertImg/slider03.jpg" },
-  { description: "첫번째 단계 !", imageUrl: "images/alertImg/slider04.jpg" },
-  { description: "첫번째 단계 !", imageUrl: "images/alertImg/slider05.jpg" },
-  { description: "첫번째 단계 !", imageUrl: "images/alertImg/slider06.jpg" },
+  { imageUrl: "images/alertImg/1.PNG" },
+  { imageUrl: "images/alertImg/2.PNG" },
+  { imageUrl: "images/alertImg/3.PNG" },
+  { imageUrl: "images/alertImg/4.png" },
+  { imageUrl: "images/alertImg/5.png" },
 ];
 export const AlertBoxSetting = () => {
   return (
-    <Wrapper id="alertBoxSetting">
+    <AlertWrapper id="alertBoxSetting">
       <Box>
         <Content>
-          <OverTitle>후원 메세지 설정</OverTitle>
+          <OverTitle>알림창 설정</OverTitle>
           <RichText>
-            쉽고 간편한 후원메세지 설정하기! 준비물은 OBS와 팬텀 지갑입니다 👨‍🚀
+            쉽고 간편한 후원 메시지 알림창 설정하기! 준비물은 OBS와 팬텀
+            지갑입니다 👨‍🚀
           </RichText>
         </Content>
         <ImagesSlider Images={Images} />
       </Box>
-    </Wrapper>
+    </AlertWrapper>
   );
 };
+const AlertWrapper = styled(Wrapper)`
+  justify-content: center;
 
-const Box = styled.div`
-  margin-top: 6%;
-  @media screen and (min-width: 1900px) {
-    width: 900px;
+  @media screen and (max-width: 800px) {
+    align-items: center;
     height: 600px;
   }
-  width: 692px;
+  @media screen and (min-width: 1200px) {
+    padding-top: 7%;
+  }
+`;
+const Box = styled.div`
+  width: 800px;
 
-  /* background-color: black; */
+  @media screen and (min-width: 1700px) {
+    margin-top: 2%;
+    width: 930px;
+    height: 580px;
+  }
+
+  @media screen and (max-width: 800px) {
+    margin-top: 0%;
+    width: 400px;
+    height: 220x;
+  }
 `;

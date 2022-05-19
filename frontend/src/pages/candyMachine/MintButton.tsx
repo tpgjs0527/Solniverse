@@ -86,23 +86,23 @@ export const MintButton = ({
           variant="contained"
         >
           {!candyMachine ? (
-            "CONNECTING..."
+            "연결중..."
           ) : candyMachine?.state.isSoldOut || isSoldOut ? (
-            "SOLD OUT"
+            "뽑기 종료"
           ) : isActive ? (
             isVerifying ? (
-              "VERIFYING..."
+              "확인중..."
             ) : isMinting || clicked ? (
               <CircularProgress />
             ) : (
-              "MINT"
+              `뽑기`
             )
           ) : isEnded ? (
-            "ENDED"
+            "뽑기 종료"
           ) : candyMachine?.state.goLiveDate ? (
-            "SOON"
+            "곧 시작"
           ) : (
-            "UNAVAILABLE"
+            "불가능"
           )}
         </CTAButton>
       )}

@@ -188,12 +188,10 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       }
     } else {
       Swal.fire(
-        "Information issue",
-        "The Donation Information is not correct. <br> Please redonate 🙇‍♂️",
+        "입력 정보 오류",
+        "입력한 도네이션 정보가 옳바르지 않습니다. 다시 후원해주세요  🙇‍♂️",
         "question"
       );
-      // alert("결제정보가 잘못 입력됐습니다. 다시 후원해주세요.");
-      // navigate("/donation");
     }
   };
   const closeModal = () => {
@@ -456,21 +454,31 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           </QRWrapper>
         </Wrapper>
         <Wrapper>
-          {isMobile ? (
+          {userInfo.walletAddress ? (
             <NoWalletGuide>
-              스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
-              설치하세요!
+              결제 후 발급되는 SNV토큰으로 NFT 랜덤 뽑기도 즐겨보세요!
             </NoWalletGuide>
+          ) : isMobile ? (
+            <>
+              <NoWalletGuide>
+                스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
+                설치하세요!
+              </NoWalletGuide>
+              <WalletInstall>
+                <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
+              </WalletInstall>
+            </>
           ) : (
-            <NoWalletGuide>
-              쉽고 편리하게 결제할 수 있는 Phantom Wallet 구글 확장프로그램을
-              설치하세요!
-            </NoWalletGuide>
+            <>
+              <NoWalletGuide>
+                쉽고 편리하게 결제할 수 있는 Phantom Wallet 구글 확장프로그램을
+                설치하세요!
+              </NoWalletGuide>
+              <WalletInstall>
+                <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
+              </WalletInstall>
+            </>
           )}
-
-          <WalletInstall>
-            <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
-          </WalletInstall>
         </Wrapper>
         <CloseBtnWrapper>
           <CloseBtn onClick={closeModal}>닫기</CloseBtn>

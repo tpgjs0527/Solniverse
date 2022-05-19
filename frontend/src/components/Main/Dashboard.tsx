@@ -1,10 +1,11 @@
 import Spinner from "components/Spinner";
+import { RankingList } from "pages/my-info/Main";
 import { useState } from "react";
 import styled from "styled-components";
 import Ranking from "./Ranking";
 import Tier from "./Tier";
 
-interface IData {
+export interface IData {
   receiveCount?: number;
   receiveTotal?: number;
   receiveRank?: string;
@@ -13,6 +14,8 @@ interface IData {
   sendTotal?: number;
   sendRank?: string;
 
+  nextList: RankingList[];
+  previousList: RankingList[];
   ranking: number;
 }
 
@@ -100,11 +103,10 @@ function Dashboard({ receive, data, isLoading }: IProps) {
             </ColContent>
             <ColEmpty></ColEmpty>
           </Col>
-          {data?.receiveRank ? (
-            <Tier tier={data?.receiveRank} dashboard />
-          ) : data?.sendRank ? (
-            <Tier tier={data?.sendRank} dashboard />
-          ) : null}
+          <Tier
+            tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
+            dashboard
+          />
           <Col>
             <ColTitle>현재 나의 등수</ColTitle>
             <Icon>
@@ -124,7 +126,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
             <ColContent>
               {data?.ranking !== -1 ? data?.ranking : "-"}
             </ColContent>
-            <ColRef onClick={() => setIsModalOpen(true)}>순위 목록</ColRef>
+            <ColRef onClick={() => setIsModalOpen(true)}>순위표</ColRef>
           </Col>
         </SubBox>
       )}
@@ -132,6 +134,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
       <Ranking
         isModalOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        data={data}
       />
     </Box>
   );
@@ -195,7 +198,6 @@ const SubBox = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   grid-gap: 50px;
-  padding: 40px 0;
 
   @media screen and (min-width: 767px) {
     grid-template-columns: repeat(4, 1fr);
@@ -203,7 +205,7 @@ const SubBox = styled.div`
   }
 
   @media screen and (min-width: 1439px) {
-    padding: 40px;
+    padding: 0 40px;
   }
 `;
 
@@ -212,6 +214,7 @@ const SubTitle = styled.p`
   font-weight: 600;
   letter-spacing: -0.5px;
   text-align: center;
+  margin-bottom: 40px;
 `;
 
 const Box = styled.div`
