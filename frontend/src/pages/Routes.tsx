@@ -84,7 +84,7 @@ function Routes() {
         }
       />
       <Route path="/donation/alertbox/:uuid" element={<Message />} />
-      <Route path="/test/alertboxt" element={<MessageTest />} />
+      <Route path="/test/alertbox" element={<MessageTest />} />
       {/* 404 가장 밑에 위치 */}
       <Route
         path="*"

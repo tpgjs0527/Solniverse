@@ -1,5 +1,6 @@
 import { Howl } from "howler";
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 import { Money, Name, Test } from "./Message";
 
 export const MessageTest = () => {
@@ -22,28 +23,47 @@ export const MessageTest = () => {
         setVisible(false);
       }, 3000);
       setTimeout(() => {
-        setStart(!start);
         sound.donation.stop();
-      }, 7000);
-    }
-    if (!start) {
-      return;
+        setStart(false);
+      }, 5000);
     }
   }, [start]);
 
   return (
     <div>
-      <button onClick={() => setStart(false)}>중지</button>
-      <button onClick={() => setStart(true)}>시작</button>
-      {start ?? (
+      {start ? (
         <Test visible={visible}>
           <div>
             <Name>SSAFY 6기</Name>님<Money>66666</Money>SOL 감사합니다!
           </div>
           <div> 기업연계반 사랑해요!</div>
         </Test>
-      )}
-      MessageTest
+      ) : null}
+      <BtnWrapper>
+        <Btn onClick={() => setStart(false)}>테스트 중지</Btn>
+        <Btn onClick={() => setStart(true)}>테스트 시작</Btn>
+      </BtnWrapper>
     </div>
   );
 };
+const BtnWrapper = styled.div`
+  position: fixed;
+  bottom: 30px;
+  right: 43%;
+  display: flex;
+  height: 70px;
+  align-items: center;
+`;
+const Btn = styled.div`
+  color: ${(props) => props.theme.ownColor};
+  border-radius: 3px;
+
+  font-size: larger;
+  padding: 7px;
+  :hover {
+    background-color: ${(props) => props.theme.ownColor};
+    color: white;
+    cursor: pointer;
+  }
+  transition-duration: 300ms;
+`;

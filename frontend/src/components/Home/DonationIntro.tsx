@@ -9,7 +9,7 @@ const TABS = [
   {
     title: "QR코드 결제",
     description:
-      "후원 메세지 작성 후, 모바일 내 팬텀앱으로 QR 결제를 진행해보세요!",
+      "후원 메세지 작성 후, 모바일 내 팬텀앱으로 QR 결제를 진행해보세요",
     imageUrl: "/images/QR코드 결제.png",
     baseColor: "249,82,120",
     secondColor: "221,9,57",
@@ -17,7 +17,7 @@ const TABS = [
   {
     title: "모바일 결제",
     description:
-      "스트리머가 등록한 후원 링크를 터치하면 팬텀앱으로 바로 결제가 됩니다!",
+      "스트리머가 등록한 후원 링크를 터치하면 팬텀앱으로 바로 결제가 됩니다",
     imageUrl: "/images/모바일 결제.png",
     baseColor: "57,148,224",
     secondColor: "99,172,232",
@@ -25,7 +25,7 @@ const TABS = [
   {
     title: "Extension 결제",
     description:
-      "바로결제 클릭 후, 팬텀 월렛 시그니처 검증을 완료 하시면 결제가 진행됩니다!",
+      "바로결제 클릭 후, 팬텀 월렛 시그니처 검증을 완료 하시면 결제가 진행됩니다",
     imageUrl: "/images/익스텐션 결제.png",
     baseColor: "88,193,132",
     secondColor: "124,207,158",
