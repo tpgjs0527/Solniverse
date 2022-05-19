@@ -511,7 +511,7 @@ async function recoverTransaction() {
         const transaction = await connection.getTransaction(signature);
         updateTransactionWithoutDuplication(transaction);
       });
-    logger.info("recoverTransaction: 작동 완료");
+    logger.info("recoverTransaction: message=작동 완료");
   } catch (err) {
     logger.error(`recoverTransaction: error=${err}`);
   }
