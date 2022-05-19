@@ -60,24 +60,6 @@ async function getUsdPerSol() {
 getUsdPerSol();
 setInterval(getUsdPerSol, 1000 * 60 * 10);
 
-/**
- * 이전 금액과 나중 sol의 데이터들을 받아 정제된 데이터를 반환하는 순수 함수.
- * amount, paymentType, decimal을 반환한다.
- *
- * @param {number} preBalance
- * @param {number} postBalance
- * @param {string} symbol
- * @param {number} decimal
- * @returns
- */
-function getDataFromBanlance(preBalance, postBalance, symbol, decimal) {
-  return {
-    amount: Math.abs(postBalance - preBalance),
-    paymentType: symbol,
-    decimal,
-  };
-}
-
 function checkRank(total) {
   if (total >= 12500) return "Diamond";
   else if (total >= 2500) return "Platinum";
@@ -114,6 +96,7 @@ async function updateTransactionWithoutDuplication(tx) {
         preTokenBalances = [],
         postTokenBalances = [],
         logMessages = [],
+        fee = 0,
       },
     } = tx;
 
@@ -129,8 +112,15 @@ async function updateTransactionWithoutDuplication(tx) {
     if (!flag) throw `로직과 관계없는 트랜잭션임. tx=${tx}`;
 
     // sendWallet과 receiveWallet을 알아냄
-    const { sendWallet, receiveWallet } =
-      getSenderReceiverPublicKey(transaction);
+    const { sendWallet, receiveWallet, amount, paymentType, decimal } =
+      getSenderReceiverPublicKey(
+        transaction,
+        preBalances,
+        postBalances,
+        preTokenBalances,
+        postTokenBalances,
+        fee,
+      );
 
     // DB에서 비동기적으로 sendWallet과 receiveWallet의 user를 얻어냄
     /** @type {[{_id:Types.ObjectId}, {_id:Types.ObjectId}]} */
@@ -138,21 +128,6 @@ async function updateTransactionWithoutDuplication(tx) {
       getUserOrCreate(sendWallet.toString()),
       getUserOrCreate(receiveWallet.toString()),
     ]);
-
-    const firstPreTokenBalance = preTokenBalances.at(1);
-    const { amount, paymentType, decimal } = !firstPreTokenBalance
-      ? getDataFromBanlance(
-          preBalances.at(1),
-          postBalances.at(1),
-          "sol",
-          SOL_DECIMAL,
-        )
-      : getDataFromBanlance(
-          firstPreTokenBalance.uiTokenAmount.amount,
-          postTokenBalances.at(1).uiTokenAmount.amount,
-          getSymbolByTokenAddress(firstPreTokenBalance.mint),
-          10 ** firstPreTokenBalance.uiTokenAmount.decimals,
-        );
 
     const txSignature = transaction.signatures.at(0);
     // txio 도큐먼트에 삽입할 데이터
@@ -242,19 +217,94 @@ function getSymbolByTokenAddress(tokenAddress) {
 }
 
 /**
- * Transaction 객체를 받아 Sendwallet과 ReceiveWallet PublicKey를 반환한다.
+ * Transaction 객체와 밸런스 정보를 받아 각종 정보를 반환한다.
+ *
+ * @typedef {{
+ * accountIndex:number,
+ * mint:PublicKey,
+ * owner:PublicKey
+ * uiTokenAmount: {amount: string, decimals: number, uiAmount: number, uiAmountString: string}
+ * }} Token
  *
  * @param {Object} transaction
+ * @param {Array<number>} preBalances
+ * @param {Array<number>} postBalances
+ * @param {Array<Token>} preTokenBalances
+ * @param {Array<Token>} postTokenBalances
+ * @param {number} fee
  *
- * @returns
+ * @returns {{sendWallet:PublicKey,
+ * receiveWallet:PublicKey,
+ * amount: number,
+ * paymentType: string,
+ * decimal: number}}
  */
-function getSenderReceiverPublicKey(transaction) {
+function getSenderReceiverPublicKey(
+  transaction,
+  preBalances,
+  postBalances,
+  preTokenBalances,
+  postTokenBalances,
+  fee,
+) {
+  let amount,
+    paymentType = "sol",
+    decimal = SOL_DECIMAL;
+
   /** @type {Array<web3.PublicKey>} */
-  const accountKeys = transaction.message.accountKeys,
-    // 아래는 string 타입임
-    sendWallet = accountKeys[0],
+  const accountKeys = transaction.message.accountKeys;
+  // PublicKey 타입임
+  let sendWallet = accountKeys[0],
     receiveWallet = accountKeys[1];
-  return { sendWallet, receiveWallet };
+
+  if (preTokenBalances.length) {
+    /** @type {Object.<number,Token>} */
+    let preTokens = {},
+      /** @type {Object.<number,Token>} */
+      postTokens = {};
+
+    preTokenBalances.map((value) => {
+      preTokens[value.accountIndex] = value;
+    });
+    if (postTokenBalances.length === 2) {
+      postTokenBalances.map((value) => {
+        postTokens[value.accountIndex] = value;
+      });
+
+      for (const idx in postTokens) {
+        if (preTokens[idx]) {
+          if (
+            postTokens[idx].uiTokenAmount.uiAmount >
+            preTokens[idx].uiTokenAmount.uiAmount
+          ) {
+            receiveWallet = postTokens[idx].owner;
+            amount =
+              postTokens[idx].uiTokenAmount.amount -
+              preTokens[idx].uiTokenAmount.amount;
+          } else {
+            sendWallet = preTokens[idx].owner;
+          }
+        } else {
+          receiveWallet = postTokens[idx].owner;
+          amount = postTokens[idx].uiTokenAmount.amount - 0;
+        }
+      }
+    } else if (postTokenBalances.length === 1) {
+      amount = 0;
+      receiveWallet = postTokenBalances.at(0).owner;
+    } else {
+      throw "잘못된 트랜잭션입니다.";
+    }
+    paymentType = getSymbolByTokenAddress(postTokenBalances.at(0).mint);
+    decimal = 10 ** postTokenBalances.at(0).uiTokenAmount.decimals;
+  } else {
+    if (preBalances.at(1) - postBalances.at(0) == fee) {
+      amount = 0;
+      receiveWallet = accountKeys[0];
+    } else amount = postBalances.at(1) - preBalances.at(1);
+  }
+
+  return { sendWallet, receiveWallet, amount, paymentType, decimal };
 }
 
 /**
@@ -475,52 +525,64 @@ async function logCallback(context) {
   }
   confirmTransactions[context.signature] = false;
   try {
-    /** finalized가 일정 시간이 되어도 오지 않는 경우, 현재 1분 30초 */
+    /** finalized가 일정 시간이 되어도 오지 않는 경우, 20초 후에 동작 */
     const checkTimeout = setTimeout(async () => {
+      console.log("타임아웃 동작");
       delete confirmTransactions[context.signature];
-      try {
-        const response = await connection.getSignatureStatus(context.signature);
-        const status = response.value;
-        if (status) {
-          const confirmation = status.confirmations || 0;
-          if (confirmation >= 32 || status.confirmationStatus === "finalized") {
-            const transaction = await connection.getTransaction(
-              context.signature,
-            );
-            updateTransactionWithoutDuplication(transaction);
-          }
-        } else {
-          throw "시간이 지나도 finalized가 안됨";
-        }
-      } catch (err) {
-        logger.error(`logCallback checkTimeout: error=${err}`);
-      }
-    }, 90000);
 
-    /** finalized를 기다림 */
-    const checkInterval = setInterval(
-      async (timeout) => {
+      let count = 0; // 13번 동작하고 강제 중지
+      const execDonation = async () => {
         try {
-          if (confirmTransactions[context.signature]) {
-            delete confirmTransactions[context.signature];
-            clearTimeout(timeout);
-            clearInterval(checkInterval);
-            delete confirmTransactions[context.signature];
-            const transaction = await connection.getTransaction(
-              context.signature,
-            );
-            updateTransactionWithoutDuplication(transaction);
+          count++;
+          if (count > 13) {
+            clearInterval(timoutInterval);
+            throw "시간이 지나도 finalized가 안됨";
+          }
+          const response = await connection.getSignatureStatus(
+            context.signature,
+          );
+          const status = response.value;
+          if (status) {
+            const confirmation = status.confirmations || 0;
+            if (
+              confirmation >= 32 ||
+              status.confirmationStatus === "finalized"
+            ) {
+              clearInterval(timoutInterval);
+              const transaction = await connection.getTransaction(
+                context.signature,
+              );
+              updateTransactionWithoutDuplication(transaction);
+            }
           }
         } catch (err) {
-          clearInterval(checkInterval);
-          logger.error(`logCallback checkInterval: error=${err}`);
+          logger.error(`logCallback checkTimeout: error=${err}`);
         }
-      },
-      1000,
-      checkTimeout,
-    );
+      };
+      execDonation();
+      const timoutInterval = setInterval(execDonation, 10000);
+    }, 20000);
 
-    setTimeout(() => clearInterval(checkTimeout), 900000);
+    /** finalized를 기다림 */
+    const checkInterval = setInterval(async () => {
+      try {
+        if (confirmTransactions[context.signature]) {
+          delete confirmTransactions[context.signature];
+          clearTimeout(checkTimeout);
+          clearInterval(checkInterval);
+          delete confirmTransactions[context.signature];
+          const transaction = await connection.getTransaction(
+            context.signature,
+          );
+          updateTransactionWithoutDuplication(transaction);
+        }
+      } catch (err) {
+        clearInterval(checkInterval);
+        logger.error(`logCallback checkInterval: error=${err}`);
+      }
+    }, 1000); // 10초 동안 체크
+
+    setTimeout(() => clearInterval(checkInterval), 19500); // 9.5초 후에 삭제
 
     logger.info(`logCallback: transaction=${context.signature}`);
   } catch (err) {
