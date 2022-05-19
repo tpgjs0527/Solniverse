@@ -11,20 +11,20 @@ const coreFeatures = [
   {
     Icon: <BsChevronDoubleDown />,
     title: "수수료율 절감",
-    content:
-      "도네이션의 부담을 해소하기 위한 0.01$ 미만 수준의 마이크로 수수료율",
+    content_1: "도네이션의 부담을 해소하기 위한",
+    content_2: "0.01$ 미만 수준의 마이크로 수수료",
   },
   {
     Icon: <IoEarth />,
     title: "글로벌 결제 서비스 플랫폼",
-    content:
-      "가상 화폐를 활용한 특정 국가에 국한되지 않는 글로벌 결제 서비스를 제공",
+    content_1: "특정 국가에 국한되지 않는",
+    content_2: "글로벌 결제 서비스 제공",
   },
   {
     Icon: <AiOutlineDollar />,
     title: "간편한 결제 과정",
-    content:
-      "QR Code 결제, 팬텀 월렛 익스텐션, 모바일 결제 총 3가지의 간편 결제 서비스",
+    content_1: "QR Code, 익스텐션, 모바일",
+    content_2: "총 3가지의 간편 결제 서비스",
   },
 ];
 
@@ -43,7 +43,10 @@ export const CoreFeatures = () => {
           <Card key={idx}>
             <ImageBox>{card.Icon}</ImageBox>
             <OverTitle>{card.title}</OverTitle>
-            <RichText>{card.content}</RichText>
+            <div>
+              <RichText>{card.content_1}</RichText>
+              <RichText>{card.content_2}</RichText>
+            </div>
           </Card>
         ))}
       </CardContainer>
@@ -55,8 +58,8 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
   height: 400px;
   width: 100%;
   position: relative;

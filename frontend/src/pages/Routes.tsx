@@ -18,6 +18,7 @@ import CandyMachineHome from "./candyMachine/CandyMachineHome";
 import PageNotFound from "./Error/404";
 import { isMobile } from "react-device-detect";
 import PaymentMobile from "./donation/PaymentMobile";
+import { MessageTest } from "./donation/MessageTest";
 
 function Routes() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -83,7 +84,7 @@ function Routes() {
         }
       />
       <Route path="/donation/alertbox/:uuid" element={<Message />} />
-
+      <Route path="/test/alertboxt" element={<MessageTest />} />
       {/* 404 가장 밑에 위치 */}
       <Route
         path="*"

@@ -119,7 +119,7 @@ from {
   }
 `;
 
-const Test = styled.div<{ visible: boolean }>`
+export const Test = styled.div<{ visible: boolean }>`
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -133,10 +133,10 @@ const Test = styled.div<{ visible: boolean }>`
   transition: visibility 1.5s ease-out;
   text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000;
 `;
-const Name = styled.span`
+export const Name = styled.span`
   color: ${(props) => props.theme.ownColor};
 `;
-const Money = styled(Name)`
+export const Money = styled(Name)`
   margin-left: 20px;
   margin-right: 30px;
 `;

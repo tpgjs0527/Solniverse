@@ -10,7 +10,7 @@ export const SideFeatures = () => {
   return (
     <SideWrapper id="sideFeatures">
       <Content>
-        <OverTitle>오락요소</OverTitle>
+        <OverTitle>오락 요소</OverTitle>
         <RichText>
           Solniverse는 유저들의 즐거움을 위해 다양한 오락 서비스들을 제공합니다
         </RichText>
@@ -33,11 +33,16 @@ export const SideFeatures = () => {
       >
         <p>
           SOLNIVERSE는 자체 포인트 토큰인{" "}
-          <Phantom>
-            <a href="https://solscan.io/token/9UGMFdqeQbNqu488mKYzsAwBu6P2gLJnsFeQZ29cGSEw?cluster=devnet">
-              SNV 토큰
-            </a>
-          </Phantom>{" "}
+          <Phantom
+            onClick={() =>
+              window.open(
+                "https://solscan.io/token/9UGMFdqeQbNqu488mKYzsAwBu6P2gLJnsFeQZ29cGSEw?cluster=devnet",
+                "_blank"
+              )
+            }
+          >
+            SNV 토큰
+          </Phantom>
           을 만들었습니다. 후원을 통해 얻은 SNV 토큰을 가지고, 스트리머 사진이
           담긴 NFT를 뽑고 소장해보아요!{" "}
         </p>
@@ -50,9 +55,9 @@ export const SideFeatures = () => {
         <p>
           후원 내역에 대한 상세 정보가 궁금하신가요? 필요한 후원 정보를 그래프와
           리스트로 보여드립니다! 상세 정보를 클릭하시면{" "}
-          <Phantom>
-            <a href="https://solscan.io/">Solscan</a>
-          </Phantom>{" "}
+          <Phantom onClick={() => window.open("https://solscan.io/", "_blank")}>
+            Solscan
+          </Phantom>
           을 통해 결제 정보를 확인하실 수 있습니다.
         </p>
       </BasicSection>

@@ -17,15 +17,13 @@ export const Intro = () => {
         title4="인터넷 방송 후원 플랫폼"
       >
         <p>
-          저희 솔니버스(SOLNIVERSE)는 Solana 블록체인 네트워크와 Universe가
-          합쳐져 세상 모든 곳에서 손쉽게 사용할 수 있는 블록체인 결제 시스템을
-          의미합니다. 현재는 팬텀 월렛을 통해 서비스를 제공합니다.
-          <Phantom>
-            <a href="https://phantom.app/">
-              팬텀 월렛 확장 프로그램이 아직 없으신가요?{" "}
-            </a>
+          SOLNIVERSE는 세상 모든 곳에서 손쉽게 사용할 수 있는 블록체인 결제
+          시스템을 의미합니다. 현재는 팬텀 월렛을 통해 서비스를 제공합니다.{" "}
+          <Phantom
+            onClick={() => window.open("https://phantom.app/", "_blank")}
+          >
+            팬텀 월렛 확장 프로그램이 아직 없으신가요?
           </Phantom>
-          팬텀 월렛과 함께 솔니버스를 즐겨보아요 !
         </p>
       </BasicSection>
     </Wrapper>
@@ -33,9 +31,12 @@ export const Intro = () => {
 };
 export const Phantom = styled.span`
   color: ${(props) => props.theme.ownColor};
+  border-radius: 3px;
+  padding: 3px;
   :hover {
     background-color: ${(props) => props.theme.ownColor};
     color: white;
+    cursor: pointer;
   }
   transition-duration: 300ms;
 `;
