@@ -5,14 +5,12 @@ import Main from "pages/my-info/Main";
 import DonationHistory from "pages/my-info/DonationHistory";
 import Donation from "./donation/Donation";
 import SNVWorld from "pages/my-info/SNVWorld";
-import ServiceCenter from "./my-info/ServiceCenter";
 import Payment from "./donation/Payment";
 import Home from "./home/Home";
 import { Message } from "./donation/Message";
 import Confirmed from "./donation/Confirmed";
 import Settings from "./my-info/Settings";
 import { Service } from "./home/Service";
-import CandyDrop from "./nft/CandyDrop";
 import Other from "./nft/Other";
 import CandyMachineHome from "./candyMachine/CandyMachineHome";
 import PageNotFound from "./Error/404";
@@ -30,10 +28,7 @@ function Routes() {
         path="/payment"
         element={isMobile ? <PaymentMobile /> : <Payment />}
       />
-      <Route
-        path="/payment/confirmed"
-        element={userInfo.walletAddress ? <Confirmed /> : <Home />}
-      />
+      <Route path="/service" element={<Service />} />
       <Route path="/donation/alertbox/:uuid" element={<Message />} />
       <Route path="/test/alertbox" element={<MessageTest />} />
 
@@ -44,7 +39,6 @@ function Routes() {
           userInfo.walletAddress ? <Navigate replace to="/main" /> : <Home />
         }
       />
-      <Route path="/service" element={<Service />} />
       <Route
         path="/main"
         element={
@@ -67,7 +61,6 @@ function Routes() {
           )
         }
       />
-      <Route path="/hi" element={<CandyMachineHome />} />
       <Route
         path="/snv-world/*"
         element={
@@ -92,14 +85,8 @@ function Routes() {
         />
       </Route>
       <Route
-        path="/service-center"
-        element={
-          userInfo.walletAddress ? (
-            <ServiceCenter />
-          ) : (
-            <Navigate replace to="/" />
-          )
-        }
+        path="/payment/confirmed"
+        element={userInfo.walletAddress ? <Confirmed /> : <Home />}
       />
 
       {/* 404 가장 밑에 위치 */}
