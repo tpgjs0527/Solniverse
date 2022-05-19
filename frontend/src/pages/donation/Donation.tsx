@@ -45,7 +45,6 @@ function Donation() {
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = useForm<IDonation>({ mode: "onBlur" });
 
@@ -83,26 +82,24 @@ function Donation() {
   };
 
   const onClick = () => {
-    // navigate({
-    //   pathname: "/payment",
-    //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
-    // });
-    if (userInfo.walletAddress) {
-      if (!(amount > 0)) {
+    if (!isMobile) {
+      if (userInfo.walletAddress) {
+        if (!(amount > 0)) {
+          Swal.fire({
+            title: "잔고 부족",
+            text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+            icon: "warning",
+          });
+          return;
+        }
+      } else {
         Swal.fire({
-          title: "잔고 부족",
-          html: "잔고가 부족합니다.<br> 충전 후 도네이션을 진행해주세요.",
-          icon: "warning",
+          title: "지갑 연결 필요",
+          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+          icon: "info",
         });
         return;
       }
-    } else {
-      Swal.fire({
-        title: "지갑 연결 필요",
-        html: `지갑 연결이 필요합니다.<br> 상단 메뉴바에서 지갑연결을 해주세요.`,
-        icon: "info",
-      });
-      return;
     }
 
     if (!isMobile) {
@@ -115,6 +112,7 @@ function Donation() {
           });
           return;
         }
+
         if (errors.nickname) {
           Swal.fire({
             title: "입력 에러",
@@ -166,8 +164,6 @@ function Donation() {
         search: `?${createSearchParams(params)}`,
       });
     }
-
-    // alert("도네이션을 진행하겠습니다");
   };
 
   const onSubmit = (e: any) => {
