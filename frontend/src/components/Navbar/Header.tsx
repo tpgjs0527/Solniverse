@@ -45,7 +45,7 @@ export default function Header() {
         </List>
         <Icons>
           <Profile />
-          <SearchToggle>
+          {/* <SearchToggle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -58,7 +58,7 @@ export default function Header() {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-          </SearchToggle>
+          </SearchToggle> */}
           <ThemeToggle onClick={() => setIsDark((prev) => !prev)}>
             {isDark ? (
               <svg
@@ -93,12 +93,12 @@ export default function Header() {
             onClick={() => {
               Swal.fire({
                 title: "로그아웃",
-                text: "로그아웃을 하시면, 랜딩 페이지로 이동하게 됩니다.",
+                text: "지갑 연결을 끊으시겠습니까?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3990e0",
                 cancelButtonColor: "#e96e35",
-                confirmButtonText: "로그아웃",
+                confirmButtonText: "확인",
                 cancelButtonText: "취소",
               }).then((result) => {
                 if (result.isConfirmed) {
