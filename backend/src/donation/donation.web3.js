@@ -450,6 +450,18 @@ async function sendSnvToken(toWallet, amount) {
   }
 }
 
+let confirmTransactions = {};
+const shopWalletaddress = process.env.DDD_SHOP_WALLET;
+
+setInterval(
+  () =>
+    logger.info(
+      `confirmTransactions: transactions=${JSON.stringify(
+        confirmTransactions,
+      )}`,
+    ),
+  1000 * 60 * 30,
+); // 30분마다 한 번씩 로깅
 /**
  * 상점에 트랜잭션이 발생하면 트랜잭션을 받아 갱신 함수 동작.
  * updateTransactionWithoutDuplication에 transaction을 넘겨줌.
@@ -461,29 +473,76 @@ async function logCallback(context) {
     logger.error(`logCallback 에러 발생: error=${context.error}`);
     return;
   }
+  confirmTransactions[context.signature] = false;
   try {
-    const interval = setInterval(async () => {
+    /** finalized가 일정 시간이 되어도 오지 않는 경우, 현재 1분 30초 */
+    const checkTimeout = setTimeout(async () => {
+      delete confirmTransactions[context.signature];
       try {
         const response = await connection.getSignatureStatus(context.signature);
         const status = response.value;
         if (status) {
           const confirmation = status.confirmations || 0;
           if (confirmation >= 32 || status.confirmationStatus === "finalized") {
-            clearInterval(interval);
             const transaction = await connection.getTransaction(
               context.signature,
             );
             updateTransactionWithoutDuplication(transaction);
           }
+        } else {
+          throw "시간이 지나도 finalized가 안됨";
         }
       } catch (err) {
-        clearInterval(interval);
-        logger.error(`logCallback interval: error=${err}`);
+        logger.error(`logCallback checkTimeout: error=${err}`);
       }
-    }, 1000);
+    }, 90000);
+
+    /** finalized를 기다림 */
+    const checkInterval = setInterval(
+      async (timeout) => {
+        try {
+          if (confirmTransactions[context.signature]) {
+            delete confirmTransactions[context.signature];
+            clearTimeout(timeout);
+            clearInterval(checkInterval);
+            delete confirmTransactions[context.signature];
+            const transaction = await connection.getTransaction(
+              context.signature,
+            );
+            updateTransactionWithoutDuplication(transaction);
+          }
+        } catch (err) {
+          clearInterval(checkInterval);
+          logger.error(`logCallback checkInterval: error=${err}`);
+        }
+      },
+      1000,
+      checkTimeout,
+    );
+
+    setTimeout(() => clearInterval(checkTimeout), 900000);
+
+    logger.info(`logCallback: transaction=${context.signature}`);
   } catch (err) {
     logger.error(`logCallback: error=${err}`);
   }
+}
+
+/**
+ * 상점에 발생한 트랜잭션이 finalized되면 갱신.
+ * updateTransactionWithoutDuplication에 transaction을 넘겨줌.
+ *
+ * @param {*} context
+ */
+async function finalizeCallback(context) {
+  if (context.err) {
+    logger.error(`finalizeCallback 에러 발생: error=${context.error}`);
+    return;
+  }
+  if (
+    Object.prototype.hasOwnProperty.call(confirmTransactions, context.signature)
+  )
+    confirmTransactions[context.signature] = true;
 }
 
 /**
@@ -497,7 +556,7 @@ async function recoverTransaction() {
     const tx = await donationRepository.getLatestTransaction();
     if (!tx) return;
     // 상점 주소
-    const shopWallet = new web3.PublicKey(process.env.DDD_SHOP_WALLET);
+    const shopWallet = new web3.PublicKey(shopWalletaddress);
     const transactions = await connection.getSignaturesForAddress(
       shopWallet,
       {
@@ -517,19 +576,26 @@ async function recoverTransaction() {
   }
 }
 
-let onLogsId = 0;
+let onLogsConfirmId = 0;
+let onLogsFinalId = 0;
 const setLogs = () =>
   recoverTransaction().then(async () => {
-    connection.removeOnLogsListener(onLogsId);
-    onLogsId = connection.onLogs(
-      new web3.PublicKey(process.env.DDD_SHOP_WALLET),
+    connection.removeOnLogsListener(onLogsConfirmId);
+    connection.removeOnLogsListener(onLogsFinalId);
+    onLogsConfirmId = connection.onLogs(
+      new web3.PublicKey(shopWalletaddress),
       logCallback,
       "confirmed",
+    );
+    onLogsFinalId = connection.onLogs(
+      new web3.PublicKey(shopWalletaddress),
+      finalizeCallback,
+      "finalized",
     );
   }); //서버 부팅시 동작
 
 setLogs();
-setInterval(setLogs, 1000 * 60 * 120); //2시간에 한 번씩 재 설정
+setInterval(setLogs, 1000 * 60 * 60); //1시간에 한 번씩 재 설정
 
 const WEB_RPC_OPEN = "solana webrpc opend";
 const WEB_RPC_ERROR = "solana webrpc error";
