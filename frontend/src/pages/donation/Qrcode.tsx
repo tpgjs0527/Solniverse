@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
 // import { Modal } from "react-responsive-modal";
-import { createQR, createTransaction, encodeURL, parseURL } from "@solana/pay";
+import { createQR, encodeURL, parseURL } from "@solana/pay";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import QRCodeStyling from "qr-code-styling";
@@ -14,6 +14,7 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
+import { createTransaction } from "utils/createTransaction";
 // import * as splToken from "@solana/spl-token";
 
 interface IPayment {
@@ -306,13 +307,18 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             const provider = getProvider();
             provider?.connect();
             const { recipient, amount, reference, memo } = parseURL(txURL);
+
             const publicKey = new PublicKey(userInfo.walletAddress);
 
             // part 1
+            console.log(connection, publicKey, recipient, amount, {
+              reference,
+              memo,
+            });
             const transaction = await createTransaction(
               connection,
               publicKey!,
-              recipient,
+              recipient!,
               amount!,
               { reference, memo }
             );
@@ -343,9 +349,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             const transaction = await createTransaction(
               connection,
               publicKey!,
-              recipient,
+              recipient!,
               amount!,
-              { reference, memo, splToken }
+              { token: splToken, reference, memo }
             );
 
             transaction.feePayer = publicKey;
