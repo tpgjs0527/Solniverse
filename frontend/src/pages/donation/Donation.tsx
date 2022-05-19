@@ -91,7 +91,7 @@ function Donation() {
     if (!(amount > 0)) {
       Swal.fire({
         title: "잔고 부족",
-        html: "잔고가 부족합니다.<br>충전 후 도네이션을 진행해주세요.",
+        text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
         icon: "warning",
       });
       return;
@@ -130,7 +130,7 @@ function Donation() {
       } else {
         Swal.fire({
           title: "지갑 연결 필요",
-          html: `지갑 연결이 필요합니다.<br>상단 메뉴바에서 지갑연결을 해주세요.`,
+          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
           icon: "info",
         });
         return;
@@ -222,7 +222,7 @@ function Donation() {
       const sol = await getBalance(userInfo.walletAddress);
       if (type === "SOL" && sol < amount) {
         Swal.fire({
-          html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
+          title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
           showClass: {
             popup: "animate__animated animate__fadeInDown",
           },
@@ -231,6 +231,7 @@ function Donation() {
           },
           icon: "warning",
         });
+        // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
         setAmount(0);
       }
     };
@@ -238,7 +239,7 @@ function Donation() {
     getAsyncToken();
     if (type === "USDC" && usdcBalance < amount) {
       Swal.fire({
-        html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
+        title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
         showClass: {
           popup: "animate__animated animate__fadeInDown",
         },
@@ -247,6 +248,7 @@ function Donation() {
         },
         icon: "warning",
       });
+      // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
       setAmount(0);
     }
   }, [amount, snvBalance, usdcBalance]);
@@ -552,10 +554,8 @@ const DonatePriceButton = styled.button`
   cursor: pointer;
   margin-right: 8px;
   &:hover {
-   /* background: rgb(0,3,255); */
-background: linear-gradient(45deg, #870ff8 0%,#0f3af8 60%, #0ff8ec 100%);
-}
-}
+    /* background: rgb(0,3,255); */
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
   }
   @media screen and (max-width: 767px) {
     font-size: 12px;

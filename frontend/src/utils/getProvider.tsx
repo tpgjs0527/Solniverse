@@ -1,5 +1,4 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { isMobile } from "react-device-detect";
 import { checkMobile } from "./checkMobile";
 import Swal from "sweetalert2";
 
