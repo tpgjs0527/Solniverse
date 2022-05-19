@@ -39,7 +39,7 @@ export default function Header() {
           </Element>
           <Element isActive={serviceCenterMatch !== null}>
             <Link to="/service">
-              <Text>서비스 가이드</Text>
+              <Text>서비스 안내</Text>
             </Link>
           </Element>
         </List>

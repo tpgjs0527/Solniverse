@@ -82,7 +82,7 @@ export default function Sidebar() {
                 navigate(`/service`);
               }}
             >
-              서비스 가이드
+              서비스 안내
             </Element>
           </ul>
         </Nav>

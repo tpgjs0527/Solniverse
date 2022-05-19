@@ -50,7 +50,7 @@ function Home() {
                 <Link to={"/"}>홈</Link>
               </li>
               <li>
-                <Link to={"/service"}>서비스 가이드</Link>
+                <Link to={"/service"}>서비스 안내</Link>
               </li>
             </ul>
           </Menu>
