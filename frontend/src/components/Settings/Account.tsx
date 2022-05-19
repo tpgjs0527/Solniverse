@@ -5,8 +5,14 @@ import useMutation from "hooks/useMutation";
 import { useRecoilState } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
-import { getBalance, getSolanaPrice } from "utils/solanaWeb3";
+import {
+  createConnection,
+  findAssociatedTokenAddress,
+  getBalance,
+  getSolanaPrice,
+} from "utils/solanaWeb3";
 import useToken from "hooks/useToken";
+import { Connection, PublicKey } from "@solana/web3.js";
 
 export interface IUser {
   result: string;
@@ -24,6 +30,8 @@ function Account() {
     usd: 0.0,
     sol: 0,
   });
+  const [snvBalance, setSNVBalance] = useState(0);
+  const [usdcBalance, setUSDCBalance] = useState(0);
   const [isLoadingGetSol, setIsLoadingGetSol] = useState(true);
 
   // query string
@@ -31,6 +39,7 @@ function Account() {
   const platform = searchParams.get("platform");
   const code = searchParams.get("code");
   const [, , checkToken] = useToken();
+  const connection = createConnection();
 
   // 페이지 들어오면 지갑 잔액 함수 실행
   useEffect(() => {
@@ -74,6 +83,30 @@ function Account() {
     `${process.env.REACT_APP_BASE_URL}/auth/oauth`,
     accessToken
   );
+  const getAsyncToken = async () => {
+    const snvAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+    );
+    const snvResponse = await connection.getTokenAccountBalance(
+      new PublicKey(snvAddress)
+    );
+    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+    if (snvResponse) {
+      setSNVBalance(snvAmount);
+    }
+    const usdcAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+    );
+    const usdcResponse = await connection.getTokenAccountBalance(
+      new PublicKey(usdcAddress)
+    );
+    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+    if (usdcResponse) {
+      setUSDCBalance(usdcAmount);
+    }
+  };
 
   // code 변경 시 실행
   useEffect(() => {

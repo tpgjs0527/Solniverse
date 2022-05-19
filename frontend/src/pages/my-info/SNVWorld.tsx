@@ -30,6 +30,7 @@ function SNVWorld() {
   const getAsyncSol = async () => {
     const sol = await getBalance(userInfo.walletAddress);
     setSolBalance(Number(sol));
+    setIsLoadingGetBalance(false);
   };
 
   const onNFT = () => {
@@ -55,40 +56,35 @@ function SNVWorld() {
   //   }
   // };
   const getAsyncToken = async () => {
-    const usdcAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-    );
-
-    const usdcResponse = await connection.getTokenAccountBalance(
-      new PublicKey(usdcAddress)
-    );
-
-    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
-    if (usdcResponse) {
-      setUSDCBalance(usdcAmount);
-    }
     const snvAddress = await findAssociatedTokenAddress(
       new PublicKey(userInfo.walletAddress),
       new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
     );
-
     const snvResponse = await connection.getTokenAccountBalance(
       new PublicKey(snvAddress)
     );
-
     const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
     if (snvResponse) {
       setSNVBalance(snvAmount);
+      setIsLoadingGetBalance(false);
+    }
+    const usdcAddress = await findAssociatedTokenAddress(
+      new PublicKey(userInfo.walletAddress),
+      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+    );
+    const usdcResponse = await connection.getTokenAccountBalance(
+      new PublicKey(usdcAddress)
+    );
+    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+    if (usdcResponse) {
+      setUSDCBalance(usdcAmount);
+      setIsLoadingGetBalance(false);
     }
   };
 
   useEffect(() => {
     getAsyncSol();
     getAsyncToken();
-    if (solBalance) {
-      setIsLoadingGetBalance(false);
-    }
   }, [solBalance, SNVBalance, USDCBalance]);
 
   return (
@@ -100,14 +96,20 @@ function SNVWorld() {
             <UserWrapper>
               <UserBox style={{ display: "flex" }}>
                 <UserImageWrapper>
-                  <UserImage src={userInfo.twitch.profileImageUrl} />
+                  <UserImage
+                    src={
+                      userInfo.twitch.profileImageUrl
+                        ? userInfo.twitch.profileImageUrl
+                        : `${process.env.PUBLIC_URL}/images/SNV토큰.png`
+                    }
+                  />
                 </UserImageWrapper>
                 <UserInfoWrapper>
                   <Hello>반갑습니다</Hello>
                   <UserName>
                     {userInfo.twitch.id
                       ? userInfo.twitch.displayName
-                      : "익명의 솔전사"}
+                      : "익명의 솔둥이"}
                     님
                   </UserName>
                 </UserInfoWrapper>
@@ -117,7 +119,7 @@ function SNVWorld() {
               </RankingBox>
               <Hr />
               <PointBox>
-                <UserTitle>Your Balance</UserTitle>
+                <UserTitle>현재 자산</UserTitle>
                 <PointWrapper>
                   <PointInfoWrapper>
                     <PointImage
@@ -194,12 +196,6 @@ function SNVWorld() {
                 <Route path="other" element={<Other />} />
               </Routes>
             </NFTBox>
-            <NFTBox>
-              <NFTTitle></NFTTitle>
-            </NFTBox>
-            <NFTBox>
-              <NFTContent></NFTContent>
-            </NFTBox>
           </NFTWrapper>
         </Section>
       </Container>
@@ -238,10 +234,11 @@ const SpinnerDiv = styled.div`
 `;
 const UserWrapper = styled.div`
   height: 40%;
+  width: 250px;
   padding: 16px;
   border-radius: 16px;
   background-color: ${(props) => props.theme.boxColor};
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22) !important;
 `;
 const Hello = styled.div`
   font-size: 14px;
@@ -286,6 +283,12 @@ const PointWrapper = styled.div`
   border-radius: 16px;
   background-color: ${(props) => props.theme.subBoxColor};
   margin-bottom: 8px;
+  @media screen and (max-width: 1400px) {
+    font-size: 14px;
+  }
+  @media screen and (max-width: 691px) {
+    font-size: 12px;
+  }
 `;
 const PointInfoWrapper = styled.div`
   display: flex;
@@ -295,7 +298,14 @@ const PointImage = styled.img`
   width: 30px;
   margin-right: 4px;
 `;
-const PointTitle = styled.div``;
+const PointTitle = styled.div`
+  @media screen and (max-width: 1400px) {
+    font-size: 14px;
+  }
+  @media screen and (max-width: 691px) {
+    font-size: 12px;
+  }
+`;
 const PointContent = styled.div`
   white-space: pre-wrap;
   font-weight: bold;
@@ -329,7 +339,7 @@ const Tab = styled.div<{ isActive: boolean }>`
   }
 `;
 const NFTWrapper = styled.div`
-  width: 70%;
+  width: 80%;
   margin-left: 32px;
 `;
 const NFTBox = styled.div`

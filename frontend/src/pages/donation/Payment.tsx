@@ -128,7 +128,7 @@ function Payment() {
 
   return (
     <Container>
-      <PageName>Payment Page</PageName>
+      <PageName>결제 페이지</PageName>
       <Line />
       <MainContainer>
         <SubContainer>
@@ -140,17 +140,17 @@ function Payment() {
                 </TitleWrapper>
                 <InfoWrapper>
                   <Name>후원자 닉네임 : {nickName}</Name>
-                  <AccountTitle>Account</AccountTitle>
+                  <AccountTitle>지갑 주소</AccountTitle>
                   <Account>{userInfo.walletAddress}</Account>
                 </InfoWrapper>
               </UserWrapper>
               <UserWrapper>
                 <TitleWrapper>
-                  <Title>크리에이터 정보</Title>
+                  <Title>스트리머 정보</Title>
                 </TitleWrapper>
                 <InfoWrapper>
                   <Name>{creatorName}</Name>
-                  <AccountTitle>Account</AccountTitle>
+                  <AccountTitle>지갑 주소</AccountTitle>
                   <Account>{walletAddress}</Account>
                 </InfoWrapper>
               </UserWrapper>
@@ -163,18 +163,18 @@ function Payment() {
               </TitleWrapper>
               <TotalPriceWrapper>
                 <PriceWrapper style={{ marginBottom: "8px" }}>
-                  <Price>Donate Message</Price>
+                  <Price>후원 메시지</Price>
                   <Price>{message}</Price>
                 </PriceWrapper>
                 <PriceWrapper>
-                  <Price>Donate Price</Price>
+                  <Price>후원 금액</Price>
                   <SOL>
                     {amount} {type}
                   </SOL>
                 </PriceWrapper>
                 <Line />
                 <PriceWrapper>
-                  <Price>Total</Price>
+                  <Price>총 후원 금액</Price>
                   <SOL>
                     {amount} {type}
                   </SOL>
