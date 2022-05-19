@@ -7,11 +7,19 @@ import styled, { keyframes } from "styled-components";
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [, connectWallet] = useWallet();
+  const [isReload, setIsReload] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("load", () => setIsReload(true));
+
+    return () => {
+      window.removeEventListener("load", () => setIsReload(false));
+    };
+  });
   return (
     <Main>
       {isLoading ? (
@@ -113,9 +121,9 @@ const Hand = styled.div`
     display: none;
   }
   @media screen and (min-width: 1600px) {
-    height: 550px;
+    height: 750px;
     background-image: url("큰1.png");
-    width: 780px;
+    width: 600px;
   }
   &:after {
     content: "";
@@ -126,9 +134,9 @@ const Hand = styled.div`
     left: 0px;
     z-index: -1;
     @media screen and (min-width: 1600px) {
-      height: 550px;
+      height: 750px;
       background-image: url("큰2.png");
-      width: 780px;
+      width: 600px;
     }
   }
 `;
@@ -136,7 +144,7 @@ const Hand = styled.div`
 const TextBox = styled.div`
   width: auto;
   height: auto;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+
   color: white;
   font-size: 7em;
   font-weight: 500;
