@@ -43,13 +43,15 @@ const getBalance = async (walletAddress: string) => {
   }
 };
 
+const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID = new solanaWeb3.PublicKey(
+  `${process.env.REACT_APP_SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID}`
+);
+
+// 연결된 토큰 계정 찾기
 async function findAssociatedTokenAddress(
   walletAddress: solanaWeb3.PublicKey,
   mintAddress: solanaWeb3.PublicKey
 ): Promise<solanaWeb3.PublicKey> {
-  const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID = new solanaWeb3.PublicKey(
-    `${process.env.REACT_APP_SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID}`
-  );
   return (
     await solanaWeb3.PublicKey.findProgramAddress(
       [
@@ -62,6 +64,26 @@ async function findAssociatedTokenAddress(
   )[0];
 }
 
+// SPL 토큰 계정의 토큰 잔액을 반환
+const getTokenBalance = async (publicKey: string, splToken: string) => {
+  const connection = createConnection();
+
+  const account = await findAssociatedTokenAddress(
+    createPublicKey(publicKey),
+    createPublicKey(splToken)
+  );
+
+  try {
+    const balance = await connection.getTokenAccountBalance(
+      createPublicKey(account.toString())
+    );
+    // return balance;
+    return Number(balance.value.amount) / 1000000;
+  } catch (e) {
+    return 0;
+  }
+};
+
 export {
   LAMPORTS_PER_SOL,
   createConnection,
@@ -69,4 +91,5 @@ export {
   getSolanaPrice,
   getBalance,
   findAssociatedTokenAddress,
+  getTokenBalance,
 };
