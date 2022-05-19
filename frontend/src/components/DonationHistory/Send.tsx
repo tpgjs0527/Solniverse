@@ -211,8 +211,7 @@ function SendDonationHistory() {
                           <TwitchId
                             onClick={() =>
                               window.open(
-                                `https://www.twitch.tv/${el.receiveUserId.twitch?.displayName}`,
-                                "_blank"
+                                `https://www.twitch.tv/${el.receiveUserId.twitch?.displayName}`
                               )
                             }
                           >
@@ -238,8 +237,7 @@ function SendDonationHistory() {
                         <Tx
                           onClick={() =>
                             window.open(
-                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet`, // devnet
-                              "_blank"
+                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
                             )
                           }
                         >

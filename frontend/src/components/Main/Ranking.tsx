@@ -42,7 +42,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "80%",
-          height: "50%",
+          height: "85%",
           padding: "0",
           border: "none",
           background: isDark ? "#333333" : "#eeeeee",
@@ -53,7 +53,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
     >
       <SubTitle>순위표</SubTitle>
       <SubCon>
-        현재 나의 순위를 기준으로 ±5 에 속하는 유저를 볼 수 있습니다.
+        현재 나의 순위를 기준으로 ±5 내에 속하는 사용자를 볼 수 있습니다.
       </SubCon>
       <SubBox>
         {data?.previousList.map((el, index) => (

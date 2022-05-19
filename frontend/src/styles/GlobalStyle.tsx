@@ -55,6 +55,7 @@ table {
   box-sizing: border-box;
 }
 body {
+  font-family: 'Noto Sans KR', sans-serif;
   background-color: ${(props) => props.theme.bgColor};
   color: ${(props) => props.theme.textColor};
   line-height: 1.2;
