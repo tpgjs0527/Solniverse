@@ -87,12 +87,20 @@ function Donation() {
     //   pathname: "/payment",
     //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
     // });
-    console.log(amount);
-    if (!(amount > 0)) {
+    if (userInfo.walletAddress) {
+      if (!(amount > 0)) {
+        Swal.fire({
+          title: "잔고 부족",
+          text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+          icon: "warning",
+        });
+        return;
+      }
+    } else {
       Swal.fire({
-        title: "잔고 부족",
-        text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
-        icon: "warning",
+        title: "지갑 연결 필요",
+        text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+        icon: "info",
       });
       return;
     }
@@ -127,13 +135,6 @@ function Donation() {
           pathname: "/payment",
           search: `?${createSearchParams(params)}`,
         });
-      } else {
-        Swal.fire({
-          title: "지갑 연결 필요",
-          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
-          icon: "info",
-        });
-        return;
       }
     } else {
       if (!amount || !nickName) {
@@ -200,22 +201,39 @@ function Donation() {
       }
     }
   };
+  const getAsyncCreatorInfo = async () => {
+    const creatorInfo = await getCreatorInfo(walletAddress!);
+    const displayName = walletAddress?.slice(0, 10);
+    if (!creatorInfo.user.twitch) {
+      setCreatorName(displayName);
+      setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
+    } else {
+      setCreatorName(creatorInfo.user.twitch.displayName);
+      setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
+    }
+  };
 
   useEffect(() => {
-    const getAsyncCreatorInfo = async () => {
-      const creatorInfo = await getCreatorInfo(walletAddress!);
-      const displayName = walletAddress?.slice(0, 10);
-      if (!creatorInfo.user.twitch) {
-        setCreatorName(displayName);
-        setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
-      } else {
-        setCreatorName(creatorInfo.user.twitch.displayName);
-        setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
-      }
-    };
-
     getAsyncCreatorInfo();
-  }, [creatorName, creatorImgUrl]);
+    if (!userInfo.walletAddress) {
+      Swal.fire({
+        title: "첫 방문이신가요?",
+        text: "서비스 이용 가이드를 확인하시겠습니까?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "확인",
+        cancelButtonText: "취소",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/service");
+          return;
+        }
+      });
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     const getAsyncSol = async () => {

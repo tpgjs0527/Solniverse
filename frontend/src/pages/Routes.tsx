@@ -25,13 +25,17 @@ function Routes() {
 
   return (
     <ReactRouterRoutes>
-      {/* <Route path="/donation/:displayName/:platform" element={<Donation />} /> */}
       <Route path="/donation/:walletAddress" element={<Donation />} />
       <Route
         path="/payment"
         element={isMobile ? <PaymentMobile /> : <Payment />}
       />
-      <Route path="/payment/confirmed" element={<Confirmed />} />
+      <Route
+        path="/payment/confirmed"
+        element={userInfo.walletAddress ? <Confirmed /> : <Home />}
+      />
+      <Route path="/donation/alertbox/:uuid" element={<Message />} />
+      <Route path="/test/alertbox" element={<MessageTest />} />
 
       {/* URL 직접 접근 제어 */}
       <Route
@@ -70,8 +74,22 @@ function Routes() {
           userInfo.walletAddress ? <SNVWorld /> : <Navigate replace to="/" />
         }
       >
-        <Route path="" element={<CandyMachineHome />} />
-        <Route path="other" element={<Other />} />
+        <Route
+          path=""
+          element={
+            userInfo.walletAddress ? (
+              <CandyMachineHome />
+            ) : (
+              <Navigate replace to="/" />
+            )
+          }
+        />
+        <Route
+          path="other"
+          element={
+            userInfo.walletAddress ? <Other /> : <Navigate replace to="/" />
+          }
+        />
       </Route>
       <Route
         path="/service-center"
@@ -83,8 +101,7 @@ function Routes() {
           )
         }
       />
-      <Route path="/donation/alertbox/:uuid" element={<Message />} />
-      <Route path="/test/alertbox" element={<MessageTest />} />
+
       {/* 404 가장 밑에 위치 */}
       <Route
         path="*"
