@@ -14,6 +14,8 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
+import { createConnection } from "utils/solanaWeb3";
+import { Public } from "@material-ui/icons";
 // import * as splToken from "@solana/spl-token";
 
 interface IPayment {
@@ -286,7 +288,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             }
           }
         }
-      }, 1000);
+      }, 2000);
     }
   }, [signature]);
 
@@ -295,19 +297,27 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
 
   // };
   // getPhantomProvider();
-  const { connection } = useConnection();
+  const connection = createConnection();
 
   const sendTX = async () => {
     const provider = getProvider();
+    const recipient = new PublicKey(params.walletAddress!);
+    const recipientInfo = await connection.getAccountInfo(recipient);
+    const myInfo = await connection.getAccountInfo(
+      new PublicKey("Pu674dikkyAAUotqgQUZMe5fHzsgnYwFKQEmjEx4oR8")
+    );
+    console.log("?");
+    console.log(recipientInfo);
+    console.log(myInfo);
     if (provider) {
       try {
         if (txURL) {
           if (params.type === "SOL") {
-            const provider = getProvider();
-            provider?.connect();
-            const { recipient, amount, reference, memo } = parseURL(txURL);
+            // const provider = getProvider();
+            // provider?.connect();
+            const recipient = new PublicKey(params.walletAddress!);
+            const { amount, reference, memo } = parseURL(txURL);
             const publicKey = new PublicKey(userInfo.walletAddress);
-
             // part 1
             const transaction = await createTransaction(
               connection,
@@ -318,10 +328,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             );
 
             transaction.feePayer = publicKey;
-            const anyTransaction: any = transaction;
-            anyTransaction.recentBlockhash = (
-              await connection.getRecentBlockhash()
-            ).blockhash;
 
             let blockhashObj = await connection.getRecentBlockhash();
             transaction.recentBlockhash = await blockhashObj.blockhash;
@@ -331,7 +337,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
               response!.serialize()
             );
 
-            const res2 = await connection.confirmTransaction(signature);
+            await connection.confirmTransaction(signature);
           } else if (params.type === "USDC") {
             const provider = getProvider();
             provider?.connect();
@@ -349,10 +355,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             );
 
             transaction.feePayer = publicKey;
-            const anyTransaction: any = transaction;
-            anyTransaction.recentBlockhash = (
-              await connection.getRecentBlockhash()
-            ).blockhash;
+
             let blockhashObj = await connection.getRecentBlockhash();
             transaction.recentBlockhash = await blockhashObj.blockhash;
 
