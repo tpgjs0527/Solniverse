@@ -37,11 +37,11 @@ router.post(
       message = req.body["message"],
       platform = req.body["platform"] || "";
     if (!platforms.includes(platform)) {
-      const { statusCode, responseBody } = new BaseResponse(
+      const { statusCode: badCode, responseBody: badBody } = new BaseResponse(
         BAD_REQUEST_RESPONSE,
       );
-      res.statusCode = statusCode;
-      res.send(responseBody);
+      res.statusCode = badCode;
+      res.send(badBody);
       return;
     }
     const { statusCode, responseBody } =

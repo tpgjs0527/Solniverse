@@ -13,7 +13,6 @@ const {
   getOrCreateAssociatedTokenAccount,
   transfer,
   mintTo,
-  getAssociatedTokenAddress,
 } = require("@solana/spl-token");
 const { default: axios } = require("axios");
 const { Keypair, PublicKey } = web3;
@@ -30,7 +29,6 @@ var fromTokenAccount;
     fromWallet.publicKey,
   );
 })();
-getAssociatedTokenAddress;
 const SOL_DECIMAL = 10 ** 9;
 
 var usdPerSol;
@@ -344,42 +342,43 @@ function alertAndSendSnv(
  *
  * @param {string} sendWalletAddress
  * @param {string} receiveWalletAddress
- * @param {number} uscAmount
+ * @param {number} usdAmount
  */
-async function updateRank(sendWalletAddress, receiveWalletAddress, uscAmount) {
+async function updateRank(sendWalletAddress, receiveWalletAddress, usdAmount) {
   try {
     const [receive, send] = await Promise.all([
       rankRepository.getReceiveRankListByWalletAddress(receiveWalletAddress),
       rankRepository.getSendRankListByWalletAddress(sendWalletAddress),
     ]);
+
     // 해당 WalletAddress로 기록이 존재하지 않으면 생성 후 기록
     if (!receive) {
       const receiveRank = {
         walletAddress: receiveWalletAddress,
         receiveCount: 1,
-        receiveTotal: uscAmount,
-        receiveRank: checkRank(uscAmount),
+        receiveTotal: usdAmount,
+        receiveRank: checkRank(usdAmount),
       };
-      rankRepository.createRankByReceive(receiveRank);
+      rankRepository.createRank(receiveRank);
     } else {
       receive.receiveCount++;
-      receive.receiveTotal += uscAmount;
+      receive.receiveTotal += usdAmount;
       receive.receiveRank = checkRank(receive.receiveTotal);
-      rankRepository.updateRankByReceive(receive);
+      rankRepository.updateRankByData(receive);
     }
     if (!send) {
       const sendRank = {
         walletAddress: sendWalletAddress,
         sendCount: 1,
-        sendTotal: uscAmount,
-        sendRank: checkRank(uscAmount),
+        sendTotal: usdAmount,
+        sendRank: checkRank(usdAmount),
       };
-      rankRepository.createRankBySend(sendRank);
+      rankRepository.createRank(sendRank);
     } else {
       send.sendCount++;
-      send.sendTotal += uscAmount;
+      send.sendTotal += usdAmount;
       send.sendRank = checkRank(send.sendTotal);
-      rankRepository.updateRankBySend(send);
+      rankRepository.updateRankByData(send);
     }
   } catch (error) {
     logger.error(`updateRank: error=${error}`);
@@ -499,27 +498,38 @@ async function recoverTransaction() {
     if (!tx) return;
     // 상점 주소
     const shopWallet = new web3.PublicKey(process.env.DDD_SHOP_WALLET);
-    const transactions = await connection.getSignaturesForAddress(shopWallet, {
-      until: tx.txSignature,
-    });
+    const transactions = await connection.getSignaturesForAddress(
+      shopWallet,
+      {
+        until: tx.txSignature,
+      },
+      "finalized",
+    );
     transactions
       .filter(({ err }) => !err)
       .map(async ({ signature }) => {
         const transaction = await connection.getTransaction(signature);
         updateTransactionWithoutDuplication(transaction);
       });
+    logger.info("recoverTransaction: message=작동 완료");
   } catch (err) {
     logger.error(`recoverTransaction: error=${err}`);
   }
 }
 
-recoverTransaction().then(() => {
-  connection.onLogs(
-    new web3.PublicKey(process.env.DDD_SHOP_WALLET),
-    logCallback,
-    "confirmed",
-  );
-}); //서버 부팅시 동작
+let onLogsId = 0;
+const setLogs = () =>
+  recoverTransaction().then(async () => {
+    connection.removeOnLogsListener(onLogsId);
+    onLogsId = connection.onLogs(
+      new web3.PublicKey(process.env.DDD_SHOP_WALLET),
+      logCallback,
+      "confirmed",
+    );
+  }); //서버 부팅시 동작
+
+setLogs();
+setInterval(setLogs, 1000 * 60 * 120); //2시간에 한 번씩 재 설정
 
 const WEB_RPC_OPEN = "solana webrpc opend";
 const WEB_RPC_ERROR = "solana webrpc error";

@@ -23,8 +23,8 @@ const badRequestResponse = new BaseResponse(BAD_REQUEST_RESPONSE);
  */
 router.post("/", verifySignatureMiddleware, async function (req, res) {
   if (req.user.authority != "normal") {
-    const { statusCode, responseBody } = badRequestResponse;
-    res.status(statusCode).send(responseBody);
+    const { statusCode: badCode, responseBody: badBody } = badRequestResponse;
+    res.status(badCode).send(badBody);
     return;
   }
   const { statusCode, responseBody } =
