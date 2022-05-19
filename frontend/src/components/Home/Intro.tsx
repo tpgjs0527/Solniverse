@@ -1,7 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
-import BasicSection, { Title } from "./Tag/BasicSection";
+import BasicSection from "./Tag/BasicSection";
 
 export const Intro = () => {
   return (

@@ -114,7 +114,7 @@ const GalleryWrapper = styled.div`
 `;
 
 export const Content = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   & > *:not(:first-child) {
     margin-top: 0.5rem;
   }

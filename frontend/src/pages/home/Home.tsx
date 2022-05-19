@@ -7,12 +7,19 @@ import styled, { keyframes } from "styled-components";
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [, connectWallet] = useWallet();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isReload, setIsReload] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("load", () => setIsReload(true));
+
+    return () => {
+      window.removeEventListener("load", () => setIsReload(false));
+    };
+  });
   return (
     <Main>
       {isLoading ? (
@@ -113,12 +120,10 @@ const Hand = styled.div`
   @media screen and (max-width: 1000px) {
     display: none;
   }
-  /* @media screen and (min-width: 1001px) and (max-width: 1599px) {
-  } */
   @media screen and (min-width: 1600px) {
-    height: 550px;
+    height: 750px;
     background-image: url("큰1.png");
-    width: 780px;
+    width: 600px;
   }
   &:after {
     content: "";
@@ -129,9 +134,9 @@ const Hand = styled.div`
     left: 0px;
     z-index: -1;
     @media screen and (min-width: 1600px) {
-      height: 550px;
+      height: 750px;
       background-image: url("큰2.png");
-      width: 780px;
+      width: 600px;
     }
   }
 `;
@@ -139,7 +144,7 @@ const Hand = styled.div`
 const TextBox = styled.div`
   width: auto;
   height: auto;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+
   color: white;
   font-size: 7em;
   font-weight: 500;
@@ -201,7 +206,7 @@ const Container = styled.div`
   animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
-export const Logo = styled.image`
+export const Logo = styled.div`
   float: left;
 
   margin-left: 40px;
@@ -256,7 +261,7 @@ const WalletMultiBtn = styled.span`
   position: relative;
   padding: 12px 42px;
   border-radius: 12px;
-  border-color: #696868;
+  border-color: #67676b;
   font-size: 1.25rem;
   font-weight: 800;
   color: white;
@@ -297,7 +302,7 @@ const Pushable = styled.button`
     width: 100%;
     height: 100%;
     border-radius: 12px;
-    background: ${(props) => "#283250"};
+    background: ${(props) => "#5496fa"};
   }
   &:hover {
     filter: brightness(110%);

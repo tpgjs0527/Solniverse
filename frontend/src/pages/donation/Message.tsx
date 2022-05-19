@@ -35,7 +35,6 @@ export const Message = () => {
 
   useEffect(() => {
     socket?.on("donation", (data: IMessage) => {
-      console.log(data);
       setQueue((currentQueue) => [
         ...currentQueue,
         {
@@ -60,7 +59,7 @@ export const Message = () => {
         .resume()
         .then(() => sound.donation.play())
         .catch((error) => console.log(error));
-      console.log(refQueue);
+
       setStart(true);
       setVisible(true);
       sound.donation.play();

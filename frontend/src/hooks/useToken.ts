@@ -20,7 +20,7 @@ function useToken() {
       return Swal.fire({
         icon: "error",
         title: "지갑 발견 실패",
-        text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
+        html: "지갑이 연결되지 않았습니다.<br>팬텀 월렛을 확인해주세요 😊",
         footer: '<a href="/service">서비스 안내 바로가기</a>',
       });
     const provider = getProvider();

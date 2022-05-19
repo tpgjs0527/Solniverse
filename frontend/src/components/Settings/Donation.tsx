@@ -57,7 +57,7 @@ function SetDonation() {
       Swal.fire({
         icon: "error",
         title: "복사 실패",
-        text: "URL 주소 복사가 실패했습니다. 잠시 후 다시 시도해주세요.",
+        html: "URL 주소 복사가 실패했습니다.<br>잠시 후 다시 시도해주세요.",
       });
     }
   };

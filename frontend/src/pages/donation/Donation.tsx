@@ -91,7 +91,7 @@ function Donation() {
       if (!(amount > 0)) {
         Swal.fire({
           title: "잔고 부족",
-          text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+          html: "잔고가 부족합니다.<br> 충전 후 도네이션을 진행해주세요.",
           icon: "warning",
         });
         return;
@@ -99,7 +99,7 @@ function Donation() {
     } else {
       Swal.fire({
         title: "지갑 연결 필요",
-        text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+        html: `지갑 연결이 필요합니다.<br> 상단 메뉴바에서 지갑연결을 해주세요.`,
         icon: "info",
       });
       return;
@@ -218,7 +218,7 @@ function Donation() {
     if (!userInfo.walletAddress) {
       Swal.fire({
         title: "첫 방문이신가요?",
-        text: "서비스 이용 가이드를 확인하시겠습니까?",
+        text: "서비스 안내를 확인하시겠습니까?",
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -240,7 +240,7 @@ function Donation() {
       const sol = await getBalance(userInfo.walletAddress);
       if (type === "SOL" && sol < amount) {
         Swal.fire({
-          title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
+          html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
           showClass: {
             popup: "animate__animated animate__fadeInDown",
           },
@@ -257,7 +257,7 @@ function Donation() {
     getAsyncToken();
     if (type === "USDC" && usdcBalance < amount) {
       Swal.fire({
-        title: "입력한 금액이 현재 잔고보다 높습니다. 다시 입력해주세요. 😊",
+        html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
         showClass: {
           popup: "animate__animated animate__fadeInDown",
         },
@@ -572,10 +572,8 @@ const DonatePriceButton = styled.button`
   cursor: pointer;
   margin-right: 8px;
   &:hover {
-   /* background: rgb(0,3,255); */
-background: linear-gradient(45deg, #870ff8 0%,#0f3af8 60%, #0ff8ec 100%);
-}
-}
+    /* background: rgb(0,3,255); */
+    background: linear-gradient(45deg, #870ff8 0%, #0f3af8 60%, #0ff8ec 100%);
   }
   @media screen and (max-width: 767px) {
     font-size: 12px;
