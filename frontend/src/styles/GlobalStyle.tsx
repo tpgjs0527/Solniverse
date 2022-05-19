@@ -68,6 +68,9 @@ a {
 html {
     scroll-behavior: smooth;
 }
+:root {
+  --vh: 100%;
+}
 `;
 
 export default GlobalStyle;

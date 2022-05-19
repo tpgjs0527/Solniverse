@@ -49,7 +49,7 @@ async function findAssociatedTokenAddress(
   mintAddress: solanaWeb3.PublicKey
 ): Promise<solanaWeb3.PublicKey> {
   const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID = new solanaWeb3.PublicKey(
-    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+    `${process.env.REACT_APP_SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID}`
   );
   return (
     await solanaWeb3.PublicKey.findProgramAddress(
