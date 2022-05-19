@@ -454,21 +454,31 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           </QRWrapper>
         </Wrapper>
         <Wrapper>
-          {isMobile ? (
+          {userInfo.walletAddress ? (
             <NoWalletGuide>
-              스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
-              설치하세요!
+              결제 후 발급되는 SNV토큰으로 NFT 랜덤 뽑기도 즐겨보세요!
             </NoWalletGuide>
+          ) : isMobile ? (
+            <>
+              <NoWalletGuide>
+                스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
+                설치하세요!
+              </NoWalletGuide>
+              <WalletInstall>
+                <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
+              </WalletInstall>
+            </>
           ) : (
-            <NoWalletGuide>
-              쉽고 편리하게 결제할 수 있는 Phantom Wallet 구글 확장프로그램을
-              설치하세요!
-            </NoWalletGuide>
+            <>
+              <NoWalletGuide>
+                쉽고 편리하게 결제할 수 있는 Phantom Wallet 구글 확장프로그램을
+                설치하세요!
+              </NoWalletGuide>
+              <WalletInstall>
+                <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
+              </WalletInstall>
+            </>
           )}
-
-          <WalletInstall>
-            <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
-          </WalletInstall>
         </Wrapper>
         <CloseBtnWrapper>
           <CloseBtn onClick={closeModal}>닫기</CloseBtn>
