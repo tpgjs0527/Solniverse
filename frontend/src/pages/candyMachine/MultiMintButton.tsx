@@ -216,19 +216,21 @@ export const MultiMintButton = ({
     setTotalCost(Math.round(qty * (price + 0.012) * 1000) / 1000); // 0.012 = approx of account creation fees
   }
   const getAsyncToken = async () => {
-    const snvAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
-    );
+    try {
+      const snvAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+      );
 
-    const snvResponse = await connection.getTokenAccountBalance(
-      new PublicKey(snvAddress)
-    );
+      const snvResponse = await connection.getTokenAccountBalance(
+        new PublicKey(snvAddress)
+      );
 
-    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
-    if (snvResponse) {
-      setSNVBalance(snvAmount);
-    }
+      const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+      if (snvResponse) {
+        setSNVBalance(snvAmount);
+      }
+    } catch (err) {}
   };
   useEffect(() => {
     getAsyncToken();
