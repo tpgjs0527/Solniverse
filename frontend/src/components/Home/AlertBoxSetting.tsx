@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Content, OverTitle } from "./DonationIntro";
+import { Phantom } from "./Intro";
 import { ImagesSlider } from "./Tag/ImagesSlider";
 import RichText from "./Tag/RichText";
 import { Wrapper } from "./Tag/Wrapper";
@@ -19,8 +20,11 @@ export const AlertBoxSetting = () => {
         <Content>
           <OverTitle>알림창 설정</OverTitle>
           <RichText>
-            쉽고 간편한 후원 메시지 알림창 설정하기! 준비물은 OBS와 팬텀
-            지갑입니다 👨‍🚀
+            쉽고 간편한 후원 메시지 알림창 설정하기! 준비물은{" "}
+            <Phantom onClick={() => window.open("https://obsproject.com/ko")}>
+              OBS Studio
+            </Phantom>
+            와 팬텀 지갑입니다 👨‍🚀
           </RichText>
         </Content>
         <ImagesSlider Images={Images} />
