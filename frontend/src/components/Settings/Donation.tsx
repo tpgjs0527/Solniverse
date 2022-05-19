@@ -5,6 +5,7 @@ import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
 import useToken from "hooks/useToken";
 import Swal from "sweetalert2";
+import { Phantom } from "components/Home/Intro";
 
 function SetDonation() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -96,7 +97,16 @@ function SetDonation() {
       </BoxWrapper>
       <BoxWrapper>
         <Box>
-          <BoxTitle>알림창</BoxTitle>
+          <AlertWrapper>
+            <AlertTitle>알림창</AlertTitle>
+            <ServiceTitle
+              onClick={() =>
+                window.open(`https://solniverse.net/service#alertBoxSetting`)
+              }
+            >
+              알림창 설정 방법
+            </ServiceTitle>
+          </AlertWrapper>
           <BoxDescription>
             <BoxWarning>
               방송 프로그램(OBS, Xsplit)에 적용하는 URL입니다. 타인에게 유출되면
@@ -146,7 +156,11 @@ function SetDonation() {
               </>
             )}
           </AlarmUrlBox>
-          <TestBox>알람 테스트</TestBox>
+          <TestBox
+            onClick={() => window.open(`http://localhost:3000/test/alertbox`)}
+          >
+            알람 테스트
+          </TestBox>
         </Box>
       </BoxWrapper>
     </Section>
@@ -305,4 +319,14 @@ const Section = styled.div`
   width: 100%;
 `;
 
+const ServiceTitle = styled(Phantom)``;
+const AlertTitle = styled.span`
+  font-size: 22px;
+  line-height: 32px;
+  font-weight: bold;
+  margin-right: 10px;
+`;
+const AlertWrapper = styled.div`
+  margin-bottom: 20px;
+`;
 export default SetDonation;

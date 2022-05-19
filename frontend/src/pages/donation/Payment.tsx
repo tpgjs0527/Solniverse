@@ -248,9 +248,7 @@ const Wrapper = styled.div`
   min-height: 500px;
   border-radius: 16px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
-  @media screen and (min-width: 1439px) {import { useConnection } from '@solana/wallet-adapter-react';
-import { findAssociatedTokenAddress } from 'utils/solanaWeb3';
-
+  @media screen and (min-width: 1439px) {
     min-width: 600px;
   }
   @media screen and (max-width: 767px) {

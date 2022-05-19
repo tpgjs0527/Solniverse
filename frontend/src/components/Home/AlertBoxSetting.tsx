@@ -17,9 +17,10 @@ export const AlertBoxSetting = () => {
     <AlertWrapper id="alertBoxSetting">
       <Box>
         <Content>
-          <OverTitle>후원 메시지 설정</OverTitle>
+          <OverTitle>알림창 설정</OverTitle>
           <RichText>
-            쉽고 간편한 후원 메시지 설정하기! 준비물은 OBS와 팬텀 지갑입니다 👨‍🚀
+            쉽고 간편한 후원 메시지 알림창 설정하기! 준비물은 OBS와 팬텀
+            지갑입니다 👨‍🚀
           </RichText>
         </Content>
         <ImagesSlider Images={Images} />
@@ -52,6 +53,4 @@ const Box = styled.div`
     width: 400px;
     height: 220x;
   }
-
-  /* background-color: black; */
 `;

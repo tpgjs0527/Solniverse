@@ -44,11 +44,11 @@ const Top = styled.button`
   visibility: hidden;
   opacity: 0.8;
   position: fixed;
-  bottom: 20px;
+  bottom: 30px;
   right: 30px;
   z-index: 100;
   display: flex;
-  height: 60px;
+  height: 70px;
   align-items: center;
   border: none;
   outline: none;
@@ -57,7 +57,7 @@ const Top = styled.button`
   cursor: pointer;
   padding: 15px;
   border-radius: 15px;
-  font-size: 25px;
+  font-size: 35px;
   :hover {
     transition: all ease-in-out 0.2s;
     background-color: ${(props) => props.theme.ownColorHover};

@@ -21,7 +21,7 @@ function useToken() {
         icon: "error",
         title: "지갑 발견 실패",
         text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
-        footer: '<a href="/service">서비스 가이드 바로가기</a>',
+        footer: '<a href="/service">서비스 안내 바로가기</a>',
       });
     const provider = getProvider();
 
@@ -93,7 +93,7 @@ function useToken() {
         icon: "error",
         title: "지갑 발견 실패",
         text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
-        footer: '<a href="/service">서비스 가이드 바로가기</a>',
+        footer: '<a href="/service">서비스 안내 바로가기</a>',
       });
     else {
       const response = await (

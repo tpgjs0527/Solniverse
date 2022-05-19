@@ -1,7 +1,10 @@
 import styled from "styled-components";
 
 const RichText = styled.div`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  @media screen and (min-width: 1700px) {
+    font-size: 1.4rem;
+  }
   opacity: 0.8;
   line-height: 1.6;
   /* text-align: justify; */

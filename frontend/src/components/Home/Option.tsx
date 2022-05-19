@@ -31,13 +31,13 @@ export const Option = () => {
             <a href="#coreFeatures">차별점</a>
           </li>
           <li>
-            <a href="#donationIntro">도네이션 방식</a>
+            <a href="#donationIntro">후원 방식</a>
           </li>
           <li>
-            <a href="#alertBoxSetting">후원메세지 설정</a>
+            <a href="#alertBoxSetting">알림창 설정</a>
           </li>
           <li>
-            <a href="#sideFeatures">오락요소</a>
+            <a href="#sideFeatures">오락 요소</a>
           </li>
         </ul>
       </Menu>
