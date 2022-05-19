@@ -35,11 +35,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const connections = new Connection(clusterApiUrl("devnet"), "confirmed");
-
   const [modalIsOpen, setModalIsOpen] = useState(open);
   const [makeQR, setMakeQR] = useState({});
   const [signature, setSignature] = useState("");
-  const [connectWallet, setConnectWallet] = useState(false);
   const [txURL, setTXURL] = useState<any>();
 
   // const wallets = [new PhantomWalletAdapter()];
@@ -155,7 +153,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         setTXURL(url);
 
         const qrCode = createQR(url);
-        // const qrCodeSize = Number(`${message.length >= 30 ? 250 : 230}`);
         const qrCodeSize = 230;
         const QrCode = new QRCodeStyling({
           width: qrCodeSize,
@@ -251,7 +248,6 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
           const transaction = await connections.getTransaction(
             signatures[i].signature
           );
-
           if (transaction && params.type === "SOL") {
             for (
               let j = 0;

@@ -30,7 +30,7 @@ function Payment() {
   const type = searchParams.get("type");
   const params = { amount, nickName, message, walletAddress, type };
   const [txid, setTXID] = useState("");
-  const [getTXId, { data, loading }] = useMutation<any>(
+  const [getTXId, { data }] = useMutation<any>(
     `${process.env.REACT_APP_BASE_URL}/donation/send`
   );
 
@@ -52,8 +52,6 @@ function Payment() {
           const reference = new PublicKey(
             "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
           );
-          // const splToken = new PublicKey("")
-
           const url = encodeURL({
             recipient,
             amount,
@@ -76,14 +74,9 @@ function Payment() {
           const reference = new PublicKey(
             "C11hWWx6Zhn4Vhx1qpbnFazWQYNpuz9CFv269QC4vDba"
           );
-          // const tokenAccount = await findAssociatedTokenAddress(
-          //   new PublicKey(userInfo.walletAddress),
-          //   new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-          // );
           const splToken = new PublicKey(
             "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
           );
-          // const splToken = new PublicKey(tokenAccount);
           const url = encodeURL({
             recipient,
             amount,

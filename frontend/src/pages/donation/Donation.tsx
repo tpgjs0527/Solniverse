@@ -45,7 +45,6 @@ function Donation() {
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = useForm<IDonation>({ mode: "onBlur" });
 
@@ -83,10 +82,6 @@ function Donation() {
   };
 
   const onClick = () => {
-    // navigate({
-    //   pathname: "/payment",
-    //   search: `?amount=${amount}&nickName=${nickName}&message=${message}`,
-    // });
     if (!isMobile) {
       if (userInfo.walletAddress) {
         if (!(amount > 0)) {
@@ -117,6 +112,7 @@ function Donation() {
           });
           return;
         }
+
         if (errors.nickname) {
           Swal.fire({
             title: "입력 에러",
@@ -168,8 +164,6 @@ function Donation() {
         search: `?${createSearchParams(params)}`,
       });
     }
-
-    // alert("도네이션을 진행하겠습니다");
   };
 
   const onSubmit = (e: any) => {
