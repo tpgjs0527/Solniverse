@@ -110,7 +110,7 @@ const CandyMachineHome = () => {
 
   //@TODO candyMachineId를 바꿔야함. useEffect [] 첫 마운트 기준으로 state로 받아와야됨.
   const candyMachineId = new PublicKey(
-    "J1HCbni7hk9D6XoA15VbRrj19k3tAXicsPCab9NHqrSU"
+    "9tDR3Sr31uj3AT5yDuY7VRxZy1X5yEDQ1oh86dA5uy2t"
   );
   const rpcUrl = clusterApiUrl("devnet");
   const connection = new anchor.web3.Connection(rpcUrl, "confirmed");
