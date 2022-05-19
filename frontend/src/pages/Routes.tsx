@@ -30,7 +30,10 @@ function Routes() {
         path="/payment"
         element={isMobile ? <PaymentMobile /> : <Payment />}
       />
-      <Route path="/payment/confirmed" element={<Confirmed />} />
+      <Route
+        path="/payment/confirmed"
+        element={userInfo.walletAddress ? <Confirmed /> : <Home />}
+      />
       <Route path="/donation/alertbox/:uuid" element={<Message />} />
       <Route path="/test/alertbox" element={<MessageTest />} />
 
@@ -71,8 +74,22 @@ function Routes() {
           userInfo.walletAddress ? <SNVWorld /> : <Navigate replace to="/" />
         }
       >
-        <Route path="" element={<CandyMachineHome />} />
-        <Route path="other" element={<Other />} />
+        <Route
+          path=""
+          element={
+            userInfo.walletAddress ? (
+              <CandyMachineHome />
+            ) : (
+              <Navigate replace to="/" />
+            )
+          }
+        />
+        <Route
+          path="other"
+          element={
+            userInfo.walletAddress ? <Other /> : <Navigate replace to="/" />
+          }
+        />
       </Route>
       <Route
         path="/service-center"
