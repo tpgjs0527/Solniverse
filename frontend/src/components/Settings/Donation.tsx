@@ -163,7 +163,7 @@ function SetDonation() {
             )}
           </AlarmUrlBox>
           <TestBox
-            onClick={() => window.open(`http://localhost:3000/test/alertbox`)}
+            onClick={() => window.open(`https://solniverse.net/test/alertbox`)}
           >
             알림 테스트
           </TestBox>
