@@ -200,8 +200,20 @@ function Donation() {
       }
     }
   };
+  const getAsyncCreatorInfo = async () => {
+    const creatorInfo = await getCreatorInfo(walletAddress!);
+    const displayName = walletAddress?.slice(0, 10);
+    if (!creatorInfo.user.twitch) {
+      setCreatorName(displayName);
+      setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
+    } else {
+      setCreatorName(creatorInfo.user.twitch.displayName);
+      setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
+    }
+  };
 
   useEffect(() => {
+    getAsyncCreatorInfo();
     if (!userInfo.walletAddress) {
       Swal.fire({
         title: "첫 방문이신가요?",
@@ -220,20 +232,7 @@ function Donation() {
       });
       return;
     }
-    const getAsyncCreatorInfo = async () => {
-      const creatorInfo = await getCreatorInfo(walletAddress!);
-      const displayName = walletAddress?.slice(0, 10);
-      if (!creatorInfo.user.twitch) {
-        setCreatorName(displayName);
-        setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
-      } else {
-        setCreatorName(creatorInfo.user.twitch.displayName);
-        setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
-      }
-    };
-
-    getAsyncCreatorInfo();
-  }, [creatorName, creatorImgUrl]);
+  }, []);
 
   useEffect(() => {
     const getAsyncSol = async () => {
