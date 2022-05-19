@@ -7,7 +7,6 @@ import styled, { keyframes } from "styled-components";
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [, connectWallet] = useWallet();
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
@@ -113,8 +112,6 @@ const Hand = styled.div`
   @media screen and (max-width: 1000px) {
     display: none;
   }
-  /* @media screen and (min-width: 1001px) and (max-width: 1599px) {
-  } */
   @media screen and (min-width: 1600px) {
     height: 550px;
     background-image: url("큰1.png");
@@ -201,7 +198,7 @@ const Container = styled.div`
   animation: ${anim4} 1.5s forwards 0.5s;
 `;
 
-export const Logo = styled.image`
+export const Logo = styled.div`
   float: left;
 
   margin-left: 40px;
@@ -256,7 +253,7 @@ const WalletMultiBtn = styled.span`
   position: relative;
   padding: 12px 42px;
   border-radius: 12px;
-  border-color: #696868;
+  border-color: #67676b;
   font-size: 1.25rem;
   font-weight: 800;
   color: white;
@@ -297,7 +294,7 @@ const Pushable = styled.button`
     width: 100%;
     height: 100%;
     border-radius: 12px;
-    background: ${(props) => "#283250"};
+    background: ${(props) => "#5496fa"};
   }
   &:hover {
     filter: brightness(110%);
