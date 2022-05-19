@@ -200,22 +200,39 @@ function Donation() {
       }
     }
   };
+  const getAsyncCreatorInfo = async () => {
+    const creatorInfo = await getCreatorInfo(walletAddress!);
+    const displayName = walletAddress?.slice(0, 10);
+    if (!creatorInfo.user.twitch) {
+      setCreatorName(displayName);
+      setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
+    } else {
+      setCreatorName(creatorInfo.user.twitch.displayName);
+      setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
+    }
+  };
 
   useEffect(() => {
-    const getAsyncCreatorInfo = async () => {
-      const creatorInfo = await getCreatorInfo(walletAddress!);
-      const displayName = walletAddress?.slice(0, 10);
-      if (!creatorInfo.user.twitch) {
-        setCreatorName(displayName);
-        setCreatorImgUrl(`${process.env.PUBLIC_URL}/images/유저.png`);
-      } else {
-        setCreatorName(creatorInfo.user.twitch.displayName);
-        setCreatorImgUrl(creatorInfo.user.twitch.profileImageUrl);
-      }
-    };
-
     getAsyncCreatorInfo();
-  }, [creatorName, creatorImgUrl]);
+    if (!userInfo.walletAddress) {
+      Swal.fire({
+        title: "첫 방문이신가요?",
+        text: "서비스 이용 가이드를 확인하시겠습니까?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "확인",
+        cancelButtonText: "취소",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/service");
+          return;
+        }
+      });
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     const getAsyncSol = async () => {
