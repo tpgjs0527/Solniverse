@@ -16,7 +16,6 @@
   "dependencies": {
     "@solana/spl-token": "^0.2.0",
     "@solana/web3.js": "^1.41.3",
-    "aws-sdk": "^2.1028.0",
     "axios": "^0.26.1",
     "bs58": "^5.0.0",
     "connect-mongo": "^4.6.0",
