@@ -13,6 +13,7 @@ import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
 import Other from "pages/nft/Other";
 import CandyMachineHome from "pages/candyMachine/CandyMachineHome";
 import { PublicKey } from "@solana/web3.js";
+import BN from "bn.js";
 
 function SNVWorld() {
   const userInfo = useRecoilValue(userInfoAtom);
@@ -56,30 +57,36 @@ function SNVWorld() {
   //   }
   // };
   const getAsyncToken = async () => {
-    const snvAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
-    );
-    const snvResponse = await connection.getTokenAccountBalance(
-      new PublicKey(snvAddress)
-    );
-    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
-    if (snvResponse) {
-      setSNVBalance(snvAmount);
-      setIsLoadingGetBalance(false);
-    }
-    const usdcAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-    );
-    const usdcResponse = await connection.getTokenAccountBalance(
-      new PublicKey(usdcAddress)
-    );
-    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
-    if (usdcResponse) {
-      setUSDCBalance(usdcAmount);
-      setIsLoadingGetBalance(false);
-    }
+    try {
+      const snvAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+      );
+      const snvResponse = await connection.getTokenAccountBalance(
+        new PublicKey(snvAddress)
+      );
+      const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+      if (snvResponse) {
+        setSNVBalance(snvAmount);
+        setIsLoadingGetBalance(false);
+      }
+    } catch (err) {}
+    try {
+      const usdcAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+      );
+      const usdcResponse = await connection.getTokenAccountBalance(
+        new PublicKey(usdcAddress)
+      );
+      const usdcAmount =
+        Number(usdcResponse?.value?.amount) /
+        10 ** usdcResponse?.value.decimals;
+      if (usdcResponse) {
+        setUSDCBalance(usdcAmount);
+        setIsLoadingGetBalance(false);
+      }
+    } catch (err) {}
   };
 
   useEffect(() => {

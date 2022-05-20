@@ -90,6 +90,7 @@ const CoreWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
   @media screen and (max-width: 700px) {
+    padding-bottom: 13px;
     height: 100%;
   }
 `;

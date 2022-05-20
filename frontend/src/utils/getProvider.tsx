@@ -1,5 +1,4 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { isMobile } from "react-device-detect";
 import { checkMobile } from "./checkMobile";
 import Swal from "sweetalert2";
 
@@ -50,17 +49,4 @@ export const getProvider = (): PhantomProvider | undefined => {
       }
     } catch {}
   }
-
-  // const confirmation = window.confirm("Phantom wallet 앱을 설치하시겠습니까?");
-  // if (isMobile && confirmation) {
-  //   if (UA === "ios") {
-  //     window.location.href =
-  //       "https://apps.apple.com/kr/app/phantom-solana-wallet/id1598432977";
-  //   } else if (UA === "android") {
-  //     window.location.href =
-  //       "https://play.google.com/store/apps/details?id=app.phantom";
-  //   }
-  // } else if (!isMobile) {
-  //   window.open("https://phantom.app/", "_blank");
-  // }
 };

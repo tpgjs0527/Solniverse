@@ -5,14 +5,10 @@ import useMutation from "hooks/useMutation";
 import { useRecoilState } from "recoil";
 import { accessTokenAtom, userInfoAtom } from "atoms";
 import Spinner from "components/Spinner";
-import {
-  createConnection,
-  findAssociatedTokenAddress,
-  getBalance,
-  getSolanaPrice,
-} from "utils/solanaWeb3";
+import { getBalance, getSolanaPrice, getTokenBalance } from "utils/solanaWeb3";
 import useToken from "hooks/useToken";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { ReactComponent as Sol } from "../../../public/images/svg/sol.svg";
+import { ReactComponent as Usdc } from "../../../public/images/svg/usdc.svg";
 
 export interface IUser {
   result: string;
@@ -26,12 +22,10 @@ function Account() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
-  const [balance, setBalance] = useState({
-    usd: 0.0,
-    sol: 0,
-  });
-  const [snvBalance, setSNVBalance] = useState(0);
-  const [usdcBalance, setUSDCBalance] = useState(0);
+  const [balance, setBalance] = useState(0.0);
+  const [solBalance, setSolBalance] = useState(0);
+  const [usdcBalance, setUsdcBalance] = useState(0);
+  const [snvBalance, setSnvBalance] = useState(0);
   const [isLoadingGetSol, setIsLoadingGetSol] = useState(true);
 
   // query string
@@ -39,25 +33,38 @@ function Account() {
   const platform = searchParams.get("platform");
   const code = searchParams.get("code");
   const [, , checkToken] = useToken();
-  const connection = createConnection();
 
   // 페이지 들어오면 지갑 잔액 함수 실행
   useEffect(() => {
-    const getAsyncSol = async () => {
+    const getAsyncAccountBalance = async () => {
       const sol = await getBalance(userInfo.walletAddress);
       const usdPrice = await getSolanaPrice();
+      const usdc = await getTokenBalance(
+        userInfo.walletAddress,
+        `${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`
+      );
+
+      const snv = await getTokenBalance(
+        userInfo.walletAddress,
+        `${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`
+      );
 
       if (sol) {
-        setBalance({
-          sol,
-          usd: Number((sol * usdPrice).toFixed(2)),
-        });
-        setIsLoadingGetSol(false);
-      } else {
-        setIsLoadingGetSol(false);
+        setSolBalance(sol);
+        setBalance(Number((sol * usdPrice).toFixed(2)));
       }
+      if (usdc) {
+        setUsdcBalance(usdc);
+        if (sol) setBalance(Number((sol * usdPrice + usdc).toFixed(2)));
+        else setBalance(Number((balance + usdc).toFixed(2)));
+      }
+      if (snv) {
+        setSnvBalance(snv);
+      }
+
+      setIsLoadingGetSol(false);
     };
-    getAsyncSol();
+    getAsyncAccountBalance();
   }, []);
 
   // 연동 버튼 클릭 시 Token 유효한지 확인 후 code 받으러
@@ -75,6 +82,7 @@ function Account() {
         document.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_REDIRECT_URI}?platform=twitch&scope=`;
       }
     } else {
+      // 토큰 없는 경우
     }
   };
 
@@ -83,30 +91,6 @@ function Account() {
     `${process.env.REACT_APP_BASE_URL}/auth/oauth`,
     accessToken
   );
-  const getAsyncToken = async () => {
-    const snvAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
-    );
-    const snvResponse = await connection.getTokenAccountBalance(
-      new PublicKey(snvAddress)
-    );
-    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
-    if (snvResponse) {
-      setSNVBalance(snvAmount);
-    }
-    const usdcAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-    );
-    const usdcResponse = await connection.getTokenAccountBalance(
-      new PublicKey(usdcAddress)
-    );
-    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
-    if (usdcResponse) {
-      setUSDCBalance(usdcAmount);
-    }
-  };
 
   // code 변경 시 실행
   useEffect(() => {
@@ -146,10 +130,31 @@ function Account() {
                   <Spinner />
                 </SpinnerDiv>
               ) : (
-                <>
-                  <BalanceUSD>{`$ ${balance.usd}`}</BalanceUSD>
-                  <BalanceSol>{`${balance.sol}`} SOL</BalanceSol>{" "}
-                </>
+                <Balance>
+                  <BalanceUSD>{`$ ${balance}`}</BalanceUSD>
+
+                  <Type>
+                    <Logo>
+                      <Sol />
+                    </Logo>
+                    <BalanceToken>{`${solBalance}`}</BalanceToken>
+                    <Unit>SOL</Unit>
+                  </Type>
+                  <Type>
+                    <Logo>
+                      <Usdc />
+                    </Logo>
+                    <BalanceToken>{`${usdcBalance}`}</BalanceToken>
+                    <Unit>USDC</Unit>
+                  </Type>
+                  <Type>
+                    <LogoImg
+                      src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`}
+                    />
+                    <BalanceToken>{`${snvBalance}`}</BalanceToken>
+                    <Unit>SNV</Unit>
+                  </Type>
+                </Balance>
               )}
             </div>
             <Address>{userInfo.walletAddress}</Address>
@@ -315,35 +320,67 @@ const Oauth1 = styled.div`
 `;
 
 const Address = styled.p`
-  color: whitesmoke;
+  color: #7f8fa6;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: -0.03em;
   word-break: break-all;
+  margin-top: 5px;
 
   @media screen and (min-width: 767px) {
     font-size: 16px;
   }
 `;
 
-const BalanceSol = styled.p`
+const Unit = styled.span`
   color: whitesmoke;
-  font-size: 19px;
+  margin-left: auto;
+`;
+
+const BalanceToken = styled.span`
+  color: whitesmoke;
+  font-size: 14px;
   font-weight: 500;
 
   @media screen and (min-width: 767px) {
-    font-size: 23px;
+    font-size: 16px;
   }
+`;
+
+const LogoImg = styled.img`
+  display: flex;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+`;
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+`;
+
+const Type = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const BalanceUSD = styled.p`
   color: whitesmoke;
   font-size: 28px;
   font-weight: 500;
+  margin-bottom: 5px;
 
   @media screen and (min-width: 767px) {
     font-size: 32px;
   }
+`;
+
+const Balance = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const Card = styled.div`
@@ -356,7 +393,7 @@ const Card = styled.div`
   box-shadow: 4px 12px 15px 6px rgb(0 0 0 / 9%);
   height: 200px;
   border-radius: 30px;
-  padding: 40px 30px;
+  padding: 30px;
 `;
 
 const BoxTitle = styled.p`

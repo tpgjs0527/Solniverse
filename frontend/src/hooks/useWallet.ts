@@ -13,8 +13,6 @@ function useWallet() {
 
     if (provider) {
       const response = await provider.connect();
-      // console.log(response);
-
       try {
         const res = await fetchWallet(response.publicKey.toString());
         if (res.status >= 200 && res.status < 400) {
@@ -25,19 +23,17 @@ function useWallet() {
           throw error;
         }
       } catch (error) {
-        // console.log(error);
         const res = await fetchWallet(response.publicKey.toString(), "POST");
         if (res.status >= 200 && res.status < 400) {
           const data = await res.json();
-          // console.log(data);
           return data;
         } else {
           const error = new Error(res.statusText);
           console.log(error);
           Swal.fire({
             icon: "error",
-            title: "지갑 발견 실패",
-            text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
+            title: "지갑 연결 실패",
+            text: "올바르지 않은 요청이 진행됐습니다.",
             footer: '<a href="/service">서비스 안내 바로가기</a>',
           });
         }
@@ -46,7 +42,7 @@ function useWallet() {
       Swal.fire({
         icon: "error",
         title: "지갑 발견 실패",
-        text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
+        text: "지갑이 연결되지 않았습니다. 새로고침 혹은 팬텀 월렛을 확인해주세요 😊",
         footer: '<a href="/service">서비스 안내 바로가기</a>',
       });
     }
