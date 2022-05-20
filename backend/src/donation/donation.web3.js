@@ -31,7 +31,7 @@ var fromTokenAccount;
 })();
 const SOL_DECIMAL = 10 ** 9;
 
-var usdPerSol;
+var usdPerSol = 51.4;
 
 /**
  * 단위 Sol당 Usd가격을 받아 usdPerSol를 업데이트 하는 함수
@@ -39,15 +39,13 @@ var usdPerSol;
 async function getUsdPerSol() {
   try {
     const {
-      data: {
-        solana: { usd },
-      },
+      data: { price: usd },
     } = await axios({
-      url: "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
+      url: "https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDC",
       method: "get",
       headers: { Accept: "application/json" },
     });
-    usdPerSol = usd;
+    usdPerSol = Number(usd);
   } catch (err) {
     logger.error("getUsdPerSol: error=Axios가 제대로 응답하지 않음.");
   }
