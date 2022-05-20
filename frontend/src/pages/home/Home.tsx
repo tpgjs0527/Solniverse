@@ -89,12 +89,12 @@ const anim = keyframes`
 `;
 const anim2 = keyframes`
   from {
-        left: 30%;
+        left: 40%;
         width: 530px;
       }
       to {
         width: 0px;
-        left: 50%;
+        left: 60%;
       }
 `;
 
@@ -112,17 +112,17 @@ const Hand = styled.div`
   width: 700px;
   height: 500px;
 
-  background-image: url("1.png");
+  background-image: url("/images/1.png");
   position: absolute;
   bottom: -100%;
-  left: 30%;
+  left: 40%;
   animation: ${anim} 1.3s forwards, ${anim2} 2s forwards 1.2s;
   @media screen and (max-width: 1000px) {
     display: none;
   }
   @media screen and (min-width: 1600px) {
     height: 750px;
-    background-image: url("큰1.png");
+    background-image: url("/images/큰1.png");
     width: 600px;
   }
   &:after {
@@ -130,12 +130,12 @@ const Hand = styled.div`
     position: absolute;
     width: 700px;
     height: 600px;
-    background-image: url("2.png");
+    background-image: url("/images/2.png");
     left: 0px;
     z-index: -1;
     @media screen and (min-width: 1600px) {
       height: 750px;
-      background-image: url("큰2.png");
+      background-image: url("/images/큰2.png");
       width: 600px;
     }
   }

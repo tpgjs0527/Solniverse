@@ -31,7 +31,7 @@ function useToken() {
         phantom = await (
           await provider.connect({ onlyIfTrusted: true })
         ).publicKey.toString();
-        console.log(phantom);
+        // console.log(phantom);
         // 지갑 연결 끊겨있으면 수동으로 연결하기
       } catch (error) {
         phantom = await (await provider.connect()).publicKey.toString();
