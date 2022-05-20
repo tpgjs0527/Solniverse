@@ -43,20 +43,20 @@ function Account() {
         userInfo.walletAddress,
         `${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`
       );
+
       const snv = await getTokenBalance(
         userInfo.walletAddress,
         `${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`
       );
 
       if (sol) {
-        if (usdc) {
-          setSolBalance(sol);
-          setUsdcBalance(usdc);
-          setBalance(Number((sol * usdPrice + usdc).toFixed(2)));
-        } else {
-          setSolBalance(sol);
-          setBalance(Number((sol * usdPrice).toFixed(2)));
-        }
+        setSolBalance(sol);
+        setBalance(Number((sol * usdPrice).toFixed(2)));
+      }
+      if (usdc) {
+        setUsdcBalance(usdc);
+        if (sol) setBalance(Number((sol * usdPrice + usdc).toFixed(2)));
+        else setBalance(Number((balance + usdc).toFixed(2)));
       }
       if (snv) {
         setSnvBalance(snv);
