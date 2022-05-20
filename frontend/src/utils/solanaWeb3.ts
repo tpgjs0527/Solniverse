@@ -77,7 +77,6 @@ const getTokenBalance = async (publicKey: string, splToken: string) => {
     const balance = await connection.getTokenAccountBalance(
       createPublicKey(account.toString())
     );
-    // return balance;
     return Number(balance.value.amount) / 1000000;
   } catch (e) {
     return 0;
