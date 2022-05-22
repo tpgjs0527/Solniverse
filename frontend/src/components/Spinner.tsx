@@ -1,7 +1,11 @@
 import styled, { keyframes } from "styled-components";
 
-export default function Spinner() {
-  return <SpinnerSt />;
+interface IProps {
+  isBalance?: boolean;
+}
+
+export default function Spinner({ isBalance }: IProps) {
+  return <SpinnerSt isBalance={isBalance} />;
 }
 
 const spin = keyframes`
@@ -13,11 +17,17 @@ const spin = keyframes`
   }
 `;
 
-const SpinnerSt = styled.div`
-  border: 4px solid ${(props) => props.theme.subBoxColor};
-  border-top: 4px solid ${(props) => props.theme.ownColor};
+const SpinnerSt = styled.div<{ isBalance?: boolean }>`
+  border: ${(props) =>
+    props.isBalance
+      ? `2px solid ${props.theme.subBoxColor}`
+      : `4px solid ${props.theme.subBoxColor}`};
+  border-top: ${(props) =>
+    props.isBalance
+      ? `2px solid ${props.theme.ownColor}`
+      : `4px solid ${props.theme.ownColor}`};
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: ${(props) => (props.isBalance ? "15px" : "30px")};
+  height: ${(props) => (props.isBalance ? "15px" : "30px")};
   animation: ${spin} 1s linear infinite;
 `;

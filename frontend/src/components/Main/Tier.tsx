@@ -1,3 +1,4 @@
+import Spinner from "components/Spinner";
 import { useState } from "react";
 import styled from "styled-components";
 import { ColRef } from "./Dashboard";
@@ -8,9 +9,10 @@ interface IProps {
   index?: number;
   dashboard?: boolean;
   ranking?: boolean;
+  isLoading?: boolean;
 }
 
-function Tier({ tier, index, dashboard, ranking }: IProps) {
+function Tier({ tier, index, dashboard, ranking, isLoading }: IProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -57,7 +59,7 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
             </svg>
           </IconHighTier>
         ) : (
-          <IconHighTier>
+          <IconHighTier ranking={ranking}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -78,7 +80,13 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
         )}
         {dashboard ? (
           <>
-            <ColContent>{tier}</ColContent>
+            {isLoading ? (
+              <SpinnerDiv>
+                <Spinner />
+              </SpinnerDiv>
+            ) : (
+              <ColContent>{tier}</ColContent>
+            )}
             <ColRef onClick={() => setIsModalOpen(true)}>등급표</ColRef>
           </>
         ) : ranking ? (
@@ -98,6 +106,13 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
     </>
   );
 }
+
+const SpinnerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+`;
 
 const IconHighTier = styled.div<{ ranking?: boolean }>`
   margin: ${(props) => (props.ranking ? "0" : "14px 0")};

@@ -58,7 +58,9 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
       <SubBox>
         {data?.previousList?.map((el, index) => (
           <Element key={index}>
-            <RankingSize>{data.ranking - 5 + index}</RankingSize>
+            <RankingSize>
+              {data.ranking - data?.previousList?.length + index}
+            </RankingSize>
             <Tier
               tier={el.receiveRank ? el.receiveRank : el.sendRank}
               ranking
@@ -69,7 +71,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
                 : el.user.walletAddress}
             </Name>
             <Amount>
-              ${" "}
+              $
               {el?.receiveTotal
                 ? el?.receiveTotal.toFixed(2)
                 : el?.sendTotal
@@ -95,7 +97,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
                 : userInfo?.walletAddress}
             </Name>
             <Amount>
-              ${" "}
+              $
               {data?.receiveTotal
                 ? data?.receiveTotal.toFixed(2)
                 : data?.sendTotal
@@ -118,7 +120,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
                 : el.user.walletAddress}
             </Name>
             <Amount>
-              ${" "}
+              $
               {el?.receiveTotal
                 ? el?.receiveTotal.toFixed(2)
                 : el?.sendTotal
@@ -137,17 +139,17 @@ const Empty = styled.span`
 `;
 
 const Amount = styled.span`
-  width: 50px;
+  width: 60px;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
 
   @media screen and (min-width: 600px) {
-    width: 60px;
+    width: 100px;
   }
 
   @media screen and (min-width: 900px) {
-    width: 100px;
+    width: 120px;
   }
 `;
 
