@@ -5,4 +5,11 @@ const connection = new web3.Connection(
   "confirmed",
 );
 
-module.exports = { web3, connection };
+const getNewConnection = () => {
+  return new web3.Connection(
+    web3.clusterApiUrl(process.env.SOLANA_NET),
+    "confirmed",
+  );
+};
+
+module.exports = { web3, connection, getNewConnection };

@@ -1,5 +1,9 @@
 const logger = require("../../config/logger");
-const { web3, connection } = require("../../config/web3.connection");
+let {
+  web3,
+  connection,
+  getNewConnection,
+} = require("../../config/web3.connection");
 const DonationRepository = require("./donation.repository");
 const donationRepository = new DonationRepository();
 const UserRepository = require("../auth/user.repository");
@@ -642,6 +646,9 @@ const setLogs = () =>
   recoverTransaction().then(async () => {
     connection.removeOnLogsListener(onLogsConfirmId);
     connection.removeOnLogsListener(onLogsFinalId);
+
+    connection = getNewConnection();
+
     onLogsConfirmId = connection.onLogs(
       new web3.PublicKey(shopWalletaddress),
       logCallback,
