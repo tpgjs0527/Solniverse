@@ -204,48 +204,51 @@ function SendDonationHistory() {
             {data?.transaction && data?.transaction?.length > 0 ? (
               <Table>
                 <ul>
-                  {data?.transaction?.map((el) => (
-                    <Element key={el.block}>
-                      <Top>
-                        {el.receiveUserId.twitch ? (
-                          <TwitchId
+                  {data?.transaction
+                    ?.slice(0)
+                    .reverse()
+                    .map((el) => (
+                      <Element key={el.block}>
+                        <Top>
+                          {el.receiveUserId.twitch ? (
+                            <TwitchId
+                              onClick={() =>
+                                window.open(
+                                  `https://www.twitch.tv/${el.receiveUserId.twitch?.displayName}`
+                                )
+                              }
+                            >
+                              {el.receiveUserId.twitch.displayName}
+                            </TwitchId>
+                          ) : (
+                            <span>{el.receiveUserId.walletAddress}</span>
+                          )}
+                        </Top>
+                        <Mid>
+                          {/* UTC -> 한국 시간 */}
+                          <Time>{new Date(el.blockTime).toLocaleString()}</Time>
+                          <span>
+                            {el.paymentType === "sol"
+                              ? el.amount / LAMPORTS_PER_SOL + " SOL"
+                              : el.amount / 1000000 + " USDC"}
+                          </span>
+                        </Mid>
+                        <div>
+                          <Message>{`"${el.message}"`}</Message>
+                        </div>
+                        <Bot>
+                          <Tx
                             onClick={() =>
                               window.open(
-                                `https://www.twitch.tv/${el.receiveUserId.twitch?.displayName}`
+                                `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
                               )
                             }
                           >
-                            {el.receiveUserId.twitch.displayName}
-                          </TwitchId>
-                        ) : (
-                          <span>{el.receiveUserId.walletAddress}</span>
-                        )}
-                      </Top>
-                      <Mid>
-                        {/* UTC -> 한국 시간 */}
-                        <Time>{new Date(el.blockTime).toLocaleString()}</Time>
-                        <span>
-                          {el.paymentType === "sol"
-                            ? el.amount / LAMPORTS_PER_SOL + " SOL"
-                            : el.amount / 1000000 + " USDC"}
-                        </span>
-                      </Mid>
-                      <div>
-                        <Message>{`"${el.message}"`}</Message>
-                      </div>
-                      <Bot>
-                        <Tx
-                          onClick={() =>
-                            window.open(
-                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
-                            )
-                          }
-                        >
-                          Transaction details
-                        </Tx>
-                      </Bot>
-                    </Element>
-                  ))}
+                            Transaction details
+                          </Tx>
+                        </Bot>
+                      </Element>
+                    ))}
                 </ul>
               </Table>
             ) : (

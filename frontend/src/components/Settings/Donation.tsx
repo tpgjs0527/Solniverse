@@ -224,7 +224,11 @@ const Extra = styled.div`
 const ExtraDiv = styled.div`
   display: flex;
   gap: 2px;
-  font-size: 14px;
+  font-size: 12px;
+
+  @media screen and (min-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const SpinnerDiv = styled.div`
