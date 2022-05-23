@@ -300,7 +300,7 @@ function getSenderReceiverPublicKey(
     paymentType = getSymbolByTokenAddress(postTokenBalances.at(0).mint);
     decimal = 10 ** postTokenBalances.at(0).uiTokenAmount.decimals;
   } else {
-    if (preBalances.at(1) - postBalances.at(0) == fee) {
+    if (preBalances.at(0) - postBalances.at(0) == fee) {
       amount = 0;
       receiveWallet = accountKeys[0];
     } else amount = postBalances.at(1) - preBalances.at(1);
