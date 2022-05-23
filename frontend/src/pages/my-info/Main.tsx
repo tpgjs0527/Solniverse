@@ -61,7 +61,7 @@ function Main() {
   const {
     isLoading: sendIsLoading,
     data: sendData,
-    error: sendError,
+    // error: sendError,
   } = useQuery<ISendResponse>(
     ["send", userInfo.walletAddress],
     () => fetchSendDashboard(userInfo.walletAddress!)
@@ -74,7 +74,7 @@ function Main() {
   const {
     isLoading: receiveIsLoading,
     data: receiveData,
-    error: receiveError,
+    // error: receiveError,
   } = useQuery<IReceiveResponse>(
     ["receive", userInfo.walletAddress],
     () => fetchReceiveDashboard(userInfo.walletAddress!)
