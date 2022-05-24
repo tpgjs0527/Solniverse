@@ -3,10 +3,11 @@ import { userInfoAtom } from "atoms";
 import Swal from "sweetalert2";
 import { getProvider } from "../utils/getProvider";
 import { fetchWallet } from "utils/fetcher";
+import { useTranslation } from "react-i18next";
 
 function useWallet() {
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
-
+  const { t } = useTranslation();
   // phantom wallet extension 가져오기
   const getWallet = async () => {
     const provider = getProvider();
@@ -32,18 +33,18 @@ function useWallet() {
           console.log(error);
           Swal.fire({
             icon: "error",
-            title: "지갑 연결 실패",
-            text: "올바르지 않은 요청이 진행됐습니다.",
-            footer: '<a href="/service">서비스 안내 바로가기</a>',
+            title: t("not-connected"),
+            text: t("not-connected-alert"),
+            footer: t("go-service-guide"),
           });
         }
       }
     } else {
       Swal.fire({
         icon: "error",
-        title: "지갑 발견 실패",
-        text: "지갑이 연결되지 않았습니다. 새로고침 혹은 팬텀 월렛을 확인해주세요 😊",
-        footer: '<a href="/service">서비스 안내 바로가기</a>',
+        title: t("no-wallet"),
+        html: t("no-wallet-alert"),
+        footer: t("go-service-guide"),
       });
     }
   };
@@ -72,9 +73,9 @@ function useWallet() {
     } else {
       return Swal.fire({
         icon: "error",
-        title: "Connect issue!",
-        text: "  The wallet is not found.  Please check the wallet program!",
-        footer: '<a href="/service">서비스 안내 바로가기</a>',
+        title: t("no-wallet"),
+        html: t("no-wallet-alert"),
+        footer: t("go-service-guide"),
       });
     }
   };

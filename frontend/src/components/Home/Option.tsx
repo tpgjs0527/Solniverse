@@ -1,9 +1,11 @@
 import { Logo, Menu } from "pages/home/Home";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 export const Option = () => {
+  const { t } = useTranslation();
   const [top, setTop] = useState(true);
 
   useEffect(() => {
@@ -24,20 +26,20 @@ export const Option = () => {
       <Menu>
         <ul>
           <li>
-            <Link to={"/"}>홈</Link>
+            <Link to={"/"}>{t("home")}</Link>
           </li>
 
           <li>
-            <a href="#coreFeatures">차별점</a>
+            <a href="#coreFeatures">{t("distinction")}</a>
           </li>
           <li>
-            <a href="#donationIntro">후원 방식</a>
+            <a href="#donationIntro">{t("donation-way")}</a>
           </li>
           <li>
-            <a href="#alertBoxSetting">알림창 설정</a>
+            <a href="#alertBoxSetting">{t("alert-setting")}</a>
           </li>
           <li>
-            <a href="#sideFeatures">오락 요소</a>
+            <a href="#sideFeatures">{t("gamification")}</a>
           </li>
         </ul>
       </Menu>

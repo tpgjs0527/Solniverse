@@ -1,9 +1,11 @@
 import { Howl } from "howler";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { Money, Name, Test } from "./Message";
 
 export const MessageTest = () => {
+  const { t } = useTranslation();
   const [start, setStart] = useState(true);
   const [visible, setVisible] = useState(false);
   const sound = {
@@ -15,7 +17,7 @@ export const MessageTest = () => {
     if (start) {
       let context = new AudioContext();
 
-      context.resume().then(async () => await sound.donation.play());
+      context.resume().then(() => sound.donation.play());
 
       setVisible(true);
       sound.donation.play();
@@ -34,14 +36,17 @@ export const MessageTest = () => {
       {start ? (
         <Test visible={visible}>
           <div>
-            <Name>SSAFY 6기</Name>님<Money>66666</Money>SOL 감사합니다!
+            <Name>{t("SSAFY-6th")}</Name>
+            {t("mrs")}
+            <Money>66666</Money>
+            {t("thank-you")}
           </div>
-          <div> 기업연계반 사랑해요!</div>
+          <div> {t("message")}</div>
         </Test>
       ) : null}
       <BtnWrapper>
-        <Btn onClick={() => setStart(false)}>테스트 중지</Btn>
-        <Btn onClick={() => setStart(true)}>테스트 시작</Btn>
+        <Btn onClick={() => setStart(false)}>{t("test-stop")}</Btn>
+        <Btn onClick={() => setStart(true)}>{t("test-start")}</Btn>
       </BtnWrapper>
     </div>
   );

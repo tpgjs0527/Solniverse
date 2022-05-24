@@ -19,7 +19,7 @@ export const useSocket = (
   }
   if (!sockets[uuid]) {
     sockets[uuid] = io.connect(`${URL}?userKey=${uuid}`, {
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
     });
     // console.info("create Socket", uuid, sockets[uuid]);
   }
