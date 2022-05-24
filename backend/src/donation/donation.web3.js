@@ -529,7 +529,7 @@ async function logCallback(context) {
   try {
     /** finalized가 일정 시간이 되어도 오지 않는 경우, 20초 후에 동작 */
     const checkTimeout = setTimeout(async () => {
-      console.log("타임아웃 동작");
+      logger.info("logCallback: message=타임아웃 동작");
       delete confirmTransactions[context.signature];
 
       let count = 0; // 13번 동작하고 강제 중지
@@ -642,39 +642,61 @@ async function recoverTransaction() {
 
 let onLogsConfirmId = 0;
 let onLogsFinalId = 0;
-const setLogs = () =>
-  recoverTransaction().then(async () => {
-    connection.removeOnLogsListener(onLogsConfirmId);
-    connection.removeOnLogsListener(onLogsFinalId);
 
-    connection = getNewConnection();
+const WEB_RPC_OPEN = "solana webrpc opened";
+const WEB_RPC_ERROR = "solana webrpc error";
 
-    onLogsConfirmId = connection.onLogs(
-      new web3.PublicKey(shopWalletaddress),
-      logCallback,
-      "confirmed",
-    );
-    onLogsFinalId = connection.onLogs(
-      new web3.PublicKey(shopWalletaddress),
-      finalizeCallback,
-      "finalized",
-    );
-  }); //서버 부팅시 동작
+let asyncFlag = true;
+
+const clearConnection = async () => {
+  // 메모리 누수 방지용 참조 제거
+  if (connection._rpcWebSocketConnected) {
+    await Promise.all([
+      connection.removeOnLogsListener(onLogsConfirmId),
+      connection.removeOnLogsListener(onLogsFinalId),
+    ]); //자동으로 모든 listner가 삭제됐을 경우 socket의 close()도 실행됨.
+  }
+};
+const setLogs = async () => {
+  if (asyncFlag) {
+    asyncFlag = false;
+    recoverTransaction()
+      .then(async () => {
+        await clearConnection();
+        connection = getNewConnection();
+
+        onLogsConfirmId = connection.onLogs(
+          new web3.PublicKey(shopWalletaddress),
+          logCallback,
+          "confirmed",
+        );
+        onLogsFinalId = connection.onLogs(
+          new web3.PublicKey(shopWalletaddress),
+          finalizeCallback,
+          "finalized",
+        );
+
+        connection._rpcWebSocket.once("open", () => {
+          console.log(connection._rpcWebSocket);
+          logger.info(WEB_RPC_OPEN);
+          try {
+            connection._rpcWebSocket.notify("ping").catch(() => {
+              logger.info(`${WEB_RPC_ERROR}: ping error`);
+              setLogs();
+            });
+          } catch (err) {
+            logger.error(WEB_RPC_ERROR);
+          }
+        });
+
+        connection._rpcWebSocket.once("error", () => {
+          logger.error(WEB_RPC_ERROR);
+          setLogs();
+        });
+      })
+      .finally(() => (asyncFlag = true));
+  }
+}; //서버 부팅시 동작
 
 setLogs();
 setInterval(setLogs, 1000 * 60 * 60); //1시간에 한 번씩 재 설정
-
-const WEB_RPC_OPEN = "solana webrpc opend";
-const WEB_RPC_ERROR = "solana webrpc error";
-const WEB_RPC_CLOSE = "solana webrpc closed";
-
-connection._rpcWebSocket.on("open", () => {
-  logger.info(WEB_RPC_OPEN);
-});
-connection._rpcWebSocket.on("close", () => {
-  logger.info(WEB_RPC_CLOSE);
-});
-connection._rpcWebSocket.on("error", (err) => {
-  const { error: error } = err;
-  logger.error(`${WEB_RPC_ERROR}: error=${error}`);
-});
