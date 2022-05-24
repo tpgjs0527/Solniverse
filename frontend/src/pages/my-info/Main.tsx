@@ -1,6 +1,7 @@
 import { userInfoAtom } from "atoms";
 import Layout from "components/Layout";
 import Dashboard from "components/Main/Dashboard";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
@@ -55,6 +56,7 @@ interface IReceiveResponse {
 }
 
 function Main() {
+  const { t } = useTranslation();
   const userInfo = useRecoilValue(userInfoAtom);
 
   // [BE] 후원한 내역 통계
@@ -85,7 +87,7 @@ function Main() {
 
   return (
     <Layout>
-      <Title>대시보드</Title>
+      <Title>{t("dashboard")}</Title>
       <Section>
         <BoxWrapper>
           <Dashboard

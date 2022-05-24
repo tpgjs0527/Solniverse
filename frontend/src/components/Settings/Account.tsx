@@ -10,6 +10,7 @@ import useToken from "hooks/useToken";
 import { ReactComponent as Sol } from "../../../public/images/svg/sol.svg";
 import { ReactComponent as Usdc } from "../../../public/images/svg/usdc.svg";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface IUser {
   result: string;
@@ -22,6 +23,7 @@ export interface IUser {
 
 function Account() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [balance, setBalance] = useState(0.0);
@@ -153,7 +155,7 @@ function Account() {
     <Section>
       <BoxWrapper>
         <Box>
-          <BoxTitle>지갑</BoxTitle>
+          <BoxTitle>{t("wallet")}</BoxTitle>
           <Card>
             <Balance>
               <TotalDiv>
@@ -205,7 +207,7 @@ function Account() {
       </BoxWrapper>
       <BoxWrapper>
         <Box>
-          <BoxTitle>연결</BoxTitle>
+          <BoxTitle>{t("connect")}</BoxTitle>
           <Oauth1>
             <OauthImg
               viewBox="0 0 48 48"
@@ -243,7 +245,7 @@ function Account() {
                     <Extra
                       onClick={() => {
                         Swal.fire({
-                          title: "재연결",
+                          title: `${t("reconnect")}`,
                           text: "다시 연결하여 프로필을 최신화하시겠습니까?",
                           icon: "question",
                           showCancelButton: true,
@@ -258,7 +260,7 @@ function Account() {
                         });
                       }}
                     >
-                      재연결
+                      {t("reconnect")}
                     </Extra>
                   </HoverNoneDiv>
                 ) : (

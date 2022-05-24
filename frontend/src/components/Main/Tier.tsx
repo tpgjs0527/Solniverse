@@ -1,5 +1,6 @@
 import Spinner from "components/Spinner";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { ColRef } from "./Dashboard";
 import Rank from "./Rank";
@@ -13,6 +14,7 @@ interface IProps {
 }
 
 function Tier({ tier, index, dashboard, ranking, isLoading }: IProps) {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -21,7 +23,7 @@ function Tier({ tier, index, dashboard, ranking, isLoading }: IProps) {
         {ranking ? null : (
           <>
             {dashboard ? (
-              <ColTitle>현재 나의 등급</ColTitle>
+              <ColTitle>{t("dashboard-rating")}</ColTitle>
             ) : (
               <ColTitleRank>{tier}</ColTitleRank>
             )}
@@ -87,7 +89,9 @@ function Tier({ tier, index, dashboard, ranking, isLoading }: IProps) {
             ) : (
               <ColContent>{tier}</ColContent>
             )}
-            <ColRef onClick={() => setIsModalOpen(true)}>등급표</ColRef>
+            <ColRef onClick={() => setIsModalOpen(true)}>
+              {t("dashboard-rating-board")}
+            </ColRef>
           </>
         ) : ranking ? (
           <span>{tier}</span>

@@ -6,8 +6,10 @@ import Spinner from "components/Spinner";
 import useToken from "hooks/useToken";
 import Swal from "sweetalert2";
 import { Phantom } from "components/Home/Intro";
+import { useTranslation } from "react-i18next";
 
 function SetDonation() {
+  const { t } = useTranslation();
   const userInfo = useRecoilValue(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [UUID, setUUID] = useState("");
@@ -66,10 +68,8 @@ function SetDonation() {
     <Section>
       <BoxWrapper>
         <Box>
-          <BoxTitle>후원 링크</BoxTitle>
-          <BoxDescription>
-            아래의 링크를 이용하여 후원자에게 후원을 받으세요.
-          </BoxDescription>
+          <BoxTitle>{t("donation-link")}</BoxTitle>
+          <BoxDescription>{t("donation-link-ex")}</BoxDescription>
           <UrlBox>
             <Url>{`https://solniverse.net/donation/${userInfo.walletAddress}`}</Url>
             <ExtraDiv>
@@ -80,7 +80,7 @@ function SetDonation() {
                   )
                 }
               >
-                복사
+                {t("copy")}
               </Extra>
               <Extra
                 onClick={() =>
@@ -89,7 +89,7 @@ function SetDonation() {
                   )
                 }
               >
-                열기
+                {t("open")}
               </Extra>
             </ExtraDiv>
           </UrlBox>
@@ -98,7 +98,7 @@ function SetDonation() {
       <BoxWrapper>
         <Box>
           <AlertWrapper>
-            <AlertTitle>알림창</AlertTitle>
+            <AlertTitle>{t("alert-box")}</AlertTitle>
             <ServiceTitle
               onClick={() =>
                 window.open(`https://solniverse.net/service#alertBoxSetting`)
@@ -141,7 +141,7 @@ function SetDonation() {
                         : undefined
                     }
                   >
-                    복사
+                    {t("copy")}
                   </ExtraUUID>
                   <ExtraUUID
                     isUUID={UUID}
@@ -156,7 +156,7 @@ function SetDonation() {
                         : undefined
                     }
                   >
-                    열기
+                    {t("open")}
                   </ExtraUUID>
                 </ExtraDiv>
               </>
@@ -165,7 +165,7 @@ function SetDonation() {
           <TestBox
             onClick={() => window.open(`https://solniverse.net/test/alertbox`)}
           >
-            알림 테스트
+            {t("alert-test")}
           </TestBox>
         </Box>
       </BoxWrapper>

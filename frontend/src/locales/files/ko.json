@@ -1,0 +1,34 @@
+{
+  "service-guide": "서비스 안내",
+  "donations": "후원 내역",
+  "donations-give": "후원한 내역",
+  "donations-receive": "후원받은 내역",
+
+  "dashboard": "대시보드",
+  "dashboard-give": "후원한 내역 통계",
+  "dashboard-receive": "후원받은 내역 통계",
+  "dashboard-frequency": "총 횟수",
+  "dashboard-amount": "총 금액",
+  "dashboard-rating": "현재 나의 등급",
+  "dashboard-ranking": "현재 나의 순위",
+  "dashboard-rating-board": "등급표",
+  "dashboard-ranking-board": "순위표",
+
+  "account": "계정",
+  "account-details": "계정 상세",
+  "wallet": "지갑",
+  "connect": "연결",
+  "reconnect": "재연결",
+  "donation-settings": "후원 설정",
+  "donation-link": "후원 링크",
+  "donation-link-ex": "아래의 링크를 이용하여 후원자에게 후원을 받으세요.",
+  "alert-box": "알림창",
+  "alert-test": "알림 테스트",
+  "copy": "복사",
+  "open": "열기",
+
+  "confirm": "확인",
+
+  "language_en": "English",
+  "language_ko": "한국어"
+}

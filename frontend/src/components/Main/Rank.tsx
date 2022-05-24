@@ -2,6 +2,7 @@
 
 import { toggleThemeAtom } from "atoms";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
@@ -13,6 +14,7 @@ interface IProps {
 }
 
 function Rank({ isModalOpen, onClose }: IProps) {
+  const { t } = useTranslation();
   const isDark = useRecoilValue(toggleThemeAtom);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,7 +52,7 @@ function Rank({ isModalOpen, onClose }: IProps) {
         },
       }}
     >
-      <SubTitle>등급표</SubTitle>
+      <SubTitle>{t("dashboard-rating-board")}</SubTitle>
       <SubBox>
         {tierList.map((tier, index) => (
           <Tier key={index} tier={tier} index={index} />
