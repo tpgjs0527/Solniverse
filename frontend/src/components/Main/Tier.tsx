@@ -150,15 +150,24 @@ const ColTitleRank = styled.span`
 `;
 
 const ColContent = styled.span`
+  font-size: 14px;
   letter-spacing: -0.5px;
   font-weight: 600;
+
+  @media screen and (min-width: 1024px) {
+    font-size: 15px;
+  }
 `;
 
 const ColTitle = styled.span`
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.5px;
   color: ${(props) => props.theme.subTextColor};
+
+  @media screen and (min-width: 1024px) {
+    font-size: 15px;
+  }
 `;
 
 const Col = styled.div<{ ranking?: boolean }>`
