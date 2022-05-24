@@ -9,6 +9,7 @@ import confetti from "canvas-confetti";
 import { Snackbar } from "@material-ui/core";
 import { AlertState } from "utils/candy-machine-utils";
 import { Alert } from "@material-ui/lab";
+import { useTranslation } from "react-i18next";
 
 // interface IState {
 //   state: { signature: string };
@@ -49,6 +50,7 @@ type Confirmations =
   | 32;
 
 function Confirmed() {
+  const { t } = useTranslation();
   const { state }: any = useLocation();
   const navigate = useNavigate();
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");

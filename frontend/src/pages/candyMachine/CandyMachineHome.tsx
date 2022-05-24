@@ -27,6 +27,7 @@ import { getProvider } from "utils/getProvider";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface ICandyMachine {
   id: anchor.web3.PublicKey;
@@ -74,6 +75,7 @@ const splTokenName = process.env.REACT_APP_SPL_TOKEN_TO_MINT_NAME
   : "TOKEN";
 
 const CandyMachineHome = () => {
+  const { t } = useTranslation();
   const [balance, setBalance] = useState<number>();
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
   const [isActive, setIsActive] = useState(false); // true when countdown completes or whitelisted
@@ -93,7 +95,7 @@ const CandyMachineHome = () => {
   const [endDate, setEndDate] = useState<Date>();
   const [isPresale, setIsPresale] = useState(false);
   const [isWLOnly, setIsWLOnly] = useState(false);
-  const [percent, setPercent] = useState(0);
+  // const [percent, setPercent] = useState(0);
   const userInfo = useRecoilValue(userInfoAtom);
 
   const [alertState, setAlertState] = useState<AlertState>({
@@ -486,7 +488,7 @@ const CandyMachineHome = () => {
       if (!status?.err) {
         setAlertState({
           open: true,
-          message: "뽑기에 성공하셨어요!",
+          message: `${t("snv-drop-success")}`,
           severity: "success",
         });
 
@@ -495,7 +497,7 @@ const CandyMachineHome = () => {
       } else {
         setAlertState({
           open: true,
-          message: "뽑기에 실패했어요! 다시 시도해주세요.",
+          message: `${t("snv-drop-failure")}`,
           severity: "error",
         });
       }
@@ -544,11 +546,11 @@ const CandyMachineHome = () => {
 
   return (
     <Container>
-      <PageTitle>NFT 랜덤 뽑기</PageTitle>
+      <PageTitle>{t("snv-candy-drop")}</PageTitle>
       <Wrapper>
         <MainContainer>
           <ImageWrapper>
-            <ImageTitle>NFT 리스트</ImageTitle>
+            <ImageTitle>{t("snv-nft-list")}</ImageTitle>
             <Image
               src={`${process.env.PUBLIC_URL}/images/NFT리스트.gif`}
               alt="NFT To Mint"
@@ -646,7 +648,7 @@ const CandyMachineHome = () => {
                   )}
                 {provider && isActive && (
                   <TitleWrapper>
-                    <Title>뽑기 진행현황 :</Title>
+                    <Title>{t("snv-drop-progress")} :</Title>
                     <Title>
                       {itemsRedeemed} / {itemsAvailable}
                     </Title>
@@ -661,7 +663,7 @@ const CandyMachineHome = () => {
                 )}
                 <br />
                 <TitleWrapper>
-                  <Title>뽑기 한 번 : 500 SNV</Title>
+                  <Title>{t("snv-drop-price")} : 500 SNV</Title>
                 </TitleWrapper>
                 {provider && isActive && solanaExplorerLink && (
                   <SolExplorerLink href={solanaExplorerLink} target="_blank">

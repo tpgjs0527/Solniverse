@@ -65,7 +65,7 @@ export default function Header() {
           </Toggle> */}
           <Toggle
             onClick={() => {
-              setIsKo((prev) => !prev);
+              setIsKo((prev: boolean) => !prev);
               if (isKo) i18n.changeLanguage("en");
               else i18n.changeLanguage("ko");
             }}

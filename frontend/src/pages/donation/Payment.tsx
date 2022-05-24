@@ -10,6 +10,7 @@ import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface ITX {
   result: string;
@@ -18,6 +19,7 @@ export interface ITX {
 }
 
 function Payment() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -121,7 +123,7 @@ function Payment() {
 
   return (
     <Container>
-      <PageName>결제 페이지</PageName>
+      <PageName>{t("payment")}</PageName>
       <Line />
       <MainContainer>
         <SubContainer>
@@ -129,21 +131,25 @@ function Payment() {
             <PaymentWrapper>
               <UserWrapper>
                 <TitleWrapper>
-                  <Title>후원자 정보</Title>
+                  <Title>{t("payment-give-info")}</Title>
                 </TitleWrapper>
                 <InfoWrapper>
-                  <Name>후원자 닉네임 : {nickName}</Name>
-                  <AccountTitle>지갑 주소</AccountTitle>
+                  <Name>
+                    {t("payment-give-nickname")} : {nickName}
+                  </Name>
+                  <AccountTitle>{t("payment-wallet")}</AccountTitle>
                   <Account>{userInfo.walletAddress}</Account>
                 </InfoWrapper>
               </UserWrapper>
               <UserWrapper>
                 <TitleWrapper>
-                  <Title>스트리머 정보</Title>
+                  <Title>{t("payment-receive-info")}</Title>
                 </TitleWrapper>
                 <InfoWrapper>
-                  <Name>{creatorName}</Name>
-                  <AccountTitle>지갑 주소</AccountTitle>
+                  <Name>
+                    {t("payment-receive-nickname")} : {creatorName}
+                  </Name>
+                  <AccountTitle>{t("payment-wallet")}</AccountTitle>
                   <Account>{walletAddress}</Account>
                 </InfoWrapper>
               </UserWrapper>
@@ -152,22 +158,22 @@ function Payment() {
           <Wrapper>
             <PaymentWrapper>
               <TitleWrapper style={{ marginLeft: "32px", marginBottom: "8px" }}>
-                <Title>결제 정보</Title>
+                <Title>{t("payment-pay-info")}</Title>
               </TitleWrapper>
               <TotalPriceWrapper>
                 <PriceWrapper style={{ marginBottom: "8px" }}>
-                  <Price>후원 메시지</Price>
+                  <Price>{t("payment-message")}</Price>
                   <Price>{message}</Price>
                 </PriceWrapper>
                 <PriceWrapper>
-                  <Price>후원 금액</Price>
+                  <Price>{t("payment-amount")}</Price>
                   <SOL>
                     {amount} {type}
                   </SOL>
                 </PriceWrapper>
                 <Line />
                 <PriceWrapper>
-                  <Price>총 후원 금액</Price>
+                  <Price>{t("payment-tot-amount")}</Price>
                   <SOL>
                     {amount} {type}
                   </SOL>
