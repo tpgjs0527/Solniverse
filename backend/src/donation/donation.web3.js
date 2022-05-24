@@ -503,7 +503,7 @@ async function sendSnvToken(toWallet, amount) {
 }
 
 let confirmTransactions = {};
-const shopWalletaddress = process.env.DDD_SHOP_WALLET;
+const SHOP_WALLET_ADDRESS = new web3.PublicKey(process.env.DDD_SHOP_WALLET);
 
 setInterval(
   () =>
@@ -521,10 +521,16 @@ setInterval(
  * @param {*} context
  */
 async function logCallback(context) {
+  if (
+    Object.prototype.hasOwnProperty.call(confirmTransactions, context.signature)
+  )
+    return; //이미 다른 곳에서 등록했을 경우 바로 return
+
   if (context.err) {
     logger.error(`logCallback 에러 발생: error=${context.error}`);
     return;
   }
+
   confirmTransactions[context.signature] = false;
   try {
     /** finalized가 일정 시간이 되어도 오지 않는 경우, 20초 후에 동작 */
@@ -610,7 +616,7 @@ async function finalizeCallback(context) {
 }
 
 /**
- * 서버 부팅시 동작할 함수.
+ * 서버 부팅시 혹은 1시간마다 동작할 DB의 마지막 트랜잭션으로부터 복구 함수.
  *
  * @returns
  */
@@ -620,9 +626,8 @@ async function recoverTransaction() {
     const tx = await donationRepository.getLatestTransaction();
     if (!tx) return;
     // 상점 주소
-    const shopWallet = new web3.PublicKey(shopWalletaddress);
     const transactions = await connection.getSignaturesForAddress(
-      shopWallet,
+      SHOP_WALLET_ADDRESS,
       {
         until: tx.txSignature,
       },
@@ -640,59 +645,48 @@ async function recoverTransaction() {
   }
 }
 
-let onLogsConfirmId = 0;
-let onLogsFinalId = 0;
-
-const WEB_RPC_OPEN = "solana webrpc opened";
 const WEB_RPC_ERROR = "solana webrpc error";
 
 let asyncFlag = true;
 
-const clearConnection = async () => {
-  // 메모리 누수 방지용 참조 제거
-  if (connection._rpcWebSocketConnected) {
-    await Promise.all([
-      connection.removeOnLogsListener(onLogsConfirmId),
-      connection.removeOnLogsListener(onLogsFinalId),
-    ]); //자동으로 모든 listner가 삭제됐을 경우 socket의 close()도 실행됨.
-  }
-};
+/** @type {Array<web3.Connection>} connection을 모아놓은 배열*/
+let connectionPool = [];
+//추후 Kafka를 활용해서 프로듀서, 컨슈머 형태로 메시지 큐로 아래와 같은 기능을 구현할 수 있음.
+//현재는 모두 코드로 구현됨.
 const setLogs = async () => {
   if (asyncFlag) {
     asyncFlag = false;
     recoverTransaction()
       .then(async () => {
-        await clearConnection();
-        connection = getNewConnection();
-
-        onLogsConfirmId = connection.onLogs(
-          new web3.PublicKey(shopWalletaddress),
-          logCallback,
-          "confirmed",
-        );
-        onLogsFinalId = connection.onLogs(
-          new web3.PublicKey(shopWalletaddress),
-          finalizeCallback,
-          "finalized",
-        );
-
-        connection._rpcWebSocket.once("open", () => {
-          console.log(connection._rpcWebSocket);
-          logger.info(WEB_RPC_OPEN);
-          try {
-            connection._rpcWebSocket.notify("ping").catch(() => {
-              logger.info(`${WEB_RPC_ERROR}: ping error`);
-              setLogs();
-            });
-          } catch (err) {
-            logger.error(WEB_RPC_ERROR);
+        let tempLength = connectionPool.length;
+        if (tempLength)
+          for (let i = 0; i < tempLength; i++) {
+            //반복시간이 엄청 짧으면 동기식으로 해야 버그가 발생하지 않으니 주의
+            for (let num in connectionPool[i]
+              ._subscriptionDisposeFunctionsByClientSubscriptionId)
+              connectionPool[i].removeOnLogsListener(num); //GC를 위한 remove
           }
-        });
 
-        connection._rpcWebSocket.once("error", () => {
-          logger.error(WEB_RPC_ERROR);
-          setLogs();
-        });
+        connectionPool = []; //배열 빈 값으로 치환. 기존 것은 GC로 날아감.
+        for (let i = 0; i < 3; i++) {
+          connectionPool.push(getNewConnection());
+
+          connectionPool[i].onLogs(
+            SHOP_WALLET_ADDRESS,
+            logCallback,
+            "confirmed",
+          );
+          connectionPool[i].onLogs(
+            SHOP_WALLET_ADDRESS,
+            finalizeCallback,
+            "finalized",
+          );
+
+          delete connectionPool[i]._rpcWebSocket._events.error;
+          connectionPool[i]._rpcWebSocket.on("error", () => {
+            logger.error(WEB_RPC_ERROR);
+          });
+        }
       })
       .finally(() => (asyncFlag = true));
   }
