@@ -54,12 +54,12 @@ function SetDonation() {
   const handleCopyClipBoard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      Swal.fire("복사 완료", "URL 주소가 복사되었습니다.", "success");
+      Swal.fire(t("copy-done"), t("copy-done-text"), "success");
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "복사 실패",
-        html: "URL 주소 복사가 실패했습니다.<br>잠시 후 다시 시도해주세요.",
+        title: t("copy-conflict"),
+        html: t("copy-conflict-text"),
       });
     }
   };

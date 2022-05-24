@@ -125,7 +125,7 @@ function Confirmed() {
       });
       setAlertState({
         open: true,
-        message: "결제가 완료됐습니다.",
+        message: t("pay-done"),
         severity: "success",
       });
       setTimeout(() => {
@@ -138,7 +138,7 @@ function Confirmed() {
         setTimeout(() => {
           setAlertState({
             open: true,
-            message: "SNV 토큰이 발급됐습니다.",
+            message: t("token-provided"),
             severity: "success",
           });
         }, 4000);

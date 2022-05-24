@@ -133,21 +133,17 @@ export default function Header() {
           <Logout
             onClick={() => {
               Swal.fire({
-                title: "로그아웃",
-                text: "지갑 연결을 끊으시겠습니까?",
+                title: t("logout"),
+                text: t("logout-text"),
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3990e0",
                 cancelButtonColor: "#e96e35",
-                confirmButtonText: "확인",
-                cancelButtonText: "취소",
+                confirmButtonText: t("confirm"),
+                cancelButtonText: t("cancel"),
               }).then((result) => {
                 if (result.isConfirmed) {
-                  Swal.fire(
-                    "로그아웃 완료",
-                    "로그아웃이 완료되었습니다!",
-                    "success"
-                  );
+                  Swal.fire(t("logout-done"), t("logout-done-text"), "success");
                   setUserInfo({
                     twitch: {
                       id: "",

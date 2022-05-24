@@ -157,5 +157,19 @@
   "wallet-change": "지갑 변경 감지",
   "wallet-change-alert": "지갑을 변경하셨군요! <br> 변경한 지갑으로 재입장해주시기 바랍니다 😊",
   "not-connected": "지갑 연결 실패",
-  "not-connected-alert": "올바르지 않은 요청이 진행됐습니다."
+  "not-connected-alert": "올바르지 않은 요청이 진행됐습니다.",
+
+  "logout": "로그아웃",
+  "logout-text": "지갑 연결을 끊으시겠습니까?",
+  "logout-done": "로그아웃 완료",
+  "logout-done-text": "로그아웃이 완료되었습니다!",
+  "reconnect-text": "다시 연결하여 프로필을 최신화하시겠습니까?",
+  "copy-done": "복사 완료",
+  "copy-done-text": "URL 주소가 복사되었습니다.",
+  "copy-conflict": "복사 실패",
+  "copy-conflict-text": "URL 주소 복사가 실패했습니다.<br>잠시 후 다시 시도해주세요.",
+
+  "pay-done": "결제가 완료됐습니다.",
+  "token-provided": "SNV 토큰이 발급되었습니다.",
+  "donation-success": "도네이션 성공"
 }
