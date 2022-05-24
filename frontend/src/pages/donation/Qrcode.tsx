@@ -65,7 +65,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       if (params.type === "SOL") {
         const recipient = new PublicKey(`${params.walletAddress}`);
         const label = `${
-          userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+          userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
         }`;
 
         const message = `${params.message}`;
@@ -123,7 +123,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       } else if (params.type === "USDC") {
         const recipient = new PublicKey(`${params.walletAddress}`);
         const label = `${
-          userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+          userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
         }`;
 
         const message = `${params.message}`;
@@ -190,11 +190,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         setMakeQR(QrCode);
       }
     } else {
-      Swal.fire(
-        "입력 정보 오류",
-        "입력한 도네이션 정보가 옳바르지 않습니다. 다시 후원해주세요  🙇‍♂️",
-        "question"
-      );
+      Swal.fire(t("info-error"), t("info-error-text"), "question");
     }
   };
   const closeModal = () => {
@@ -395,11 +391,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         console.error(error);
       }
     } else {
-      Swal.fire(
-        "설치 안내",
-        "Phantom Wallet 확장 프로그램이 없습니다. 구글 웹 스토어에서 설치해주세요.",
-        "info"
-      );
+      Swal.fire(t("go-phantom"), t("go-phantom-text"), "info");
       const url = "https://phantom.app/";
       window.location.href = url;
     }

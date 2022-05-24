@@ -1,8 +1,10 @@
 import Layout from "components/Layout";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function PageNotFound() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -13,11 +15,11 @@ function PageNotFound() {
           {/* <Message>
             Sorry, we couldn't find the page you were looking for.
           </Message> */}
-          <Message>페이지를 찾을 수 없습니다</Message>
+          <Message>{t("page-not-found")}</Message>
 
           <SubMessage>
-            <span>죄송합니다. 해당 주소의 페이지를 찾을 수 없습니다.</span>
-            <span>상단 메뉴로 페이지를 이동해 다양한 콘텐츠를 만나보세요.</span>
+            <span>{t("page-not-found-text1")}</span>
+            <span>{t("page-not-found-text2")}</span>
           </SubMessage>
         </Wrapper>
       </Container>

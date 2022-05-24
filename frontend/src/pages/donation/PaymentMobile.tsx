@@ -46,7 +46,7 @@ function PaymentMobile() {
         if (type === "SOL") {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
-            userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+            userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
           }`;
           const message = `${params.message}`;
           const memo = `${txid}`;
@@ -69,7 +69,7 @@ function PaymentMobile() {
         } else if (type === "USDC") {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
-            userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+            userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
           }`;
 
           const message = `${params.message}`;
@@ -97,11 +97,7 @@ function PaymentMobile() {
         setOpenModal(true);
       }
     } else {
-      Swal.fire(
-        "결제 경로 오류",
-        "잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.",
-        "warning"
-      );
+      Swal.fire(t("payment-error"), t("payment-error-text"), "warning");
       navigate(`/donation/${walletAddress}`);
     }
   };
