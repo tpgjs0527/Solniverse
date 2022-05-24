@@ -548,7 +548,7 @@ const CandyMachineHome = () => {
       <Wrapper>
         <MainContainer>
           <ImageWrapper>
-            <ImageTitle>이번 랜덤 뽑기 NFT</ImageTitle>
+            <ImageTitle>NFT 리스트</ImageTitle>
             <Image
               src={`${process.env.PUBLIC_URL}/images/NFT리스트.gif`}
               alt="NFT To Mint"
