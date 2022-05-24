@@ -481,11 +481,7 @@ const CandyMachineHome = () => {
       }
 
       if (!status?.err) {
-        Swal.fire(
-          "민팅 성공",
-          "NFT 랜덤 뽑기에 성공했습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
-          "success"
-        );
+        Swal.fire(t("mint-success"), t("mint-success-text"), "success");
         setAlertState({
           open: true,
           message: `${t("snv-drop-success")}`,
@@ -513,21 +509,21 @@ const CandyMachineHome = () => {
         await mintMany(quantityString);
       }
     } catch (error: any) {
-      let message = error.msg || "뽑기에 실패했습니다.";
+      let message = error.msg || t("drop-failed");
       if (!error.msg) {
         if (!error.message) {
-          message = "트랜잭션 요청시간이 만료됐습니다.";
+          message = t("transaction-failed");
         } else if (error.message.indexOf("0x138")) {
         } else if (error.message.indexOf("0x137")) {
-          message = `뽑기가 종료됐습니다.`;
+          message = t("drop-done");
         } else if (error.message.indexOf("0x135")) {
-          message = `잔액이 부족합니다.`;
+          message = t("amount-lack");
         }
       } else {
         if (error.code === 311) {
-          message = `뽑기가 종료됐습니다!`;
+          message = t("drop-done");
         } else if (error.code === 312) {
-          message = `뽑기가 진행중이 아닙니다.`;
+          message = t("drop-not-now");
         }
       }
 

@@ -199,5 +199,13 @@
 
   "page-not-found": "페이지를 찾을 수 없습니다",
   "page-not-found-text1": "죄송합니다. 해당 주소의 페이지를 찾을 수 없습니다.",
-  "page-not-found-text2": "상단 메뉴로 페이지를 이동해 다양한 콘텐츠를 만나보세요."
+  "page-not-found-text2": "상단 메뉴로 페이지를 이동해 다양한 콘텐츠를 만나보세요.",
+
+  "mint-success": "민팅 성공",
+  "mint-success-text": "NFT 랜덤 뽑기에 성공했습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
+  "drop-failed": "뽑기에 실패했습니다.",
+  "transaction-failed": "트랜잭션 요청시간이 만료됐습니다.",
+  "drop-done": "뽑기가 종료됐습니다",
+  "amount-lack": "잔액이 부족합니다.",
+  "drop-not-now": "뽑기가 진행중이 아닙니다."
 }

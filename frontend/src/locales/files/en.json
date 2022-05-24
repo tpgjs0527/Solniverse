@@ -199,5 +199,13 @@
 
   "page-not-found": "Page not found",
   "page-not-found-text1": "Sorry, we couldn't find a page for that URL.",
-  "page-not-found-text2": "Go to the top menu to see more content."
+  "page-not-found-text2": "Go to the top menu to see more content.",
+
+  "mint-success": "Minting success",
+  "mint-success-text": "NFT Candy Drop succeeded. Check out my own NFT in the Phantom Wallet Collectible!",
+  "drop-failed": "Drop failed",
+  "transaction-failed": "Transaction request time expired",
+  "drop-done": "The Game is over",
+  "amount-lack": "Insufficient balance.",
+  "drop-not-now": "The Game is not in progress."
 }

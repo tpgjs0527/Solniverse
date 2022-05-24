@@ -234,7 +234,7 @@ function Donation() {
       const sol = await getBalance(userInfo.walletAddress);
       if (type === "SOL" && sol < amount) {
         Swal.fire({
-          html: t("amount-higher"),
+          html: `${t("amount-higher")}`,
           showClass: {
             popup: "animate__animated animate__fadeInDown",
           },
