@@ -104,21 +104,15 @@ function SetDonation() {
                 window.open(`https://solniverse.net/service#alertBoxSetting`)
               }
             >
-              알림창 설정 방법
+              {t("alert-box-guide")}
             </ServiceTitle>
           </AlertWrapper>
           <BoxDescription>
-            <BoxWarning>
-              방송 프로그램(OBS, Xsplit)에 적용하는 URL입니다. 타인에게 유출되면
-              악용될 수 있으니 주의하시기 바랍니다.
-            </BoxWarning>
-            <p>추가하시면 후원이 발생했을 때 방송 화면에 알려줄 수 있습니다.</p>
-            <p>
-              아래의 링크를 사용하시는 방송 프로그램의 브라우저 소스에
-              추가해주세요.
-            </p>
+            <BoxWarning>{t("alert-box-ex1")}</BoxWarning>
+            <p>{t("alert-box-ex2")}</p>
+            <p>{t("alert-box-ex3")}</p>
           </BoxDescription>
-          <BoxNotice>클릭해서 URL 확인</BoxNotice>
+          <BoxNotice>{t("alert-box-url")}</BoxNotice>
           <AlarmUrlBox onClick={() => onCheckToken()} isUUID={UUID}>
             {isLoadingUUID ? (
               <SpinnerDiv>

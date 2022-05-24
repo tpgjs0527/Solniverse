@@ -10,6 +10,7 @@ import { userInfoAtom } from "atoms";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { findAssociatedTokenAddress } from "utils/solanaWeb3";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export const CTAButton = styled(Button)`
   width: 150px;
@@ -108,6 +109,7 @@ export const MultiMintButton = ({
   isSoldOut: boolean;
   price: number;
 }) => {
+  const { t } = useTranslation();
   const userInfo = useRecoilValue(userInfoAtom);
   const connection = new Connection(clusterApiUrl("devnet"));
   const { requestGatewayToken, gatewayStatus } = useGateway();
@@ -190,14 +192,14 @@ export const MultiMintButton = ({
       });
     }
     await Swal.fire({
-      title: "NFT 랜덤 뽑기",
-      text: "랜덤 뽑기하시겠습니까?",
+      title: `${t("snv-candy-drop")}`,
+      text: `${t("snv-candy-drop-alert")}`,
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "뽑기",
-      cancelButtonText: "취소",
+      confirmButtonText: `${t("confirm")}`,
+      cancelButtonText: `${t("cancel")}`,
     }).then((result) => {
       if (result.isConfirmed) {
         setConfirmation(true);
@@ -290,7 +292,7 @@ export const MultiMintButton = ({
               ) : isMinting || clicked ? (
                 <CircularProgress />
               ) : (
-                `뽑기`
+                `${t("snv-drop")}`
               )
             ) : isEnded ? (
               "뽑기 종료"

@@ -54,9 +54,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
       }}
     >
       <SubTitle>{t("dashboard-ranking-board")}</SubTitle>
-      <SubCon>
-        현재 나의 순위를 기준으로 ±5 내에 속하는 사용자를 볼 수 있습니다.
-      </SubCon>
+      <SubCon>{t("dashboard-ranking-board-ex")}</SubCon>
       <SubBox>
         {data?.previousList?.map((el, index) => (
           <Element key={index}>
@@ -84,7 +82,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
         ))}
         {data?.ranking === -1 ? (
           <Element>
-            <Empty>아직 후원 내역이 없어 순위를 산정할 수 없습니다.</Empty>
+            <Empty>{t("dashboard-ranking-board-none")}</Empty>
           </Element>
         ) : (
           <Element isActive>
