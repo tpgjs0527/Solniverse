@@ -1,6 +1,7 @@
 import Spinner from "components/Spinner";
 import { RankingList } from "pages/my-info/Main";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import Ranking from "./Ranking";
 import Tier from "./Tier";
@@ -26,14 +27,17 @@ interface IProps {
 }
 
 function Dashboard({ receive, data, isLoading }: IProps) {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <Box>
-      <SubTitle>{receive ? "후원받은 내역 통계" : "후원한 내역 통계"}</SubTitle>
+      <SubTitle>
+        {receive ? `${t("dashboard-receive")}` : `${t("dashboard-give")}`}
+      </SubTitle>
       <SubBox>
         <Col>
-          <ColTitle>총 횟수</ColTitle>
+          <ColTitle>{t("dashboard-frequency")}</ColTitle>
           <Icon>
             {receive ? (
               <svg
@@ -79,7 +83,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
           <ColEmpty></ColEmpty>
         </Col>
         <Col>
-          <ColTitle>총 금액</ColTitle>
+          <ColTitle>{t("dashboard-amount")}</ColTitle>
           <Icon>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +120,7 @@ function Dashboard({ receive, data, isLoading }: IProps) {
           isLoading={isLoading}
         />
         <Col>
-          <ColTitle>현재 나의 등수</ColTitle>
+          <ColTitle>{t("dashboard-ranking")}</ColTitle>
           <Icon>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +144,9 @@ function Dashboard({ receive, data, isLoading }: IProps) {
               {data?.ranking !== -1 ? data?.ranking : "-"}
             </ColContent>
           )}
-          <ColRef onClick={() => setIsModalOpen(true)}>순위표</ColRef>
+          <ColRef onClick={() => setIsModalOpen(true)}>
+            {t("dashboard-ranking-board")}
+          </ColRef>
         </Col>
       </SubBox>
       <Ranking

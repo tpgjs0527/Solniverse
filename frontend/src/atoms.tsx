@@ -31,3 +31,8 @@ export const accessTokenAtom = atom({
   default: "",
   effects_UNSTABLE: [persistAtom],
 });
+
+export const languageKoAtom = atom({
+  key: "language",
+  default: true,
+});

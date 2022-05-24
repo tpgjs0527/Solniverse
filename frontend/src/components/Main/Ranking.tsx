@@ -2,6 +2,7 @@
 
 import { toggleThemeAtom, userInfoAtom } from "atoms";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
@@ -15,6 +16,7 @@ interface IProps {
 }
 
 function Ranking({ isModalOpen, onClose, data }: IProps) {
+  const { t } = useTranslation();
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +53,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
         },
       }}
     >
-      <SubTitle>순위표</SubTitle>
+      <SubTitle>{t("dashboard-ranking-board")}</SubTitle>
       <SubCon>
         현재 나의 순위를 기준으로 ±5 내에 속하는 사용자를 볼 수 있습니다.
       </SubCon>

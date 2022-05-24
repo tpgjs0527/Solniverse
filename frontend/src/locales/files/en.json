@@ -1,0 +1,34 @@
+{
+  "service-guide": "Service Guide",
+  "donations": "Donations",
+  "donations-give": "Donate",
+  "donations-receive": "Receive Donations",
+
+  "dashboard": "Dashboard",
+  "dashboard-give": "Donate",
+  "dashboard-receive": "Receive Donations",
+  "dashboard-frequency": "Total Frequency",
+  "dashboard-amount": "Total Amount",
+  "dashboard-rating": "My Current Rating",
+  "dashboard-ranking": "My Current Ranking",
+  "dashboard-rating-board": "Rating Board",
+  "dashboard-ranking-board": "Ranking Board",
+
+  "account": "Account",
+  "account-details": "Account Details",
+  "wallet": "Wallet",
+  "connect": "Connect",
+  "reconnect": "Reconnect",
+  "donation-settings": "Donation Settings",
+  "donation-link": "Donation Link",
+  "donation-link-ex": "Please use the link below to request donations from donors.",
+  "alert-box": "Alert Box",
+  "alert-test": "Alert Test",
+  "copy": "Copy",
+  "open": "Open",
+
+  "confirm": "Confirm",
+
+  "language_en": "English",
+  "language_ko": "한국어"
+}

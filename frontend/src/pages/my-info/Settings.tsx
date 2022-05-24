@@ -8,9 +8,11 @@ import {
 } from "react-router-dom";
 import Account from "components/Settings/Account";
 import SetDonation from "components/Settings/Donation";
+import { useTranslation } from "react-i18next";
 
 function Settings() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Active Link
   const accountMatch = useMatch("/settings");
@@ -18,7 +20,7 @@ function Settings() {
 
   return (
     <Layout>
-      <Title>계정</Title>
+      <Title>{t("account")}</Title>
       <Section>
         <Wrapper>
           <Tabs>
@@ -26,13 +28,13 @@ function Settings() {
               isActive={accountMatch !== null}
               onClick={() => navigate(`/settings`)}
             >
-              계정 상세
+              {t("account-details")}
             </Tab>
             <Tab
               isActive={donationMatch !== null}
               onClick={() => navigate(`/settings/donation`)}
             >
-              후원 설정
+              {t("donation-settings")}
             </Tab>
           </Tabs>
         </Wrapper>
