@@ -3,15 +3,15 @@
 
   "profile-connect-wallet": "Connect to wallet",
 
-  "donations": "Donations",
-  "donations-give": "Donate",
+  "donations": "Donation History",
+  "donations-give": "Donated",
   "donations-give-none": "No donation history",
-  "donations-receive": "Receive Donations",
+  "donations-receive": "Received",
   "donations-receive-none": "No donation history",
 
   "dashboard": "Dashboard",
-  "dashboard-give": "Donate",
-  "dashboard-receive": "Receive Donations",
+  "dashboard-give": "Donated",
+  "dashboard-receive": "Received",
   "dashboard-frequency": "Total Frequency",
   "dashboard-amount": "Total Amount",
   "dashboard-rating": "My Current Rating",
