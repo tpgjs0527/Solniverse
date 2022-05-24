@@ -88,8 +88,8 @@ function Donation() {
       if (userInfo.walletAddress) {
         if (!(amount > 0)) {
           Swal.fire({
-            title: "잔고 부족",
-            text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+            title: t("insufficient-balance"),
+            text: t("insufficient-balance-text"),
             icon: "warning",
           });
           return;
@@ -108,8 +108,8 @@ function Donation() {
       if (userInfo.walletAddress) {
         if (!amount || !nickName) {
           Swal.fire({
-            title: "입력 에러",
-            text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+            title: t("input-error"),
+            text: t("input-error-text"),
             icon: "warning",
           });
           return;
@@ -117,16 +117,16 @@ function Donation() {
 
         if (errors.nickname) {
           Swal.fire({
-            title: "입력 에러",
-            text: "후원닉네임을 정확히 입력해주세요.",
+            title: t("input-error"),
+            text: t("nickname-error-text"),
             icon: "warning",
           });
           return;
         }
         if (errors.amount) {
           Swal.fire({
-            title: "입력 에러",
-            text: "후원금액을 정확히 입력해주세요.",
+            title: t("input-error"),
+            text: t("donation-amount-error-text"),
             icon: "warning",
           });
           return;
@@ -139,24 +139,24 @@ function Donation() {
     } else {
       if (!amount || !nickName) {
         Swal.fire({
-          title: "입력 에러",
-          text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+          title: t("input-error"),
+          text: t("input-error-text"),
           icon: "warning",
         });
         return;
       }
       if (errors.nickname) {
         Swal.fire({
-          title: "입력 에러",
-          text: "후원닉네임을 정확히 입력해주세요.",
+          title: t("input-error"),
+          text: t("nickname-error-text"),
           icon: "warning",
         });
         return;
       }
       if (!amount) {
         Swal.fire({
-          title: "입력 에러",
-          text: "후원금액을 정확히 입력해주세요.",
+          title: t("input-error"),
+          text: t("donation-amount-error-text"),
           icon: "warning",
         });
         return;
@@ -191,11 +191,7 @@ function Donation() {
       } else {
         const error = new Error(res.statusText);
 
-        Swal.fire(
-          "지갑 확인 오류",
-          "현재 연결된 지갑이 확인되고 있지 않습니다.",
-          "warning"
-        );
+        Swal.fire(t("no-wallet"), t("no-wallet-alert"), "warning");
       }
     }
   };
@@ -238,7 +234,7 @@ function Donation() {
       const sol = await getBalance(userInfo.walletAddress);
       if (type === "SOL" && sol < amount) {
         Swal.fire({
-          html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
+          html: `${t("amount-higher")}`,
           showClass: {
             popup: "animate__animated animate__fadeInDown",
           },
@@ -255,7 +251,7 @@ function Donation() {
     getAsyncToken();
     if (type === "USDC" && usdcBalance < amount) {
       Swal.fire({
-        html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
+        html: t("amount-higher"),
         showClass: {
           popup: "animate__animated animate__fadeInDown",
         },
@@ -294,11 +290,10 @@ function Donation() {
               <DonateInputWrapper>
                 <Input
                   {...register("nickname", {
-                    required: "필수 입력정보입니다.",
+                    required: t("required"),
                     pattern: {
                       value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9 ]{2,15}$/,
-                      message:
-                        "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
+                      message: t("required-text"),
                     },
                     onChange: (e) => {
                       setNickName(e.target.value);
@@ -323,7 +318,7 @@ function Donation() {
                   {...register("amount", {
                     pattern: {
                       value: /^[0-9.]*$/,
-                      message: "숫자와 . 기호만 입력 가능합니다.",
+                      message: t("amount-required"),
                     },
                     onChange: (e) => {
                       setAmount(e.target.value);
@@ -331,7 +326,7 @@ function Donation() {
                   })}
                   value={amount === 0 ? "" : `${amount}`}
                   style={{ display: "flex", justifyContent: "space-between" }}
-                  placeholder="후원금액을 입력해주세요."
+                  placeholder={t("not-amount")}
                 />
 
                 <Select onChange={onSubmit}>
@@ -413,13 +408,13 @@ function Donation() {
                   {...register("message", {
                     onChange: (e) => {
                       if (e.target.value.length > 50) {
-                        alert("최대 글자수를 초과했습니다.");
+                        alert(t("word-excess"));
                       } else {
                         setMessage(e.target.value);
                       }
                     },
                   })}
-                  placeholder="후원메시지를 작성해주세요."
+                  placeholder={t("donation-message-please")}
                 />
               </DonateInputWrapper>
             </DonatorWrapper>

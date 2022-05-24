@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { Howl, Howler } from "howler";
+import { useTranslation } from "react-i18next";
 export interface IMessage {
   displayName: string;
   message: string;
@@ -11,6 +12,7 @@ export interface IMessage {
 }
 
 export const Message = () => {
+  const { t } = useTranslation();
   Howler.autoUnlock = false;
   const params = useParams<{ uuid: string }>();
   const { uuid } = params;
@@ -83,12 +85,12 @@ export const Message = () => {
       {start && refQueue.length > 0 ? (
         <Test visible={visible}>
           <div>
-            <Name>{refQueue[0].displayName}</Name>님
+            <Name>{refQueue[0].displayName}</Name> {t("mrs")}
             <Money>
               {refQueue[0].amount}
               {refQueue[0].paymentType}
             </Money>
-            감사합니다!
+            {t("thanks")}
           </div>
           <div>{refQueue[0].message}</div>
         </Test>

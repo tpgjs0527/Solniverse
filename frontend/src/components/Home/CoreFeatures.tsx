@@ -6,37 +6,35 @@ import { Wrapper } from "./Tag/Wrapper";
 import { BsChevronDoubleDown } from "react-icons/bs";
 import { IoEarth } from "react-icons/io5";
 import { AiOutlineDollar } from "react-icons/ai";
-
-const coreFeatures = [
-  {
-    Icon: <BsChevronDoubleDown />,
-    title: "수수료율 절감",
-    content_1: "도네이션의 부담을 해소하기 위한",
-    content_2: "0.01$ 미만 수준의 마이크로 수수료",
-  },
-  {
-    Icon: <IoEarth />,
-    title: "글로벌 결제 서비스 플랫폼",
-    content_1: "특정 국가에 국한되지 않는",
-    content_2: "글로벌 결제 서비스 제공",
-  },
-  {
-    Icon: <AiOutlineDollar />,
-    title: "간편한 결제 과정",
-    content_1: "QR Code, 익스텐션, 모바일",
-    content_2: "총 3가지의 간편 결제 서비스",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const CoreFeatures = () => {
+  const { t } = useTranslation();
+  const coreFeatures = [
+    {
+      Icon: <BsChevronDoubleDown />,
+      title: t("core-1"),
+      content_1: t("core-1-intro"),
+      content_2: t("core-1-last"),
+    },
+    {
+      Icon: <IoEarth />,
+      title: t("core-2"),
+      content_1: t("core-2-intro"),
+      content_2: t("core-2-last"),
+    },
+    {
+      Icon: <AiOutlineDollar />,
+      title: t("core-3"),
+      content_1: t("core-3-intro"),
+      content_2: t("core-3-last"),
+    },
+  ];
   return (
     <CoreWrapper id="coreFeatures">
       <Content>
-        <OverTitle>차별점</OverTitle>
-        <RichText>
-          SOLNIVERSE는 후원자와 스트리머 유저에게 최고의 서비스를 제공하기 위해
-          3가지 차별점을 두었습니다 👨‍🚀
-        </RichText>
+        <OverTitle>{t("distinction")}</OverTitle>
+        <RichText>{t("core-introduction")} 👨‍🚀</RichText>
       </Content>
       <CardContainer>
         {coreFeatures.map((card: any, idx) => (
@@ -89,9 +87,11 @@ const ImageBox = styled.div`
 const CoreWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
+  padding-bottom: 20px;
   @media screen and (max-width: 700px) {
     padding-bottom: 13px;
     height: 100%;
+    margin-top: 10%;
   }
 `;
 const CardContainer = styled.div`

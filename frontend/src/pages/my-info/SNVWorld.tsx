@@ -118,7 +118,7 @@ function SNVWorld() {
                   <UserName>
                     {userInfo.twitch.id
                       ? userInfo.twitch.displayName
-                      : "익명의 솔둥이"}
+                      : t("anonymous")}
                     {t("snv-welcome2")}
                   </UserName>
                 </UserInfoWrapper>

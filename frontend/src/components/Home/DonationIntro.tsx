@@ -4,38 +4,33 @@ import Collapse from "./Tag/Collapse";
 import ThreeLayersCircle from "./Tag/ThreeLayersCircle";
 import RichText from "./Tag/RichText";
 import { Wrapper } from "./Tag/Wrapper";
-
-const TABS = [
-  {
-    title: "QR코드 결제",
-    description:
-      "후원 메세지 작성 후, 모바일 내 팬텀앱으로 QR 결제를 진행해보세요",
-    imageUrl: "/images/QR코드 결제.png",
-    baseColor: "249,82,120",
-    secondColor: "221,9,57",
-  },
-  {
-    title: "모바일 결제",
-    description:
-      "스트리머가 등록한 후원 링크를 터치하면 팬텀앱으로 바로 결제가 됩니다",
-    imageUrl: "/images/모바일 결제.png",
-    baseColor: "57,148,224",
-    secondColor: "99,172,232",
-  },
-  {
-    title: "Extension 결제",
-    description:
-      "바로결제 클릭 후, 팬텀 월렛 시그니처 검증을 완료 하시면 결제가 진행됩니다",
-    imageUrl: "/images/익스텐션 결제.png",
-    baseColor: "88,193,132",
-    secondColor: "124,207,158",
-  },
-];
-const CreatorImage = styled.img.attrs({})`
-  width: 100%;
-`;
+import { useTranslation } from "react-i18next";
 
 export default function DonationIntro() {
+  const { t } = useTranslation();
+  const TABS = [
+    {
+      title: t("donation-QR"),
+      description: t("donation-QR-intro"),
+      imageUrl: "/images/QR코드 결제.png",
+      baseColor: "249,82,120",
+      secondColor: "221,9,57",
+    },
+    {
+      title: t("donation-mobile"),
+      description: t("donation-mobile-intro"),
+      imageUrl: "/images/모바일 결제.png",
+      baseColor: "57,148,224",
+      secondColor: "99,172,232",
+    },
+    {
+      title: t("donation-extension"),
+      description: t("donation-extension-intro"),
+      imageUrl: "/images/익스텐션 결제.png",
+      baseColor: "88,193,132",
+      secondColor: "124,207,158",
+    },
+  ];
   const [currentTab, setCurrentTab] = useState(TABS[0]);
 
   const imagesMarkup = TABS.map((singleTab, idx) => {
@@ -78,7 +73,7 @@ export default function DonationIntro() {
   return (
     <DonationIntroWrapper id="donationIntro">
       <Content>
-        <OverTitle>후원 방식</OverTitle>
+        <OverTitle>{t("donation-way")}</OverTitle>
       </Content>
       <GalleryWrapper>
         <TabsContainer>{tabsMarkup}</TabsContainer>
@@ -102,7 +97,9 @@ const DonationIntroWrapper = styled(Wrapper)`
   padding-right: 4%;
 
   @media screen and (max-width: 800px) {
-    height: 900px;
+    margin-top: 30%;
+
+    height: 600px;
   }
 `;
 
@@ -112,7 +109,9 @@ const GalleryWrapper = styled.div`
     flex-direction: column;
   }
 `;
-
+const CreatorImage = styled.img.attrs({})`
+  width: 100%;
+`;
 export const Content = styled.div`
   margin-bottom: 20px;
   & > *:not(:first-child) {

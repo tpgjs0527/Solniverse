@@ -246,13 +246,13 @@ function Account() {
                       onClick={() => {
                         Swal.fire({
                           title: `${t("reconnect")}`,
-                          text: "다시 연결하여 프로필을 최신화하시겠습니까?",
+                          text: t("reconnect-text"),
                           icon: "question",
                           showCancelButton: true,
                           confirmButtonColor: "#3990e0",
                           cancelButtonColor: "#e96e35",
-                          confirmButtonText: "확인",
-                          cancelButtonText: "취소",
+                          confirmButtonText: t("confirm"),
+                          cancelButtonText: t("cancel"),
                         }).then((result) => {
                           if (result.isConfirmed) {
                             onCheckToken("twitch");
