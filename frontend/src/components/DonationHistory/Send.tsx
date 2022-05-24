@@ -8,6 +8,7 @@ import { useQuery } from "react-query";
 import { fetchSend } from "utils/fetcher";
 import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
 import Spinner from "components/Spinner";
+import { useTranslation } from "react-i18next";
 
 interface IRecord {
   x: number;
@@ -47,6 +48,7 @@ interface IResponse {
 }
 
 function SendDonationHistory() {
+  const { t } = useTranslation();
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
 
@@ -252,7 +254,7 @@ function SendDonationHistory() {
                 </ul>
               </Table>
             ) : (
-              <Empty>후원한 내역이 없습니다.</Empty>
+              <Empty>{t("donations-give-none")}</Empty>
             )}
           </>
         )}

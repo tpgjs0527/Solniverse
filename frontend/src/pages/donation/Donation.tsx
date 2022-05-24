@@ -14,6 +14,7 @@ import {
 import { fetchWallet } from "utils/fetcher";
 import { isMobile } from "react-device-detect";
 import { PublicKey } from "@solana/web3.js";
+import { useTranslation } from "react-i18next";
 
 interface IDonation {
   nickname: string;
@@ -22,6 +23,7 @@ interface IDonation {
 }
 
 function Donation() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const connection = createConnection();
@@ -94,8 +96,8 @@ function Donation() {
         }
       } else {
         Swal.fire({
-          title: "지갑 연결 필요",
-          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+          title: `${t("donation-alert-wallet1")}`,
+          text: `${t("donation-alert-wallet2")}`,
           icon: "info",
         });
         return;
@@ -213,14 +215,14 @@ function Donation() {
     getAsyncCreatorInfo();
     if (!userInfo.walletAddress) {
       Swal.fire({
-        title: "첫 방문이신가요?",
-        text: "서비스 안내를 확인하시겠습니까?",
+        title: `${t("donation-alert-first1")}`,
+        text: `${t("donation-alert-first2")}`,
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "확인",
-        cancelButtonText: "취소",
+        confirmButtonText: `${t("confirm")}`,
+        cancelButtonText: `${t("cancel")}`,
       }).then((result) => {
         if (result.isConfirmed) {
           navigate("/service");
@@ -275,7 +277,11 @@ function Donation() {
             <CreatorWrapper>
               <CreatorInfoWrapper>
                 <CreatorProfileImage src={creatorImgUrl} />
-                <CreatorName>{creatorName}님께 후원</CreatorName>
+                <CreatorName>
+                  {t("donation-to-en")}
+                  {creatorName}
+                  {t("donation-to-ko")}
+                </CreatorName>
               </CreatorInfoWrapper>
               <CreatorImage />
             </CreatorWrapper>
@@ -283,7 +289,7 @@ function Donation() {
           <DonationForm>
             <DonatorWrapper>
               <DonateNameWrapper>
-                <DonateInputName>후원닉네임</DonateInputName>
+                <DonateInputName>{t("donation-nickname")}</DonateInputName>
               </DonateNameWrapper>
               <DonateInputWrapper>
                 <Input
@@ -310,7 +316,7 @@ function Donation() {
             </ErrorWrapper>
             <DonatorWrapper>
               <DonateNameWrapper>
-                <DonateInputName>후원금액</DonateInputName>
+                <DonateInputName>{t("donation-amount")}</DonateInputName>
               </DonateNameWrapper>
               <DonateInputWrapper>
                 <Input
@@ -400,7 +406,7 @@ function Donation() {
 
             <DonatorWrapper>
               <DonateMessageWrapper>
-                <DonateMessageName>후원메시지</DonateMessageName>
+                <DonateMessageName>{t("donation-message")}</DonateMessageName>
               </DonateMessageWrapper>
               <DonateInputWrapper>
                 <MessageTextarea
@@ -435,7 +441,9 @@ function Donation() {
           </DonationWrapper>
           <DonationWrapper>
             <ButtonWrapper>
-              <DonateButton onClick={onClick}>후원하기</DonateButton>
+              <DonateButton onClick={onClick}>
+                {t("donation-donate-btn")}
+              </DonateButton>
               {/* <DonateButton onClick={Donate}>Donate</DonateButton> */}
             </ButtonWrapper>
           </DonationWrapper>

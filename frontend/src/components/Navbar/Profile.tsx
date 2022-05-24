@@ -65,7 +65,7 @@ export default function Profile() {
         </ProfileDiv>
       ) : (
         <Login onClick={connectWallet} isMobile={isMobile}>
-          지갑 연결
+          {t("profile-connect-wallet")}
         </Login>
       )}
     </>

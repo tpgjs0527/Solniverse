@@ -11,6 +11,7 @@ import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
 import { WalletConnectButton } from "@solana/wallet-adapter-react-ui";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface ITX {
   result: string;
@@ -19,6 +20,7 @@ export interface ITX {
 }
 
 function PaymentMobile() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -124,37 +126,37 @@ function PaymentMobile() {
 
   return (
     <Container>
-      <PageName>Payment Page</PageName>
+      <PageName>{t("payment")}</PageName>
       <Line />
       <Wrapper>
         <PaymentWrapper>
-          <Title>후원자 정보</Title>
+          <Title>{t("payment-give-info")}</Title>
           <InfoWrapper>
             <Name>{nickName}</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>{userInfo.walletAddress}</Account>
           </InfoWrapper>
-          <Title>크리에이터 정보</Title>
+          <Title>{t("payment-receive-info")}</Title>
           <InfoWrapper>
-            <Name>홀리냥</Name>
+            <Name>{creatorName}</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>{walletAddress}</Account>
           </InfoWrapper>
-          <Title>도네이션 정보</Title>
+          <Title>{t("payment-pay-info")}</Title>
           <TotalPriceWrapper>
             <PriceWrapper style={{ marginBottom: "8px" }}>
-              <Price>Donate Message</Price>
+              <Price>{t("payment-message")}</Price>
               <Price>{message}</Price>
             </PriceWrapper>
             <PriceWrapper>
-              <Price>Donate Price</Price>
+              <Price>{t("payment-amount")}</Price>
               <SOL>
                 {amount} {type}
               </SOL>
             </PriceWrapper>
             <Line />
             <PriceWrapper>
-              <Price>Total</Price>
+              <Price>{t("payment-tot-amount")}</Price>
               <SOL>
                 {amount} {type}
               </SOL>
