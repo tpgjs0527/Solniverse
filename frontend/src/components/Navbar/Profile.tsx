@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { isMobile } from "react-device-detect";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const userInfo = useRecoilValue(userInfoAtom);
   const [isSidebar, setIsSidebar] = useRecoilState(toggleSidebarAtom);
   const [, connectWallet] = useWallet();
