@@ -89,9 +89,11 @@ const ImageBox = styled.div`
 const CoreWrapper = styled(Wrapper)`
   display: flex;
   flex-direction: column;
+  padding-bottom: 20px;
   @media screen and (max-width: 700px) {
     padding-bottom: 13px;
     height: 100%;
+    margin-top: 10%;
   }
 `;
 const CardContainer = styled.div`

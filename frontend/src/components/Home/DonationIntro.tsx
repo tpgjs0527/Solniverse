@@ -102,7 +102,9 @@ const DonationIntroWrapper = styled(Wrapper)`
   padding-right: 4%;
 
   @media screen and (max-width: 800px) {
-    height: 900px;
+    margin-top: 30%;
+
+    height: 600px;
   }
 `;
 

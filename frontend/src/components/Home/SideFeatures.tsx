@@ -67,4 +67,5 @@ export const SideFeatures = () => {
 
 const SideWrapper = styled(Wrapper)`
   flex-direction: column;
+  margin-top: 10%;
 `;

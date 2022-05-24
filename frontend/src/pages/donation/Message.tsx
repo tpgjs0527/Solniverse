@@ -15,7 +15,7 @@ export const Message = () => {
   const params = useParams<{ uuid: string }>();
   const { uuid } = params;
   const [queue, setQueue] = useState<IMessage[]>([]);
-  const [start, setStart] = useState(true);
+  const [start, setStart] = useState(false);
   const [visible, setVisible] = useState(false);
   const refQueue = useMemo(() => queue, [queue]);
   const [socket, disconnectSocket] = useSocket(uuid);
@@ -45,8 +45,9 @@ export const Message = () => {
         },
       ]);
 
-      if (queue.length === 1) {
+      if (queue.length > 0) {
         setStart(true);
+        console.log(queue);
       }
     });
   }, [socket]);
@@ -58,11 +59,11 @@ export const Message = () => {
       context
         .resume()
         .then(() => sound.donation.play())
-        .catch((error) => console.log(error));
+        .catch((error) => sound.donation.play());
 
       setStart(true);
       setVisible(true);
-      sound.donation.play();
+      // sound.donation.play();
       setTimeout(() => {
         setVisible(false);
       }, 3000);
@@ -76,7 +77,7 @@ export const Message = () => {
 
       return;
     }
-  }, [refQueue]);
+  }, [refQueue.length]);
 
   return (
     <>
