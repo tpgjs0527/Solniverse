@@ -121,9 +121,6 @@ function SNVWorld() {
                   </UserName>
                 </UserInfoWrapper>
               </UserBox>
-              // <RankingBox>
-              //   <UserName>랭킹표시 할 자리</UserName>
-              // </RankingBox>
               <Hr />
               <PointBox>
                 <UserTitle>현재 자산</UserTitle>
