@@ -9,11 +9,11 @@ const resources = {
   ko: { translation: tranKo },
 };
 
-const userLanguage = window.navigator.language;
+// const userLanguage = window.navigator.language;
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: userLanguage,
+  lng: "ko",
   fallbackLng: "ko",
   keySeparator: false,
   interpolation: {
