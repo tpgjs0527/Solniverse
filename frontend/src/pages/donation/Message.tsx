@@ -57,14 +57,16 @@ export const Message = () => {
     if (refQueue.length > 0) {
       let context = new AudioContext();
       // 크롬에서 자동재생을 막기 때문에, 참고(https://developer.chrome.com/blog/autoplay/) resume() 호출하도록 해야함
-      context
-        .resume()
-        .then(() => sound.donation.play())
-        .catch((error) => console.log(error));
-
+      if (!start) {
+        context
+          .resume()
+          .then(() => sound.donation.play())
+          .catch((error) => console.log(error));
+        sound.donation.play();
+      }
       setStart(true);
       setVisible(true);
-      sound.donation.play();
+
       setTimeout(() => {
         setVisible(false);
       }, 3000);
