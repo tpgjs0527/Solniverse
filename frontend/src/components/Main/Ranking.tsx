@@ -92,7 +92,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
               ranking
             />
             <Name>
-              {userInfo?.twitch
+              {userInfo?.twitch.id
                 ? userInfo?.twitch.displayName
                 : userInfo?.walletAddress}
             </Name>

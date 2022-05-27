@@ -9,11 +9,11 @@ const resources = {
   ko: { translation: tranKo },
 };
 
-// const userLanguage = window.navigator.language;
+const userLanguage = window.navigator.language; // 현재 설정 언어
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: "ko",
+  lng: userLanguage || "ko",
   fallbackLng: "ko",
   keySeparator: false,
   interpolation: {
