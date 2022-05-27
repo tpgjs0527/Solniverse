@@ -647,50 +647,29 @@ async function recoverTransaction() {
 
 const WEB_RPC_ERROR = "solana webrpc error";
 
-let asyncFlag = true;
-
 /** @type {Array<web3.Connection>} connection을 모아놓은 배열*/
 let connectionPool = [];
 //추후 Kafka를 활용해서 프로듀서, 컨슈머 형태로 메시지 큐로 아래와 같은 기능을 구현할 수 있음.
 //현재는 모두 코드로 구현됨.
 const setLogs = async () => {
-  if (asyncFlag) {
-    asyncFlag = false;
-    recoverTransaction()
-      .then(async () => {
-        let tempLength = connectionPool.length;
-        if (tempLength)
-          for (let i = 0; i < tempLength; i++) {
-            //반복시간이 엄청 짧으면 동기식으로 해야 버그가 발생하지 않으니 주의
-            for (let num in connectionPool[i]
-              ._subscriptionDisposeFunctionsByClientSubscriptionId)
-              connectionPool[i].removeOnLogsListener(num); //GC를 위한 remove
-          }
+  recoverTransaction().finally(async () => {
+    connectionPool = []; //배열 빈 값으로 치환. 기존 것은 GC로 날아감.
+    for (let i = 0; i < 3; i++) {
+      connectionPool.push(getNewConnection());
 
-        connectionPool = []; //배열 빈 값으로 치환. 기존 것은 GC로 날아감.
-        for (let i = 0; i < 3; i++) {
-          connectionPool.push(getNewConnection());
+      connectionPool[i].onLogs(SHOP_WALLET_ADDRESS, logCallback, "confirmed");
+      connectionPool[i].onLogs(
+        SHOP_WALLET_ADDRESS,
+        finalizeCallback,
+        "finalized",
+      );
 
-          connectionPool[i].onLogs(
-            SHOP_WALLET_ADDRESS,
-            logCallback,
-            "confirmed",
-          );
-          connectionPool[i].onLogs(
-            SHOP_WALLET_ADDRESS,
-            finalizeCallback,
-            "finalized",
-          );
-
-          delete connectionPool[i]._rpcWebSocket._events.error;
-          connectionPool[i]._rpcWebSocket.on("error", () => {
-            logger.error(WEB_RPC_ERROR);
-          });
-        }
-      })
-      .finally(() => (asyncFlag = true));
-  }
+      delete connectionPool[i]._rpcWebSocket._events.error;
+      connectionPool[i]._rpcWebSocket.on("error", () => {
+        logger.error(WEB_RPC_ERROR);
+      });
+    }
+  });
 }; //서버 부팅시 동작
 
 setLogs();
-setInterval(setLogs, 1000 * 60 * 60); //1시간에 한 번씩 재 설정
