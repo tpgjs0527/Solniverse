@@ -13,6 +13,7 @@ const Images = [
   { imageUrl: "images/alertImg/3.PNG" },
   { imageUrl: "images/alertImg/4.png" },
   { imageUrl: "images/alertImg/5.png" },
+  { imageUrl: "images/alertImg/6.png" },
 ];
 export const AlertBoxSetting = () => {
   const { t } = useTranslation();
