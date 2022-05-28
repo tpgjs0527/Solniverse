@@ -502,18 +502,19 @@ async function sendSnvToken(toWallet, amount) {
   }
 }
 
-let confirmTransactions = {};
+// let confirmTransactions = {};
 const SHOP_WALLET_ADDRESS = new web3.PublicKey(process.env.DDD_SHOP_WALLET);
 
-setInterval(
-  () =>
-    logger.info(
-      `confirmTransactions: transactions=${JSON.stringify(
-        confirmTransactions,
-      )}`,
-    ),
-  1000 * 60 * 30,
-); // 30분마다 한 번씩 로깅
+// setInterval(
+//   () =>
+//     logger.info(
+//       `confirmTransactions: transactions=${JSON.stringify(
+//         confirmTransactions,
+//       )}`,
+//     ),
+//   1000 * 60 * 30,
+// ); // 30분마다 한 번씩 로깅
+
 /**
  * 상점에 트랜잭션이 발생하면 트랜잭션을 받아 갱신 함수 동작.
  * updateTransactionWithoutDuplication에 transaction을 넘겨줌.
@@ -521,99 +522,52 @@ setInterval(
  * @param {*} context
  */
 async function logCallback(context) {
-  if (
-    Object.prototype.hasOwnProperty.call(confirmTransactions, context.signature)
-  )
-    return; //이미 다른 곳에서 등록했을 경우 바로 return
-
+  logger.info("logCallBack: message=동작");
   if (context.err) {
     logger.error(`logCallback 에러 발생: error=${context.error}`);
     return;
   }
-
-  confirmTransactions[context.signature] = false;
   try {
-    /** finalized가 일정 시간이 되어도 오지 않는 경우, 20초 후에 동작 */
-    const checkTimeout = setTimeout(async () => {
-      logger.info("logCallback: message=타임아웃 동작");
-      delete confirmTransactions[context.signature];
-
-      let count = 0; // 13번 동작하고 강제 중지
-      const execDonation = async () => {
-        try {
-          count++;
-          if (count > 13) {
-            clearInterval(timoutInterval);
-            throw "시간이 지나도 finalized가 안됨";
-          }
-          const response = await connection.getSignatureStatus(
-            context.signature,
-          );
-          const status = response.value;
-          if (status) {
-            const confirmation = status.confirmations || 0;
-            if (
-              confirmation >= 32 ||
-              status.confirmationStatus === "finalized"
-            ) {
-              clearInterval(timoutInterval);
-              const transaction = await connection.getTransaction(
-                context.signature,
-              );
-              updateTransactionWithoutDuplication(transaction);
-            }
-          }
-        } catch (err) {
-          logger.error(`logCallback checkTimeout: error=${err}`);
-        }
-      };
-      execDonation();
-      const timoutInterval = setInterval(execDonation, 10000);
-    }, 20000);
-
-    /** finalized를 기다림 */
-    const checkInterval = setInterval(async () => {
+    const interval = setInterval(async () => {
       try {
-        if (confirmTransactions[context.signature]) {
-          delete confirmTransactions[context.signature];
-          clearTimeout(checkTimeout);
-          clearInterval(checkInterval);
-          delete confirmTransactions[context.signature];
-          const transaction = await connection.getTransaction(
-            context.signature,
-          );
-          updateTransactionWithoutDuplication(transaction);
+        const response = await connection.getSignatureStatus(context.signature);
+        const status = response.value;
+        if (status) {
+          const confirmation = status.confirmations || 0;
+          if (confirmation >= 32 || status.confirmationStatus === "finalized") {
+            clearInterval(interval);
+            const transaction = await connection.getTransaction(
+              context.signature,
+            );
+            updateTransactionWithoutDuplication(transaction);
+          }
         }
       } catch (err) {
-        clearInterval(checkInterval);
-        logger.error(`logCallback checkInterval: error=${err}`);
+        clearInterval(interval);
+        logger.error(`logCallback interval: error=${err}`);
       }
-    }, 1000); // 10초 동안 체크
-
-    setTimeout(() => clearInterval(checkInterval), 19500); // 9.5초 후에 삭제
-
-    logger.info(`logCallback: transaction=${context.signature}`);
+    }, 1000);
   } catch (err) {
     logger.error(`logCallback: error=${err}`);
   }
 }
 
-/**
- * 상점에 발생한 트랜잭션이 finalized되면 갱신.
- * updateTransactionWithoutDuplication에 transaction을 넘겨줌.
- *
- * @param {*} context
- */
-async function finalizeCallback(context) {
-  if (context.err) {
-    logger.error(`finalizeCallback 에러 발생: error=${context.error}`);
-    return;
-  }
-  if (
-    Object.prototype.hasOwnProperty.call(confirmTransactions, context.signature)
-  )
-    confirmTransactions[context.signature] = true;
-}
+// /**
+//  * 상점에 발생한 트랜잭션이 finalized되면 갱신.
+//  * updateTransactionWithoutDuplication에 transaction을 넘겨줌.
+//  *
+//  * @param {*} context
+//  */
+// async function finalizeCallback(context) {
+//   if (context.err) {
+//     logger.error(`finalizeCallback 에러 발생: error=${context.error}`);
+//     return;
+//   }
+//   if (
+//     Object.prototype.hasOwnProperty.call(confirmTransactions, context.signature)
+//   )
+//     confirmTransactions[context.signature] = true;
+// }
 
 /**
  * 서버 부팅시 혹은 1시간마다 동작할 DB의 마지막 트랜잭션으로부터 복구 함수.
@@ -633,43 +587,46 @@ async function recoverTransaction() {
       },
       "finalized",
     );
+    if (transactions.length > 20) {
+      logger.error(
+        "recoverTransaction: error=복구할 트랜잭션 수가 20개가 넘습니다.",
+      );
+      return;
+    }
     transactions
       .filter(({ err }) => !err)
       .map(async ({ signature }) => {
         const transaction = await connection.getTransaction(signature);
         updateTransactionWithoutDuplication(transaction);
       });
-    logger.info("recoverTransaction: message=작동 완료");
+    logger.info("recoverTransaction: message=동작 완료");
   } catch (err) {
     logger.error(`recoverTransaction: error=${err}`);
   }
 }
 
-const WEB_RPC_ERROR = "solana webrpc error";
-
-/** @type {Array<web3.Connection>} connection을 모아놓은 배열*/
-let connectionPool = [];
+// /** @type {Array<web3.Connection>} connection을 모아놓은 배열*/
+// let connectionPool = [];
 //추후 Kafka를 활용해서 프로듀서, 컨슈머 형태로 메시지 큐로 아래와 같은 기능을 구현할 수 있음.
 //현재는 모두 코드로 구현됨.
-const setLogs = async () => {
-  recoverTransaction().finally(async () => {
-    connectionPool = []; //배열 빈 값으로 치환. 기존 것은 GC로 날아감.
-    for (let i = 0; i < 3; i++) {
-      connectionPool.push(getNewConnection());
-
-      connectionPool[i].onLogs(SHOP_WALLET_ADDRESS, logCallback, "confirmed");
-      connectionPool[i].onLogs(
-        SHOP_WALLET_ADDRESS,
-        finalizeCallback,
-        "finalized",
-      );
-
-      delete connectionPool[i]._rpcWebSocket._events.error;
-      connectionPool[i]._rpcWebSocket.on("error", () => {
-        logger.error(WEB_RPC_ERROR);
-      });
-    }
+const setLogs = () => {
+  recoverTransaction().finally(() => {
+    connection.onLogs(SHOP_WALLET_ADDRESS, logCallback, "confirmed");
+    // connection.onLogs(SHOP_WALLET_ADDRESS, finalizeCallback, "finalized");
+    // connectionPool = []; //배열 빈 값으로 치환. 기존 것은 GC로 날아감.
+    // for (let i = 0; i < 2; i++) {
+    //   connectionPool.push(getNewConnection());
+    //   connectionPool[i].onLogs(SHOP_WALLET_ADDRESS, logCallback, "confirmed");
+    //   connectionPool[i].onLogs(
+    //     SHOP_WALLET_ADDRESS,
+    //     finalizeCallback,
+    //     "finalized",
+    //   );
+    // }
   });
-}; //서버 부팅시 동작
+}; //서버 부팅시 동작. onLogs에 문제가 있어서 제거
 
 setLogs();
+// setInterval(() => {
+//   recoverTransaction();
+// }, 2500); //2.5초에 한 번씩 마지막 트랜잭션 재검사
