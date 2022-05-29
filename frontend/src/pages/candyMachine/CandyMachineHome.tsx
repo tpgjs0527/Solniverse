@@ -692,6 +692,10 @@ const Container = styled.div`
   margin: 1px 1px;
   border-radius: 16px;
   box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22) !important;
+  @media screen and (max-width: 1000px) {
+    margin: 0px 0px;
+    width: 100vw;
+  }
 `;
 const PageTitle = styled.div`
   font-size: 24px;
@@ -699,6 +703,9 @@ const PageTitle = styled.div`
   text-align: center;
   margin-top: 32px;
   margin-bottom: 16px;
+  @media screen and (max-width: 1000px) {
+    margin-bottom: 40px;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -707,6 +714,10 @@ const Wrapper = styled.div`
   padding-bottom: 64px;
   display: flex;
   justify-content: center;
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 const MainContainer = styled.div`
   display: flex;
@@ -718,6 +729,9 @@ const MainContainer = styled.div`
   text-align: center;
   justify-content: center;
   width: 40%;
+  @media screen and (max-width: 1000px) {
+    width: 80%;
+  }
   height: 250px;
 `;
 
@@ -733,6 +747,9 @@ const SpinContainer = styled.div`
   width: 250px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.bgColor};
+  @media screen and (max-width: 1000px) {
+    margin-top: 120px;
+  }
 `;
 const SpinBtn = styled.button`
   display: flex;
@@ -815,6 +832,9 @@ const ImageTitle = styled.div`
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 16px;
+  @media screen and (max-width: 1000px) {
+    visibility: hidden;
+  }
 `;
 
 const Image = styled.img`
@@ -822,6 +842,10 @@ const Image = styled.img`
   width: 100%;
   border-radius: 7px;
   box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.5);
+  @media screen and (max-width: 1000px) {
+    margin-top: 30px;
+    width: 80%;
+  }
 `;
 
 const ConnectButton = styled(WalletMultiButton)`
@@ -838,6 +862,7 @@ const NFT = styled(Paper)`
   color: ${(props) => props.theme.textColor} !important;
   width: 100%;
   height: auto;
+
   margin: 0 auto;
   padding: 5px 20px 20px 20px;
   flex: 1 1 auto;

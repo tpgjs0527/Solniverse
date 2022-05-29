@@ -26,6 +26,10 @@ export const CTAButton = styled(Button)`
   transform: translateY(-4px);
   transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
   box-shadow: none !important;
+  @media screen and (max-width: 1450px) {
+    width:100px;
+    height:100px
+  }
   &:hover {
     background: linear-gradient(45deg, #870ff8 20%, #0f3af8 60%, #0ff8ec 95%);
   }

@@ -176,8 +176,8 @@
   "now-donating": "도네이션 진행 중",
   "now-donating-text": "현재 도네이션 중입니다!",
 
-  "insufficient-balance": "잔고 부족",
-  "insufficient-balance-text": "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+  "insufficient-balance": "후원금액 미입력",
+  "insufficient-balance-text": "후원금액을 입력하지 않았습니다. 후원금액을 입력해주세요.",
   "input-error": "입력 에러",
   "input-error-text": "후원닉네임과 후원금액을 모두 입력해주세요.",
   "nickname-error-text": "후원닉네임을 정확히 입력해주세요.",
