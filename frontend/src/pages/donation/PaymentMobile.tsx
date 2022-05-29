@@ -103,7 +103,6 @@ function PaymentMobile() {
   };
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     if (!data) {
       getTXId({
         displayName: nickName,
@@ -114,6 +113,7 @@ function PaymentMobile() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     // getSignature();
     if (data) {
       setTXID(data.txid);

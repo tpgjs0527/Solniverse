@@ -213,6 +213,9 @@ const Container = styled.div``;
 const Section = styled.div`
   display: flex;
   padding-top: 12px;
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+  }
 `;
 
 const Title = styled.div`
@@ -226,7 +229,7 @@ const Wrapper = styled.div`
   padding: 8px;
   width: 20%;
   height: 100%;
-  @media screen and (max-width: 691px) {
+  @media screen and (max-width: 1000px) {
     margin-bottom: 12px;
     width: 100%;
   }
@@ -245,6 +248,9 @@ const UserWrapper = styled.div`
   border-radius: 16px;
   background-color: ${(props) => props.theme.boxColor};
   box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22) !important;
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+  }
 `;
 const Hello = styled.div`
   font-size: 14px;
@@ -347,6 +353,10 @@ const Tab = styled.div<{ isActive: boolean }>`
 const NFTWrapper = styled.div`
   width: 80%;
   margin-left: 32px;
+  @media screen and (max-width: 1000px) {
+    margin-left: 0px;
+    width: 100%;
+  }
 `;
 const NFTBox = styled.div`
   display: flex;

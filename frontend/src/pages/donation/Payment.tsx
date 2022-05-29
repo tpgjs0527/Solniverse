@@ -40,6 +40,7 @@ function Payment() {
     setOpenModal(false);
   };
   const onClick = async () => {
+    console.log(txid)
     if (txid) {
       if (isMobile) {
         if (type === "SOL") {
@@ -242,6 +243,7 @@ const Wrapper = styled.div`
   min-width: 600px;
   min-height: 500px;
   border-radius: 16px;
+  background-color:${props => props.theme.subBoxColor};
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
   @media screen and (min-width: 1439px) {
     min-width: 600px;
@@ -272,7 +274,7 @@ const TitleWrapper = styled.div``;
 const InfoWrapper = styled.div`
   border-radius: 5px;
   padding: 20px;
-  background-color: #ececec;
+  background-color:${props => props.theme.boxColor}
 `;
 const Title = styled.div`
   margin-top: 32px;
@@ -297,7 +299,7 @@ const TotalPriceWrapper = styled.div`
   margin-left: 32px;
   margin-right: 32px;
   margin-bottom: 16px;
-  background-color: #ececec;
+  background-color:${props => props.theme.boxColor};
   border-radius: 5px;
   padding: 20px;
 `;

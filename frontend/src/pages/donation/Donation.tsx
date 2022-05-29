@@ -36,6 +36,7 @@ function Donation() {
   const [creatorImgUrl, setCreatorImgUrl] = useState("");
   const [snvBalance, setSNVBalance] = useState(0);
   const [usdcBalance, setUSDCBalance] = useState(0);
+  const [solBalance, setSOLBalance] = useState(0)
   const params = {
     amount: amount.toString(),
     nickName,
@@ -55,6 +56,7 @@ function Donation() {
     setAmount(e.target.value);
   };
   const getAsyncToken = async () => {
+    try {
     const usdcAddress = await findAssociatedTokenAddress(
       new PublicKey(userInfo.walletAddress),
       new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
@@ -80,7 +82,11 @@ function Donation() {
     const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
     if (snvResponse) {
       setSNVBalance(snvAmount);
-    }
+      }
+    } catch {
+      setSNVBalance(0)
+      setUSDCBalance(0)
+      }
   };
 
   const onClick = () => {
@@ -230,8 +236,14 @@ function Donation() {
   }, []);
 
   useEffect(() => {
+    if(!isMobile){
     const getAsyncSol = async () => {
-      const sol = await getBalance(userInfo.walletAddress);
+      let sol
+      try {
+        sol = await getBalance(userInfo.walletAddress);
+        } catch {
+        sol = 0
+        }
       if (type === "SOL" && sol < amount) {
         Swal.fire({
           html: `${t("amount-higher")}`,
@@ -262,7 +274,8 @@ function Donation() {
       });
       // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
       setAmount(0);
-    }
+      }
+      }
   }, [amount, snvBalance, usdcBalance]);
 
   return (
