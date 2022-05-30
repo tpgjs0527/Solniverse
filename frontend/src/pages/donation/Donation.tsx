@@ -36,7 +36,7 @@ function Donation() {
   const [creatorImgUrl, setCreatorImgUrl] = useState("");
   const [snvBalance, setSNVBalance] = useState(0);
   const [usdcBalance, setUSDCBalance] = useState(0);
-  const [solBalance, setSOLBalance] = useState(0)
+  const [solBalance, setSOLBalance] = useState(0);
   const params = {
     amount: amount.toString(),
     nickName,
@@ -57,36 +57,36 @@ function Donation() {
   };
   const getAsyncToken = async () => {
     try {
-    const usdcAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-    );
+      const usdcAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+      );
 
-    const usdcResponse = await connection.getTokenAccountBalance(
-      new PublicKey(usdcAddress)
-    );
+      const usdcResponse = await connection.getTokenAccountBalance(
+        new PublicKey(usdcAddress)
+      );
 
-    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
-    if (usdcResponse) {
-      setUSDCBalance(usdcAmount);
-    }
-    const snvAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
-    );
+      const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+      if (usdcResponse) {
+        setUSDCBalance(usdcAmount);
+      }
+      const snvAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+      );
 
-    const snvResponse = await connection.getTokenAccountBalance(
-      new PublicKey(snvAddress)
-    );
+      const snvResponse = await connection.getTokenAccountBalance(
+        new PublicKey(snvAddress)
+      );
 
-    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
-    if (snvResponse) {
-      setSNVBalance(snvAmount);
+      const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+      if (snvResponse) {
+        setSNVBalance(snvAmount);
       }
     } catch {
-      setSNVBalance(0)
-      setUSDCBalance(0)
-      }
+      setSNVBalance(0);
+      setUSDCBalance(0);
+    }
   };
 
   const onClick = () => {
@@ -109,9 +109,84 @@ function Donation() {
         return;
       }
     }
+    if (!isMobile) {
+      if (userInfo.walletAddress) {
+        const getAsyncSol = async () => {
+          let sol;
+          try {
+            sol = await getBalance(userInfo.walletAddress);
+          } catch {
+            sol = 0;
+          }
+          if (type === "SOL" && sol < amount) {
+            Swal.fire({
+              html: `${t("amount-higher")}`,
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+              icon: "warning",
+            });
+            // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+            setAmount(0);
+            return;
+          }
+        };
+
+        getAsyncSol();
+        getAsyncToken();
+        if (type === "USDC" && usdcBalance < amount) {
+          Swal.fire({
+            html: t("amount-higher"),
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+          return;
+        }
+      }
+    }
 
     if (!isMobile) {
       if (userInfo.walletAddress) {
+        if (type === "SOL" && solBalance < amount) {
+          Swal.fire({
+            html: `${t("amount-higher")}`,
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+          return;
+        }
+        if (type === "USDC" && usdcBalance < amount) {
+          Swal.fire({
+            html: t("amount-higher"),
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+          return;
+        }
         if (!amount || !nickName) {
           Swal.fire({
             title: t("input-error"),
@@ -236,46 +311,51 @@ function Donation() {
   }, []);
 
   useEffect(() => {
-    if(!isMobile){
-    const getAsyncSol = async () => {
-      let sol
-      try {
-        sol = await getBalance(userInfo.walletAddress);
-        } catch {
-        sol = 0
+    if (!isMobile) {
+      if (userInfo.walletAddress) {
+        const getAsyncSol = async () => {
+          let sol;
+          try {
+            sol = await getBalance(userInfo.walletAddress);
+            setSOLBalance(Number(sol));
+          } catch {
+            sol = 0;
+            setSOLBalance(Number(sol));
+          }
+          if (type === "SOL" && sol < amount) {
+            Swal.fire({
+              html: `${t("amount-higher")}`,
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+              icon: "warning",
+            });
+            // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+            setAmount(0);
+          }
+        };
+
+        getAsyncSol();
+        getAsyncToken();
+        if (type === "USDC" && usdcBalance < amount) {
+          Swal.fire({
+            html: t("amount-higher"),
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
         }
-      if (type === "SOL" && sol < amount) {
-        Swal.fire({
-          html: `${t("amount-higher")}`,
-          showClass: {
-            popup: "animate__animated animate__fadeInDown",
-          },
-          hideClass: {
-            popup: "animate__animated animate__fadeOutUp",
-          },
-          icon: "warning",
-        });
-        // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
-        setAmount(0);
       }
-    };
-    getAsyncSol();
-    getAsyncToken();
-    if (type === "USDC" && usdcBalance < amount) {
-      Swal.fire({
-        html: t("amount-higher"),
-        showClass: {
-          popup: "animate__animated animate__fadeInDown",
-        },
-        hideClass: {
-          popup: "animate__animated animate__fadeOutUp",
-        },
-        icon: "warning",
-      });
-      // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
-      setAmount(0);
-      }
-      }
+    }
   }, [amount, snvBalance, usdcBalance]);
 
   return (
