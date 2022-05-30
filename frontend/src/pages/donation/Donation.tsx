@@ -14,6 +14,7 @@ import {
 import { fetchWallet } from "utils/fetcher";
 import { isMobile } from "react-device-detect";
 import { PublicKey } from "@solana/web3.js";
+import { useTranslation } from "react-i18next";
 
 interface IDonation {
   nickname: string;
@@ -22,6 +23,7 @@ interface IDonation {
 }
 
 function Donation() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const connection = createConnection();
@@ -34,6 +36,7 @@ function Donation() {
   const [creatorImgUrl, setCreatorImgUrl] = useState("");
   const [snvBalance, setSNVBalance] = useState(0);
   const [usdcBalance, setUSDCBalance] = useState(0);
+  const [solBalance, setSOLBalance] = useState(0);
   const params = {
     amount: amount.toString(),
     nickName,
@@ -53,31 +56,36 @@ function Donation() {
     setAmount(e.target.value);
   };
   const getAsyncToken = async () => {
-    const usdcAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
-    );
+    try {
+      const usdcAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`)
+      );
 
-    const usdcResponse = await connection.getTokenAccountBalance(
-      new PublicKey(usdcAddress)
-    );
+      const usdcResponse = await connection.getTokenAccountBalance(
+        new PublicKey(usdcAddress)
+      );
 
-    const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
-    if (usdcResponse) {
-      setUSDCBalance(usdcAmount);
-    }
-    const snvAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
-    );
+      const usdcAmount = Number(usdcResponse?.value?.amount) / 1000000;
+      if (usdcResponse) {
+        setUSDCBalance(usdcAmount);
+      }
+      const snvAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+      );
 
-    const snvResponse = await connection.getTokenAccountBalance(
-      new PublicKey(snvAddress)
-    );
+      const snvResponse = await connection.getTokenAccountBalance(
+        new PublicKey(snvAddress)
+      );
 
-    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
-    if (snvResponse) {
-      setSNVBalance(snvAmount);
+      const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+      if (snvResponse) {
+        setSNVBalance(snvAmount);
+      }
+    } catch {
+      setSNVBalance(0);
+      setUSDCBalance(0);
     }
   };
 
@@ -86,28 +94,103 @@ function Donation() {
       if (userInfo.walletAddress) {
         if (!(amount > 0)) {
           Swal.fire({
-            title: "잔고 부족",
-            text: "잔고가 부족합니다. 충전 후 도네이션을 진행해주세요.",
+            title: t("insufficient-balance"),
+            text: t("insufficient-balance-text"),
             icon: "warning",
           });
           return;
         }
       } else {
         Swal.fire({
-          title: "지갑 연결 필요",
-          text: `지갑 연결이 필요합니다. 상단 메뉴바에서 지갑연결을 해주세요.`,
+          title: `${t("donation-alert-wallet1")}`,
+          text: `${t("donation-alert-wallet2")}`,
           icon: "info",
         });
         return;
       }
     }
+    if (!isMobile) {
+      if (userInfo.walletAddress) {
+        const getAsyncSol = async () => {
+          let sol;
+          try {
+            sol = await getBalance(userInfo.walletAddress);
+          } catch {
+            sol = 0;
+          }
+          if (type === "SOL" && sol < amount) {
+            Swal.fire({
+              html: `${t("amount-higher")}`,
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+              icon: "warning",
+            });
+            // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+            setAmount(0);
+            return;
+          }
+        };
+
+        getAsyncSol();
+        getAsyncToken();
+        if (type === "USDC" && usdcBalance < amount) {
+          Swal.fire({
+            html: t("amount-higher"),
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+          return;
+        }
+      }
+    }
 
     if (!isMobile) {
       if (userInfo.walletAddress) {
+        if (type === "SOL" && solBalance < amount) {
+          Swal.fire({
+            html: `${t("amount-higher")}`,
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+          return;
+        }
+        if (type === "USDC" && usdcBalance < amount) {
+          Swal.fire({
+            html: t("amount-higher"),
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+          return;
+        }
         if (!amount || !nickName) {
           Swal.fire({
-            title: "입력 에러",
-            text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+            title: t("input-error"),
+            text: t("input-error-text"),
             icon: "warning",
           });
           return;
@@ -115,16 +198,16 @@ function Donation() {
 
         if (errors.nickname) {
           Swal.fire({
-            title: "입력 에러",
-            text: "후원닉네임을 정확히 입력해주세요.",
+            title: t("input-error"),
+            text: t("nickname-error-text"),
             icon: "warning",
           });
           return;
         }
         if (errors.amount) {
           Swal.fire({
-            title: "입력 에러",
-            text: "후원금액을 정확히 입력해주세요.",
+            title: t("input-error"),
+            text: t("donation-amount-error-text"),
             icon: "warning",
           });
           return;
@@ -137,24 +220,24 @@ function Donation() {
     } else {
       if (!amount || !nickName) {
         Swal.fire({
-          title: "입력 에러",
-          text: "후원닉네임과 후원금액을 모두 입력해주세요.",
+          title: t("input-error"),
+          text: t("input-error-text"),
           icon: "warning",
         });
         return;
       }
       if (errors.nickname) {
         Swal.fire({
-          title: "입력 에러",
-          text: "후원닉네임을 정확히 입력해주세요.",
+          title: t("input-error"),
+          text: t("nickname-error-text"),
           icon: "warning",
         });
         return;
       }
       if (!amount) {
         Swal.fire({
-          title: "입력 에러",
-          text: "후원금액을 정확히 입력해주세요.",
+          title: t("input-error"),
+          text: t("donation-amount-error-text"),
           icon: "warning",
         });
         return;
@@ -189,11 +272,7 @@ function Donation() {
       } else {
         const error = new Error(res.statusText);
 
-        Swal.fire(
-          "지갑 확인 오류",
-          "현재 연결된 지갑이 확인되고 있지 않습니다.",
-          "warning"
-        );
+        Swal.fire(t("no-wallet"), t("no-wallet-alert"), "warning");
       }
     }
   };
@@ -213,14 +292,14 @@ function Donation() {
     getAsyncCreatorInfo();
     if (!userInfo.walletAddress) {
       Swal.fire({
-        title: "첫 방문이신가요?",
-        text: "서비스 안내를 확인하시겠습니까?",
+        title: `${t("donation-alert-first1")}`,
+        text: `${t("donation-alert-first2")}`,
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "확인",
-        cancelButtonText: "취소",
+        confirmButtonText: `${t("confirm")}`,
+        cancelButtonText: `${t("cancel")}`,
       }).then((result) => {
         if (result.isConfirmed) {
           navigate("/service");
@@ -232,38 +311,50 @@ function Donation() {
   }, []);
 
   useEffect(() => {
-    const getAsyncSol = async () => {
-      const sol = await getBalance(userInfo.walletAddress);
-      if (type === "SOL" && sol < amount) {
-        Swal.fire({
-          html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
-          showClass: {
-            popup: "animate__animated animate__fadeInDown",
-          },
-          hideClass: {
-            popup: "animate__animated animate__fadeOutUp",
-          },
-          icon: "warning",
-        });
-        // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
-        setAmount(0);
+    if (!isMobile) {
+      if (userInfo.walletAddress) {
+        const getAsyncSol = async () => {
+          let sol;
+          try {
+            sol = await getBalance(userInfo.walletAddress);
+            setSOLBalance(Number(sol));
+          } catch {
+            sol = 0;
+            setSOLBalance(Number(sol));
+          }
+          if (type === "SOL" && sol < amount) {
+            Swal.fire({
+              html: `${t("amount-higher")}`,
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+              icon: "warning",
+            });
+            // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+            setAmount(0);
+          }
+        };
+
+        getAsyncSol();
+        getAsyncToken();
+        if (type === "USDC" && usdcBalance < amount) {
+          Swal.fire({
+            html: t("amount-higher"),
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+            icon: "warning",
+          });
+          // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
+          setAmount(0);
+        }
       }
-    };
-    getAsyncSol();
-    getAsyncToken();
-    if (type === "USDC" && usdcBalance < amount) {
-      Swal.fire({
-        html: "입력한 금액이 현재 잔고보다 높습니다.<br> 다시 입력해주세요. 😊",
-        showClass: {
-          popup: "animate__animated animate__fadeInDown",
-        },
-        hideClass: {
-          popup: "animate__animated animate__fadeOutUp",
-        },
-        icon: "warning",
-      });
-      // alert("현재 잔액보다 높은 금액을 설정하셨습니다. SOL을 충전해주세요.");
-      setAmount(0);
     }
   }, [amount, snvBalance, usdcBalance]);
 
@@ -275,7 +366,11 @@ function Donation() {
             <CreatorWrapper>
               <CreatorInfoWrapper>
                 <CreatorProfileImage src={creatorImgUrl} />
-                <CreatorName>{creatorName}님께 후원</CreatorName>
+                <CreatorName>
+                  {t("donation-to-en")}
+                  {creatorName}
+                  {t("donation-to-ko")}
+                </CreatorName>
               </CreatorInfoWrapper>
               <CreatorImage />
             </CreatorWrapper>
@@ -283,16 +378,15 @@ function Donation() {
           <DonationForm>
             <DonatorWrapper>
               <DonateNameWrapper>
-                <DonateInputName>후원닉네임</DonateInputName>
+                <DonateInputName>{t("donation-nickname")}</DonateInputName>
               </DonateNameWrapper>
               <DonateInputWrapper>
                 <Input
                   {...register("nickname", {
-                    required: "필수 입력정보입니다.",
+                    required: t("required"),
                     pattern: {
                       value: /^[ㄱ-ㅎ가-힣a-zA-Z0-9 ]{2,15}$/,
-                      message:
-                        "2~15자의 한글, 영문 대 소문자, 숫자만 사용 가능합니다.",
+                      message: t("required-text"),
                     },
                     onChange: (e) => {
                       setNickName(e.target.value);
@@ -310,14 +404,14 @@ function Donation() {
             </ErrorWrapper>
             <DonatorWrapper>
               <DonateNameWrapper>
-                <DonateInputName>후원금액</DonateInputName>
+                <DonateInputName>{t("donation-amount")}</DonateInputName>
               </DonateNameWrapper>
               <DonateInputWrapper>
                 <Input
                   {...register("amount", {
                     pattern: {
                       value: /^[0-9.]*$/,
-                      message: "숫자와 . 기호만 입력 가능합니다.",
+                      message: t("amount-required"),
                     },
                     onChange: (e) => {
                       setAmount(e.target.value);
@@ -325,7 +419,7 @@ function Donation() {
                   })}
                   value={amount === 0 ? "" : `${amount}`}
                   style={{ display: "flex", justifyContent: "space-between" }}
-                  placeholder="후원금액을 입력해주세요."
+                  placeholder={t("not-amount")}
                 />
 
                 <Select onChange={onSubmit}>
@@ -400,20 +494,20 @@ function Donation() {
 
             <DonatorWrapper>
               <DonateMessageWrapper>
-                <DonateMessageName>후원메시지</DonateMessageName>
+                <DonateMessageName>{t("donation-message")}</DonateMessageName>
               </DonateMessageWrapper>
               <DonateInputWrapper>
                 <MessageTextarea
                   {...register("message", {
                     onChange: (e) => {
                       if (e.target.value.length > 50) {
-                        alert("최대 글자수를 초과했습니다.");
+                        alert(t("word-excess"));
                       } else {
                         setMessage(e.target.value);
                       }
                     },
                   })}
-                  placeholder="후원메시지를 작성해주세요."
+                  placeholder={t("donation-message-please")}
                 />
               </DonateInputWrapper>
             </DonatorWrapper>
@@ -435,7 +529,9 @@ function Donation() {
           </DonationWrapper>
           <DonationWrapper>
             <ButtonWrapper>
-              <DonateButton onClick={onClick}>후원하기</DonateButton>
+              <DonateButton onClick={onClick}>
+                {t("donation-donate-btn")}
+              </DonateButton>
               {/* <DonateButton onClick={Donate}>Donate</DonateButton> */}
             </ButtonWrapper>
           </DonationWrapper>

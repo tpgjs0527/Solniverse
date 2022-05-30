@@ -3,6 +3,7 @@ import base58 from "bs58";
 import { useRecoilState } from "recoil";
 import { userInfoAtom } from "atoms";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 // signature 전달해서 refresthToken 및 accessToken 받기
 
@@ -12,6 +13,7 @@ interface IuserData {
 }
 let phantom = "";
 function useToken() {
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
 
   // accessToken과 refreshToken을 받는 함수
@@ -19,9 +21,9 @@ function useToken() {
     if (!walletAddress)
       return Swal.fire({
         icon: "error",
-        title: "지갑 발견 실패",
-        html: "지갑이 연결되지 않았습니다.<br>팬텀 월렛을 확인해주세요 😊",
-        footer: '<a href="/service">서비스 안내 바로가기</a>',
+        title: t("no-wallet"),
+        html: t("no-wallet-alert"),
+        footer: t("go-service-guide"),
       });
     const provider = getProvider();
 
@@ -31,18 +33,14 @@ function useToken() {
         phantom = await (
           await provider.connect({ onlyIfTrusted: true })
         ).publicKey.toString();
-        console.log(phantom);
+        // console.log(phantom);
         // 지갑 연결 끊겨있으면 수동으로 연결하기
       } catch (error) {
         phantom = await (await provider.connect()).publicKey.toString();
       }
       // 지금 연결된 지갑과 아톱의 지갑이 다르면 로그아웃
       if (phantom !== userInfo.walletAddress) {
-        Swal.fire(
-          "지갑 변경 감지",
-          "지갑을 변경하셨군요! <br> 변경한 지갑으로 재입장해주시기 바랍니다 😊",
-          "question"
-        );
+        Swal.fire(t("wallet-change"), t("wallet-change-alert"), "question");
         setUserInfo({
           twitch: {
             id: "",
@@ -91,9 +89,9 @@ function useToken() {
     if (!walletAddress)
       return Swal.fire({
         icon: "error",
-        title: "지갑 발견 실패",
-        text: "지갑이 연결되지 않았습니다. 팬텀 월렛을 확인해주세요 😊",
-        footer: '<a href="/service">서비스 안내 바로가기</a>',
+        title: t("no-wallet"),
+        html: t("no-wallet-alert"),
+        footer: t("go-service-guide"),
       });
     else {
       const response = await (

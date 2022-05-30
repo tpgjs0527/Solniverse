@@ -9,6 +9,8 @@ import { getBalance, getSolanaPrice, getTokenBalance } from "utils/solanaWeb3";
 import useToken from "hooks/useToken";
 import { ReactComponent as Sol } from "../../../public/images/svg/sol.svg";
 import { ReactComponent as Usdc } from "../../../public/images/svg/usdc.svg";
+import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface IUser {
   result: string;
@@ -18,15 +20,20 @@ export interface IUser {
     wallet_address: string;
   };
 }
+
 function Account() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [balance, setBalance] = useState(0.0);
   const [solBalance, setSolBalance] = useState(0);
   const [usdcBalance, setUsdcBalance] = useState(0);
   const [snvBalance, setSnvBalance] = useState(0);
-  const [isLoadingGetSol, setIsLoadingGetSol] = useState(true);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+  const [isLoadingSolBalance, setIsLoadingSolBalance] = useState(true);
+  const [isLoadingUsdcBalance, setIsLoadingUsdcBalance] = useState(true);
+  const [isLoadingSnvBalance, setIsLoadingSnvBalance] = useState(true);
 
   // query string
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,32 +44,58 @@ function Account() {
   // 페이지 들어오면 지갑 잔액 함수 실행
   useEffect(() => {
     const getAsyncAccountBalance = async () => {
-      const sol = await getBalance(userInfo.walletAddress);
-      const usdPrice = await getSolanaPrice();
-      const usdc = await getTokenBalance(
-        userInfo.walletAddress,
-        `${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`
-      );
       const snv = await getTokenBalance(
         userInfo.walletAddress,
         `${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`
       );
+      if (snv) {
+        // snv 있을 때
+        setSnvBalance(snv);
+        setIsLoadingSnvBalance(false);
+      } else setIsLoadingSnvBalance(false);
 
-      if (sol) {
-        if (usdc) {
-          setSolBalance(sol);
-          setUsdcBalance(usdc);
+      const usdPrice = await getSolanaPrice(); // sol 당 usd 가격
+      const sol = await getBalance(userInfo.walletAddress);
+      const usdc = await getTokenBalance(
+        userInfo.walletAddress,
+        `${process.env.REACT_APP_USDC_TOKEN_ACCOUNT}`
+      );
+
+      if (sol && usdc) {
+        // sol, usdc 모두 있을 때
+        setSolBalance(sol);
+        setUsdcBalance(usdc);
+        setIsLoadingSolBalance(false);
+        setIsLoadingUsdcBalance(false);
+        if (usdPrice) {
+          // usdPrice 잘 받아와졌다면
           setBalance(Number((sol * usdPrice + usdc).toFixed(2)));
         } else {
-          setSolBalance(sol);
-          setBalance(Number((sol * usdPrice).toFixed(2)));
+          // 아니라면 임시 고정값으로 반영
+          setBalance(Number((sol * 50 + usdc).toFixed(2)));
         }
+      } else if (sol) {
+        // sol만 있을 때
+        setIsLoadingUsdcBalance(false);
+        setSolBalance(sol);
+        setIsLoadingSolBalance(false);
+        if (usdPrice) {
+          setBalance(Number((sol * usdPrice).toFixed(2)));
+        } else {
+          setBalance(Number((sol * 50).toFixed(2)));
+        }
+      } else if (usdc) {
+        // usdc만 있을 때
+        setIsLoadingSolBalance(false);
+        setUsdcBalance(usdc);
+        setIsLoadingUsdcBalance(false);
+        setBalance(Number(usdc.toFixed(2)));
+      } else {
+        // 둘다 없을 때
+        setIsLoadingSolBalance(false);
+        setIsLoadingUsdcBalance(false);
       }
-      if (snv) {
-        setSnvBalance(snv);
-      }
-
-      setIsLoadingGetSol(false);
+      setIsLoadingBalance(false);
     };
     getAsyncAccountBalance();
   }, []);
@@ -86,7 +119,7 @@ function Account() {
     }
   };
 
-  // request (twitch code 전송)
+  // [BE] twitch code 전송
   const [connectToTwitch, { data, loading }] = useMutation<IUser>(
     `${process.env.REACT_APP_BASE_URL}/auth/oauth`,
     accessToken
@@ -122,48 +155,59 @@ function Account() {
     <Section>
       <BoxWrapper>
         <Box>
-          <BoxTitle>지갑</BoxTitle>
+          <BoxTitle>{t("wallet")}</BoxTitle>
           <Card>
-            <div>
-              {isLoadingGetSol ? (
-                <SpinnerDiv>
-                  <Spinner />
-                </SpinnerDiv>
-              ) : (
-                <Balance>
-                  <BalanceUSD>{`$ ${balance}`}</BalanceUSD>
+            <Balance>
+              <TotalDiv>
+                <span>$</span>
+                {isLoadingBalance ? <Spinner /> : <span>{balance}</span>}
+              </TotalDiv>
+              <Type>
+                <Logo>
+                  <Sol />
+                </Logo>
+                {isLoadingSolBalance ? (
+                  <SpinnerDiv>
+                    <Spinner isBalance />
+                  </SpinnerDiv>
+                ) : (
+                  <BalanceToken>{`${solBalance}`}</BalanceToken>
+                )}
+                <Unit>SOL</Unit>
+              </Type>
+              <Type>
+                <Logo>
+                  <Usdc />
+                </Logo>
+                {isLoadingUsdcBalance ? (
+                  <SpinnerDiv>
+                    <Spinner isBalance />
+                  </SpinnerDiv>
+                ) : (
+                  <BalanceToken>{`${usdcBalance}`}</BalanceToken>
+                )}
+                <Unit>USDC</Unit>
+              </Type>
+              <Type>
+                <LogoImg src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`} />
+                {isLoadingSnvBalance ? (
+                  <SpinnerDiv>
+                    <Spinner isBalance />
+                  </SpinnerDiv>
+                ) : (
+                  <BalanceToken>{`${snvBalance}`}</BalanceToken>
+                )}
+                <Unit>SNV</Unit>
+              </Type>
+            </Balance>
 
-                  <Type>
-                    <Logo>
-                      <Sol />
-                    </Logo>
-                    <BalanceToken>{`${solBalance}`}</BalanceToken>
-                    <Unit>SOL</Unit>
-                  </Type>
-                  <Type>
-                    <Logo>
-                      <Usdc />
-                    </Logo>
-                    <BalanceToken>{`${usdcBalance}`}</BalanceToken>
-                    <Unit>USDC</Unit>
-                  </Type>
-                  <Type>
-                    <LogoImg
-                      src={`${process.env.PUBLIC_URL}/images/SNV토큰.png`}
-                    />
-                    <BalanceToken>{`${snvBalance}`}</BalanceToken>
-                    <Unit>SNV</Unit>
-                  </Type>
-                </Balance>
-              )}
-            </div>
             <Address>{userInfo.walletAddress}</Address>
           </Card>
         </Box>
       </BoxWrapper>
       <BoxWrapper>
         <Box>
-          <BoxTitle>연결</BoxTitle>
+          <BoxTitle>{t("connect")}</BoxTitle>
           <Oauth1>
             <OauthImg
               viewBox="0 0 48 48"
@@ -198,6 +242,26 @@ function Account() {
                       <OauthProfileImg src={userInfo.twitch.profileImageUrl} />
                       <Name>{userInfo.twitch.displayName}</Name>
                     </OauthProfile>
+                    <Extra
+                      onClick={() => {
+                        Swal.fire({
+                          title: `${t("reconnect")}`,
+                          text: t("reconnect-text"),
+                          icon: "question",
+                          showCancelButton: true,
+                          confirmButtonColor: "#3990e0",
+                          cancelButtonColor: "#e96e35",
+                          confirmButtonText: t("confirm"),
+                          cancelButtonText: t("cancel"),
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            onCheckToken("twitch");
+                          }
+                        });
+                      }}
+                    >
+                      {t("reconnect")}
+                    </Extra>
                   </HoverNoneDiv>
                 ) : (
                   <HoverDiv onClick={() => onCheckToken("twitch")}>
@@ -252,14 +316,28 @@ const Name = styled.p`
 `;
 
 const OauthProfileImg = styled.img`
-  margin-left: 10px;
   width: 40px;
   height: 40px;
   background: #e5e8eb;
   border-radius: 50%;
+`;
+
+const Extra = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  line-height: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  background: ${(props) => props.theme.subBoxColor};
+  &:hover {
+    background: ${(props) => props.theme.ownColor};
+  }
 
   @media screen and (min-width: 767px) {
-    margin-left: 16px;
+    font-size: 14px;
   }
 `;
 
@@ -271,7 +349,6 @@ const OauthProfile = styled.div`
 const SpinnerDiv = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
 `;
@@ -279,8 +356,14 @@ const SpinnerDiv = styled.div`
 const HoverNoneDiv = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   height: 100%;
+  padding: 0 10px;
+
+  @media screen and (min-width: 767px) {
+    padding: 0 16px;
+  }
 `;
 
 const HoverDiv = styled.div`
@@ -335,6 +418,11 @@ const Address = styled.p`
 const Unit = styled.span`
   color: whitesmoke;
   margin-left: auto;
+  font-size: 14px;
+
+  @media screen and (min-width: 767px) {
+    font-size: 16px;
+  }
 `;
 
 const BalanceToken = styled.span`
@@ -350,14 +438,14 @@ const BalanceToken = styled.span`
 const LogoImg = styled.img`
   display: flex;
   align-items: center;
-  width: 20px;
+  min-width: 20px;
   height: 20px;
 `;
 
 const Logo = styled.div`
   display: flex;
   align-items: center;
-  width: 20px;
+  min-width: 20px;
   height: 20px;
 `;
 
@@ -367,11 +455,15 @@ const Type = styled.div`
   gap: 10px;
 `;
 
-const BalanceUSD = styled.p`
+const TotalDiv = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: whitesmoke;
-  font-size: 28px;
-  font-weight: 500;
   margin-bottom: 5px;
+  font-size: 28px;
+  /* height: 40px; */
+  font-weight: 500;
 
   @media screen and (min-width: 767px) {
     font-size: 32px;

@@ -8,6 +8,7 @@ import { fetchReceive } from "utils/fetcher";
 import { useQuery } from "react-query";
 import { LAMPORTS_PER_SOL } from "utils/solanaWeb3";
 import Spinner from "components/Spinner";
+import { useTranslation } from "react-i18next";
 
 interface IRecord {
   x: number;
@@ -47,6 +48,7 @@ interface IResponse {
 }
 
 function ReceiveDonationHistory() {
+  const { t } = useTranslation();
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
 
@@ -227,40 +229,43 @@ function ReceiveDonationHistory() {
             {data?.transaction && data?.transaction?.length > 0 ? (
               <Table>
                 <ul>
-                  {data?.transaction?.map((el) => (
-                    <Element key={el.block}>
-                      <Top>
-                        <span>{el.displayName}</span>
-                      </Top>
-                      <Mid>
-                        {/* UTC -> 한국 시간 */}
-                        <Time>{new Date(el.blockTime).toLocaleString()}</Time>
-                        <span>
-                          {el.paymentType === "sol"
-                            ? el.amount / LAMPORTS_PER_SOL + " SOL"
-                            : el.amount / 1000000 + " USDC"}
-                        </span>
-                      </Mid>
-                      <div>
-                        <Message>{`"${el.message}"`}</Message>
-                      </div>
-                      <Bot>
-                        <Tx
-                          onClick={() =>
-                            window.open(
-                              `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
-                            )
-                          }
-                        >
-                          Transaction details
-                        </Tx>
-                      </Bot>
-                    </Element>
-                  ))}
+                  {data?.transaction
+                    ?.slice(0)
+                    .reverse()
+                    .map((el) => (
+                      <Element key={el.block}>
+                        <Top>
+                          <span>{el.displayName}</span>
+                        </Top>
+                        <Mid>
+                          {/* UTC -> 한국 시간 */}
+                          <Time>{new Date(el.blockTime).toLocaleString()}</Time>
+                          <span>
+                            {el.paymentType === "sol"
+                              ? el.amount / LAMPORTS_PER_SOL + " SOL"
+                              : el.amount / 1000000 + " USDC"}
+                          </span>
+                        </Mid>
+                        <div>
+                          <Message>{`"${el.message}"`}</Message>
+                        </div>
+                        <Bot>
+                          <Tx
+                            onClick={() =>
+                              window.open(
+                                `https://solscan.io/tx/${el.txSignature}?cluster=devnet` // devnet
+                              )
+                            }
+                          >
+                            Transaction details
+                          </Tx>
+                        </Bot>
+                      </Element>
+                    ))}
                 </ul>
               </Table>
             ) : (
-              <Empty>후원받은 내역이 없습니다.</Empty>
+              <Empty>{t("donations-receive-none")}</Empty>
             )}
           </>
         )}

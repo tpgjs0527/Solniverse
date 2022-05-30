@@ -1,4 +1,6 @@
+import Spinner from "components/Spinner";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { ColRef } from "./Dashboard";
 import Rank from "./Rank";
@@ -8,9 +10,11 @@ interface IProps {
   index?: number;
   dashboard?: boolean;
   ranking?: boolean;
+  isLoading?: boolean;
 }
 
-function Tier({ tier, index, dashboard, ranking }: IProps) {
+function Tier({ tier, index, dashboard, ranking, isLoading }: IProps) {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -19,7 +23,7 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
         {ranking ? null : (
           <>
             {dashboard ? (
-              <ColTitle>현재 나의 등급</ColTitle>
+              <ColTitle>{t("dashboard-rating")}</ColTitle>
             ) : (
               <ColTitleRank>{tier}</ColTitleRank>
             )}
@@ -57,7 +61,7 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
             </svg>
           </IconHighTier>
         ) : (
-          <IconHighTier>
+          <IconHighTier ranking={ranking}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -78,8 +82,16 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
         )}
         {dashboard ? (
           <>
-            <ColContent>{tier}</ColContent>
-            <ColRef onClick={() => setIsModalOpen(true)}>등급표</ColRef>
+            {isLoading ? (
+              <SpinnerDiv>
+                <Spinner />
+              </SpinnerDiv>
+            ) : (
+              <ColContent>{tier}</ColContent>
+            )}
+            <ColRef onClick={() => setIsModalOpen(true)}>
+              {t("dashboard-rating-board")}
+            </ColRef>
           </>
         ) : ranking ? (
           <span>{tier}</span>
@@ -98,6 +110,13 @@ function Tier({ tier, index, dashboard, ranking }: IProps) {
     </>
   );
 }
+
+const SpinnerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+`;
 
 const IconHighTier = styled.div<{ ranking?: boolean }>`
   margin: ${(props) => (props.ranking ? "0" : "14px 0")};
@@ -131,15 +150,24 @@ const ColTitleRank = styled.span`
 `;
 
 const ColContent = styled.span`
+  font-size: 14px;
   letter-spacing: -0.5px;
   font-weight: 600;
+
+  @media screen and (min-width: 1024px) {
+    font-size: 15px;
+  }
 `;
 
 const ColTitle = styled.span`
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.5px;
   color: ${(props) => props.theme.subTextColor};
+
+  @media screen and (min-width: 1024px) {
+    font-size: 15px;
+  }
 `;
 
 const Col = styled.div<{ ranking?: boolean }>`

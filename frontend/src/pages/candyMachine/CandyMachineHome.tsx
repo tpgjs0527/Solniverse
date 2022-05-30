@@ -27,6 +27,7 @@ import { getProvider } from "utils/getProvider";
 import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface ICandyMachine {
   id: anchor.web3.PublicKey;
@@ -74,6 +75,7 @@ const splTokenName = process.env.REACT_APP_SPL_TOKEN_TO_MINT_NAME
   : "TOKEN";
 
 const CandyMachineHome = () => {
+  const { t } = useTranslation();
   const [balance, setBalance] = useState<number>();
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
   const [isActive, setIsActive] = useState(false); // true when countdown completes or whitelisted
@@ -93,7 +95,7 @@ const CandyMachineHome = () => {
   const [endDate, setEndDate] = useState<Date>();
   const [isPresale, setIsPresale] = useState(false);
   const [isWLOnly, setIsWLOnly] = useState(false);
-  const [percent, setPercent] = useState(0);
+  // const [percent, setPercent] = useState(0);
   const userInfo = useRecoilValue(userInfoAtom);
 
   const [alertState, setAlertState] = useState<AlertState>({
@@ -436,11 +438,6 @@ const CandyMachineHome = () => {
 
         // update front-end amounts
         displaySuccess(walletAddress, quantity);
-        Swal.fire(
-          "민팅 성공",
-          "NFT 랜덤 뽑기에 성공했습니다. 팬텀 월렛 컬렉터블에서 나만의 NFT를 확인해보세요!",
-          "success"
-        );
       }
 
       if (totalFailure || retry === 20) {
@@ -484,9 +481,10 @@ const CandyMachineHome = () => {
       }
 
       if (!status?.err) {
+        Swal.fire(t("mint-success"), t("mint-success-text"), "success");
         setAlertState({
           open: true,
-          message: "뽑기에 성공하셨어요!",
+          message: `${t("snv-drop-success")}`,
           severity: "success",
         });
 
@@ -495,7 +493,7 @@ const CandyMachineHome = () => {
       } else {
         setAlertState({
           open: true,
-          message: "뽑기에 실패했어요! 다시 시도해주세요.",
+          message: `${t("snv-drop-failure")}`,
           severity: "error",
         });
       }
@@ -511,21 +509,21 @@ const CandyMachineHome = () => {
         await mintMany(quantityString);
       }
     } catch (error: any) {
-      let message = error.msg || "뽑기에 실패했습니다.";
+      let message = error.msg || t("drop-failed");
       if (!error.msg) {
         if (!error.message) {
-          message = "트랜잭션 요청시간이 만료됐습니다.";
+          message = t("transaction-failed");
         } else if (error.message.indexOf("0x138")) {
         } else if (error.message.indexOf("0x137")) {
-          message = `뽑기가 종료됐습니다.`;
+          message = t("drop-done");
         } else if (error.message.indexOf("0x135")) {
-          message = `잔액이 부족합니다.`;
+          message = t("amount-lack");
         }
       } else {
         if (error.code === 311) {
-          message = `뽑기가 종료됐습니다!`;
+          message = t("drop-done");
         } else if (error.code === 312) {
-          message = `뽑기가 진행중이 아닙니다.`;
+          message = t("drop-not-now");
         }
       }
 
@@ -544,11 +542,11 @@ const CandyMachineHome = () => {
 
   return (
     <Container>
-      <PageTitle>NFT 랜덤 뽑기</PageTitle>
+      <PageTitle>{t("snv-candy-drop")}</PageTitle>
       <Wrapper>
         <MainContainer>
           <ImageWrapper>
-            <ImageTitle>이번 랜덤 뽑기 NFT</ImageTitle>
+            <ImageTitle>{t("snv-nft-list")}</ImageTitle>
             <Image
               src={`${process.env.PUBLIC_URL}/images/NFT리스트.gif`}
               alt="NFT To Mint"
@@ -646,7 +644,7 @@ const CandyMachineHome = () => {
                   )}
                 {provider && isActive && (
                   <TitleWrapper>
-                    <Title>뽑기 진행현황 :</Title>
+                    <Title>{t("snv-drop-progress")} :</Title>
                     <Title>
                       {itemsRedeemed} / {itemsAvailable}
                     </Title>
@@ -661,7 +659,7 @@ const CandyMachineHome = () => {
                 )}
                 <br />
                 <TitleWrapper>
-                  <Title>뽑기 한 번 : 500 SNV</Title>
+                  <Title>{t("snv-drop-price")} : 500 SNV</Title>
                 </TitleWrapper>
                 {provider && isActive && solanaExplorerLink && (
                   <SolExplorerLink href={solanaExplorerLink} target="_blank">
@@ -694,6 +692,10 @@ const Container = styled.div`
   margin: 1px 1px;
   border-radius: 16px;
   box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22) !important;
+  @media screen and (max-width: 1000px) {
+    margin: 0px 0px;
+    width: 100vw;
+  }
 `;
 const PageTitle = styled.div`
   font-size: 24px;
@@ -701,6 +703,9 @@ const PageTitle = styled.div`
   text-align: center;
   margin-top: 32px;
   margin-bottom: 16px;
+  @media screen and (max-width: 1000px) {
+    margin-bottom: 40px;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -709,6 +714,10 @@ const Wrapper = styled.div`
   padding-bottom: 64px;
   display: flex;
   justify-content: center;
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 const MainContainer = styled.div`
   display: flex;
@@ -720,6 +729,9 @@ const MainContainer = styled.div`
   text-align: center;
   justify-content: center;
   width: 40%;
+  @media screen and (max-width: 1000px) {
+    width: 80%;
+  }
   height: 250px;
 `;
 
@@ -735,6 +747,9 @@ const SpinContainer = styled.div`
   width: 250px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.bgColor};
+  @media screen and (max-width: 1000px) {
+    margin-top: 120px;
+  }
 `;
 const SpinBtn = styled.button`
   display: flex;
@@ -817,6 +832,9 @@ const ImageTitle = styled.div`
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 16px;
+  @media screen and (max-width: 1000px) {
+    visibility: hidden;
+  }
 `;
 
 const Image = styled.img`
@@ -824,6 +842,10 @@ const Image = styled.img`
   width: 100%;
   border-radius: 7px;
   box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.5);
+  @media screen and (max-width: 1000px) {
+    margin-top: 30px;
+    width: 80%;
+  }
 `;
 
 const ConnectButton = styled(WalletMultiButton)`
@@ -840,6 +862,7 @@ const NFT = styled(Paper)`
   color: ${(props) => props.theme.textColor} !important;
   width: 100%;
   height: auto;
+
   margin: 0 auto;
   padding: 5px 20px 20px 20px;
   flex: 1 1 auto;

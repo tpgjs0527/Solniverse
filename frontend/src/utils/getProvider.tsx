@@ -42,7 +42,7 @@ export const getProvider = (): PhantomProvider | undefined => {
         }
       } else {
         Swal.fire(
-          "Solana 네트워크 이슈",
+          "Solana Network issue",
           "Solana 네트워크가 있나요?",
           "question"
         );

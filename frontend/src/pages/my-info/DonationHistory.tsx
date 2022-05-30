@@ -8,9 +8,11 @@ import {
 } from "react-router-dom";
 import SendDonationHistory from "components/DonationHistory/Send";
 import ReceiveDonationHistory from "components/DonationHistory/Receive";
+import { useTranslation } from "react-i18next";
 
 function DonationHistory() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Active Link
   const giveMatch = useMatch("/donation-history");
@@ -18,7 +20,7 @@ function DonationHistory() {
 
   return (
     <Layout>
-      <Title>후원 내역</Title>
+      <Title>{t("donations")}</Title>
       <Section>
         <Wrapper>
           <Tabs>
@@ -26,13 +28,13 @@ function DonationHistory() {
               isActive={giveMatch !== null}
               onClick={() => navigate(`/donation-history`)}
             >
-              후원한 내역
+              {t("donations-give")}
             </Tab>
             <Tab
               isActive={receiveMatch !== null}
               onClick={() => navigate(`/donation-history/receive`)}
             >
-              후원받은 내역
+              {t("donations-receive")}
             </Tab>
           </Tabs>
         </Wrapper>

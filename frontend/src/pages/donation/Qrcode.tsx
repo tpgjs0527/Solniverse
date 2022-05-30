@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
 // import { Modal } from "react-responsive-modal";
-import { createQR, createTransaction, encodeURL, parseURL } from "@solana/pay";
+import { createQR, encodeURL, parseURL } from "@solana/pay";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import QRCodeStyling from "qr-code-styling";
@@ -14,6 +14,8 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { getProvider } from "utils/getProvider";
 import { checkMobile } from "utils/checkMobile";
 import Swal from "sweetalert2";
+import { createTransaction } from "utils/createTransaction";
+import { useTranslation } from "react-i18next";
 // import * as splToken from "@solana/spl-token";
 
 interface IPayment {
@@ -30,6 +32,7 @@ interface IPayment {
 }
 
 function Qrcode({ open, onClose, params, txid }: IPayment) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const connections = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -62,7 +65,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       if (params.type === "SOL") {
         const recipient = new PublicKey(`${params.walletAddress}`);
         const label = `${
-          userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+          userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
         }`;
 
         const message = `${params.message}`;
@@ -120,7 +123,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       } else if (params.type === "USDC") {
         const recipient = new PublicKey(`${params.walletAddress}`);
         const label = `${
-          userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+          userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
         }`;
 
         const message = `${params.message}`;
@@ -187,11 +190,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         setMakeQR(QrCode);
       }
     } else {
-      Swal.fire(
-        "입력 정보 오류",
-        "입력한 도네이션 정보가 옳바르지 않습니다. 다시 후원해주세요  🙇‍♂️",
-        "question"
-      );
+      Swal.fire(t("info-error"), t("info-error-text"), "question");
     }
   };
   const closeModal = () => {
@@ -306,13 +305,18 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             const provider = getProvider();
             provider?.connect();
             const { recipient, amount, reference, memo } = parseURL(txURL);
+
             const publicKey = new PublicKey(userInfo.walletAddress);
 
             // part 1
+            console.log(connection, publicKey, recipient, amount, {
+              reference,
+              memo,
+            });
             const transaction = await createTransaction(
               connection,
               publicKey!,
-              recipient,
+              recipient!,
               amount!,
               { reference, memo }
             );
@@ -343,9 +347,9 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
             const transaction = await createTransaction(
               connection,
               publicKey!,
-              recipient,
+              recipient!,
               amount!,
-              { reference, memo, splToken }
+              { token: splToken, reference, memo }
             );
 
             transaction.feePayer = publicKey;
@@ -387,11 +391,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         console.error(error);
       }
     } else {
-      Swal.fire(
-        "설치 안내",
-        "Phantom Wallet 확장 프로그램이 없습니다. 구글 웹 스토어에서 설치해주세요.",
-        "info"
-      );
+      Swal.fire(t("go-phantom"), t("go-phantom-text"), "info");
       const url = "https://phantom.app/";
       window.location.href = url;
     }
@@ -406,7 +406,7 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
       {/* <Modal open={modalIsOpen} onClose={() => closeModal()} center> */}
       <Container>
         <TitleWrapper style={{ backgroundColor: "#eeeeee", padding: "4px" }}>
-          <PageName>Phantom Wallet 결제</PageName>
+          <PageName>{t("qr")}</PageName>
           <OurLogo>
             <SVGLogo />
             Solniverse
@@ -414,40 +414,35 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         </TitleWrapper>
         <Wrapper>
           <ManualWrapper>
-            <ManualName>Phantom wallet 결제 방법</ManualName>
+            <ManualName>{t("qr-manual")}</ManualName>
             <ManualSeries>
               <ManualNumber>1️⃣</ManualNumber>
-              <ManualContent>Phantom Wallet 앱 실행</ManualContent>
+              <ManualContent>{t("qr-manual1")}</ManualContent>
             </ManualSeries>
             <ManualSeries>
               <ManualNumber>2️⃣</ManualNumber>
-              <ManualContent>
-                측 상단 QR코드 메뉴 선택 후 오른쪽의 QR코드를 스캔하세요.
-              </ManualContent>
+              <ManualContent>{t("qr-manual2")}</ManualContent>
             </ManualSeries>
             <ManualSeries>
               <ManualNumber>3️⃣</ManualNumber>
-              <ManualContent>
-                이후 표시된 전송 정보를 확인 후 보내기 버튼 클릭
-              </ManualContent>
+              <ManualContent>{t("qr-manual3")}</ManualContent>
             </ManualSeries>
             {isMobile ? null : (
               <>
                 <ManualSeries>
                   <ManualNumber>4️⃣</ManualNumber>
-                  <ManualContent>
-                    앱 없이 크롬 확장 프로그램으로 결제하시려면 아래 바로 결제
-                    버튼을 눌러주세요.
-                  </ManualContent>
+                  <ManualContent>{t("qr-manual4")}</ManualContent>
                 </ManualSeries>
                 <ExtensionWrapper>
-                  <ExtensionButton onClick={sendTX}>바로결제</ExtensionButton>
+                  <ExtensionButton onClick={sendTX}>
+                    {t("qr-btn")}
+                  </ExtensionButton>
                 </ExtensionWrapper>
               </>
             )}
           </ManualWrapper>
           <QRWrapper>
-            <QRCodeName>QR코드</QRCodeName>
+            <QRCodeName>{t("qr-code")}</QRCodeName>
             <QRCodeWrapper>
               <QRCode id="qr-code"></QRCode>
             </QRCodeWrapper>
@@ -455,33 +450,25 @@ function Qrcode({ open, onClose, params, txid }: IPayment) {
         </Wrapper>
         <Wrapper>
           {userInfo.walletAddress ? (
-            <NoWalletGuide>
-              결제 후 발급되는 SNV토큰으로 NFT 랜덤 뽑기도 즐겨보세요!
-            </NoWalletGuide>
+            <NoWalletGuide>{t("qr-ex1")}</NoWalletGuide>
           ) : isMobile ? (
             <>
-              <NoWalletGuide>
-                스마트폰으로 쉽고 편리하게 결제할 수 있는 Phantom Wallet 앱을
-                설치하세요!
-              </NoWalletGuide>
+              <NoWalletGuide>{t("qr-ex2")}</NoWalletGuide>
               <WalletInstall>
-                <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
+                <WalletBtn onClick={onInstall}>{t("install")}</WalletBtn>
               </WalletInstall>
             </>
           ) : (
             <>
-              <NoWalletGuide>
-                쉽고 편리하게 결제할 수 있는 Phantom Wallet 구글 확장프로그램을
-                설치하세요!
-              </NoWalletGuide>
+              <NoWalletGuide>{t("qr-ex3")}</NoWalletGuide>
               <WalletInstall>
-                <WalletBtn onClick={onInstall}>설치하기</WalletBtn>
+                <WalletBtn onClick={onInstall}>{t("install")}</WalletBtn>
               </WalletInstall>
             </>
           )}
         </Wrapper>
         <CloseBtnWrapper>
-          <CloseBtn onClick={closeModal}>닫기</CloseBtn>
+          <CloseBtn onClick={closeModal}>{t("close")}</CloseBtn>
         </CloseBtnWrapper>
       </Container>
     </Modal>

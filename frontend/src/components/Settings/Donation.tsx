@@ -6,8 +6,10 @@ import Spinner from "components/Spinner";
 import useToken from "hooks/useToken";
 import Swal from "sweetalert2";
 import { Phantom } from "components/Home/Intro";
+import { useTranslation } from "react-i18next";
 
 function SetDonation() {
+  const { t } = useTranslation();
   const userInfo = useRecoilValue(userInfoAtom);
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
   const [UUID, setUUID] = useState("");
@@ -52,12 +54,12 @@ function SetDonation() {
   const handleCopyClipBoard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      Swal.fire("복사 완료", "URL 주소가 복사되었습니다.", "success");
+      Swal.fire(t("copy-done"), t("copy-done-text"), "success");
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "복사 실패",
-        html: "URL 주소 복사가 실패했습니다.<br>잠시 후 다시 시도해주세요.",
+        title: t("copy-conflict"),
+        html: t("copy-conflict-text"),
       });
     }
   };
@@ -66,10 +68,8 @@ function SetDonation() {
     <Section>
       <BoxWrapper>
         <Box>
-          <BoxTitle>후원 링크</BoxTitle>
-          <BoxDescription>
-            아래의 링크를 이용하여 후원자에게 후원을 받으세요.
-          </BoxDescription>
+          <BoxTitle>{t("donation-link")}</BoxTitle>
+          <BoxDescription>{t("donation-link-ex")}</BoxDescription>
           <UrlBox>
             <Url>{`https://solniverse.net/donation/${userInfo.walletAddress}`}</Url>
             <ExtraDiv>
@@ -80,7 +80,7 @@ function SetDonation() {
                   )
                 }
               >
-                복사
+                {t("copy")}
               </Extra>
               <Extra
                 onClick={() =>
@@ -89,7 +89,7 @@ function SetDonation() {
                   )
                 }
               >
-                열기
+                {t("open")}
               </Extra>
             </ExtraDiv>
           </UrlBox>
@@ -98,27 +98,21 @@ function SetDonation() {
       <BoxWrapper>
         <Box>
           <AlertWrapper>
-            <AlertTitle>알림창</AlertTitle>
+            <AlertTitle>{t("alert-box")}</AlertTitle>
             <ServiceTitle
               onClick={() =>
                 window.open(`https://solniverse.net/service#alertBoxSetting`)
               }
             >
-              알림창 설정 방법
+              {t("alert-box-guide")}
             </ServiceTitle>
           </AlertWrapper>
           <BoxDescription>
-            <BoxWarning>
-              방송 프로그램(OBS, Xsplit)에 적용하는 URL입니다. 타인에게 유출되면
-              악용될 수 있으니 주의하시기 바랍니다.
-            </BoxWarning>
-            <p>추가하시면 후원이 발생했을 때 방송 화면에 알려줄 수 있습니다.</p>
-            <p>
-              아래의 링크를 사용하시는 방송 프로그램의 브라우저 소스에
-              추가해주세요.
-            </p>
+            <BoxWarning>{t("alert-box-ex1")}</BoxWarning>
+            <p>{t("alert-box-ex2")}</p>
+            <p>{t("alert-box-ex3")}</p>
           </BoxDescription>
-          <BoxNotice>클릭해서 URL 확인</BoxNotice>
+          <BoxNotice>{t("alert-box-url")}</BoxNotice>
           <AlarmUrlBox onClick={() => onCheckToken()} isUUID={UUID}>
             {isLoadingUUID ? (
               <SpinnerDiv>
@@ -141,7 +135,7 @@ function SetDonation() {
                         : undefined
                     }
                   >
-                    복사
+                    {t("copy")}
                   </ExtraUUID>
                   <ExtraUUID
                     isUUID={UUID}
@@ -156,7 +150,7 @@ function SetDonation() {
                         : undefined
                     }
                   >
-                    열기
+                    {t("open")}
                   </ExtraUUID>
                 </ExtraDiv>
               </>
@@ -165,7 +159,7 @@ function SetDonation() {
           <TestBox
             onClick={() => window.open(`https://solniverse.net/test/alertbox`)}
           >
-            알림 테스트
+            {t("alert-test")}
           </TestBox>
         </Box>
       </BoxWrapper>
@@ -224,7 +218,11 @@ const Extra = styled.div`
 const ExtraDiv = styled.div`
   display: flex;
   gap: 2px;
-  font-size: 14px;
+  font-size: 12px;
+
+  @media screen and (min-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const SpinnerDiv = styled.div`

@@ -9,6 +9,7 @@ import confetti from "canvas-confetti";
 import { Snackbar } from "@material-ui/core";
 import { AlertState } from "utils/candy-machine-utils";
 import { Alert } from "@material-ui/lab";
+import { useTranslation } from "react-i18next";
 
 // interface IState {
 //   state: { signature: string };
@@ -49,6 +50,7 @@ type Confirmations =
   | 32;
 
 function Confirmed() {
+  const { t } = useTranslation();
   const { state }: any = useLocation();
   const navigate = useNavigate();
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -123,7 +125,7 @@ function Confirmed() {
       });
       setAlertState({
         open: true,
-        message: "결제가 완료됐습니다.",
+        message: t("pay-done"),
         severity: "success",
       });
       setTimeout(() => {
@@ -136,7 +138,7 @@ function Confirmed() {
         setTimeout(() => {
           setAlertState({
             open: true,
-            message: "SNV 토큰이 발급됐습니다.",
+            message: t("token-provided"),
             severity: "success",
           });
         }, 4000);
@@ -145,15 +147,11 @@ function Confirmed() {
     const preventGoBack = () => {
       window.history.pushState(null, "", window.location.href);
       if (status === "Finalized") {
-        Swal.fire(
-          "도네이션 성공",
-          "이미 결제 완료한 도네이션 입니다!",
-          "success"
-        );
+        Swal.fire(t("donation-success"), t("donation-success-text"), "success");
       } else {
         Swal.fire({
-          title: "도네이션 진행 중",
-          html: "현재 도네이션 중입니다!",
+          title: t("now-donating"),
+          html: t("now-donating-text"),
           timerProgressBar: true,
         });
       }

@@ -10,6 +10,7 @@ import { useRecoilValue } from "recoil";
 import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface ITX {
   result: string;
@@ -18,6 +19,7 @@ export interface ITX {
 }
 
 function Payment() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,12 +40,13 @@ function Payment() {
     setOpenModal(false);
   };
   const onClick = async () => {
+    console.log(txid)
     if (txid) {
       if (isMobile) {
         if (type === "SOL") {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
-            userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+            userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
           }`;
 
           const message = `${params.message}`;
@@ -65,7 +68,7 @@ function Payment() {
         } else if (type === "USDC") {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
-            userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+            userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
           }`;
 
           const message = `${params.message}`;
@@ -93,11 +96,7 @@ function Payment() {
         setOpenModal(true);
       }
     } else {
-      Swal.fire(
-        "결제 경로 오류",
-        "잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.",
-        "warning"
-      );
+      Swal.fire(t("payment-error"), t("payment-error-text"), "warning");
       navigate(`/donation/${walletAddress}`);
     }
   };
@@ -121,7 +120,7 @@ function Payment() {
 
   return (
     <Container>
-      <PageName>결제 페이지</PageName>
+      <PageName>{t("payment")}</PageName>
       <Line />
       <MainContainer>
         <SubContainer>
@@ -129,21 +128,25 @@ function Payment() {
             <PaymentWrapper>
               <UserWrapper>
                 <TitleWrapper>
-                  <Title>후원자 정보</Title>
+                  <Title>{t("payment-give-info")}</Title>
                 </TitleWrapper>
                 <InfoWrapper>
-                  <Name>후원자 닉네임 : {nickName}</Name>
-                  <AccountTitle>지갑 주소</AccountTitle>
+                  <Name>
+                    {t("payment-give-nickname")} : {nickName}
+                  </Name>
+                  <AccountTitle>{t("payment-wallet")}</AccountTitle>
                   <Account>{userInfo.walletAddress}</Account>
                 </InfoWrapper>
               </UserWrapper>
               <UserWrapper>
                 <TitleWrapper>
-                  <Title>스트리머 정보</Title>
+                  <Title>{t("payment-receive-info")}</Title>
                 </TitleWrapper>
                 <InfoWrapper>
-                  <Name>{creatorName}</Name>
-                  <AccountTitle>지갑 주소</AccountTitle>
+                  <Name>
+                    {t("payment-receive-nickname")} : {creatorName}
+                  </Name>
+                  <AccountTitle>{t("payment-wallet")}</AccountTitle>
                   <Account>{walletAddress}</Account>
                 </InfoWrapper>
               </UserWrapper>
@@ -152,22 +155,22 @@ function Payment() {
           <Wrapper>
             <PaymentWrapper>
               <TitleWrapper style={{ marginLeft: "32px", marginBottom: "8px" }}>
-                <Title>결제 정보</Title>
+                <Title>{t("payment-pay-info")}</Title>
               </TitleWrapper>
               <TotalPriceWrapper>
                 <PriceWrapper style={{ marginBottom: "8px" }}>
-                  <Price>후원 메시지</Price>
+                  <Price>{t("payment-message")}</Price>
                   <Price>{message}</Price>
                 </PriceWrapper>
                 <PriceWrapper>
-                  <Price>후원 금액</Price>
+                  <Price>{t("payment-amount")}</Price>
                   <SOL>
                     {amount} {type}
                   </SOL>
                 </PriceWrapper>
                 <Line />
                 <PriceWrapper>
-                  <Price>총 후원 금액</Price>
+                  <Price>{t("payment-tot-amount")}</Price>
                   <SOL>
                     {amount} {type}
                   </SOL>
@@ -240,6 +243,7 @@ const Wrapper = styled.div`
   min-width: 600px;
   min-height: 500px;
   border-radius: 16px;
+  background-color:${props => props.theme.subBoxColor};
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
   @media screen and (min-width: 1439px) {
     min-width: 600px;
@@ -270,7 +274,7 @@ const TitleWrapper = styled.div``;
 const InfoWrapper = styled.div`
   border-radius: 5px;
   padding: 20px;
-  background-color: #ececec;
+  background-color:${props => props.theme.boxColor}
 `;
 const Title = styled.div`
   margin-top: 32px;
@@ -295,7 +299,7 @@ const TotalPriceWrapper = styled.div`
   margin-left: 32px;
   margin-right: 32px;
   margin-bottom: 16px;
-  background-color: #ececec;
+  background-color:${props => props.theme.boxColor};
   border-radius: 5px;
   padding: 20px;
 `;

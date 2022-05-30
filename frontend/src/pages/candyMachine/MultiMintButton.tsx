@@ -10,6 +10,7 @@ import { userInfoAtom } from "atoms";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { findAssociatedTokenAddress } from "utils/solanaWeb3";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export const CTAButton = styled(Button)`
   width: 150px;
@@ -25,6 +26,10 @@ export const CTAButton = styled(Button)`
   transform: translateY(-4px);
   transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
   box-shadow: none !important;
+  @media screen and (max-width: 1450px) {
+    width:100px;
+    height:100px
+  }
   &:hover {
     background: linear-gradient(45deg, #870ff8 20%, #0f3af8 60%, #0ff8ec 95%);
   }
@@ -108,6 +113,7 @@ export const MultiMintButton = ({
   isSoldOut: boolean;
   price: number;
 }) => {
+  const { t } = useTranslation();
   const userInfo = useRecoilValue(userInfoAtom);
   const connection = new Connection(clusterApiUrl("devnet"));
   const { requestGatewayToken, gatewayStatus } = useGateway();
@@ -190,14 +196,14 @@ export const MultiMintButton = ({
       });
     }
     await Swal.fire({
-      title: "NFT 랜덤 뽑기",
-      text: "랜덤 뽑기하시겠습니까?",
+      title: `${t("snv-candy-drop")}`,
+      text: `${t("snv-candy-drop-alert")}`,
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "뽑기",
-      cancelButtonText: "취소",
+      confirmButtonText: `${t("confirm")}`,
+      cancelButtonText: `${t("cancel")}`,
     }).then((result) => {
       if (result.isConfirmed) {
         setConfirmation(true);
@@ -216,19 +222,21 @@ export const MultiMintButton = ({
     setTotalCost(Math.round(qty * (price + 0.012) * 1000) / 1000); // 0.012 = approx of account creation fees
   }
   const getAsyncToken = async () => {
-    const snvAddress = await findAssociatedTokenAddress(
-      new PublicKey(userInfo.walletAddress),
-      new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
-    );
+    try {
+      const snvAddress = await findAssociatedTokenAddress(
+        new PublicKey(userInfo.walletAddress),
+        new PublicKey(`${process.env.REACT_APP_SNV_TOKEN_ACCOUNT}`)
+      );
 
-    const snvResponse = await connection.getTokenAccountBalance(
-      new PublicKey(snvAddress)
-    );
+      const snvResponse = await connection.getTokenAccountBalance(
+        new PublicKey(snvAddress)
+      );
 
-    const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
-    if (snvResponse) {
-      setSNVBalance(snvAmount);
-    }
+      const snvAmount = Number(snvResponse?.value?.amount) / 1000000;
+      if (snvResponse) {
+        setSNVBalance(snvAmount);
+      }
+    } catch (err) {}
   };
   useEffect(() => {
     getAsyncToken();
@@ -288,7 +296,7 @@ export const MultiMintButton = ({
               ) : isMinting || clicked ? (
                 <CircularProgress />
               ) : (
-                `뽑기`
+                `${t("snv-drop")}`
               )
             ) : isEnded ? (
               "뽑기 종료"

@@ -2,6 +2,7 @@
 
 import { toggleThemeAtom, userInfoAtom } from "atoms";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
@@ -15,6 +16,7 @@ interface IProps {
 }
 
 function Ranking({ isModalOpen, onClose, data }: IProps) {
+  const { t } = useTranslation();
   const isDark = useRecoilValue(toggleThemeAtom);
   const userInfo = useRecoilValue(userInfoAtom);
   const [isOpen, setIsOpen] = useState(false);
@@ -51,14 +53,14 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
         },
       }}
     >
-      <SubTitle>순위표</SubTitle>
-      <SubCon>
-        현재 나의 순위를 기준으로 ±5 내에 속하는 사용자를 볼 수 있습니다.
-      </SubCon>
+      <SubTitle>{t("dashboard-ranking-board")}</SubTitle>
+      <SubCon>{t("dashboard-ranking-board-ex")}</SubCon>
       <SubBox>
         {data?.previousList?.map((el, index) => (
           <Element key={index}>
-            <RankingSize>{data.ranking - 5 + index}</RankingSize>
+            <RankingSize>
+              {data.ranking - data?.previousList?.length + index}
+            </RankingSize>
             <Tier
               tier={el.receiveRank ? el.receiveRank : el.sendRank}
               ranking
@@ -69,7 +71,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
                 : el.user.walletAddress}
             </Name>
             <Amount>
-              ${" "}
+              $
               {el?.receiveTotal
                 ? el?.receiveTotal.toFixed(2)
                 : el?.sendTotal
@@ -80,7 +82,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
         ))}
         {data?.ranking === -1 ? (
           <Element>
-            <Empty>아직 후원 내역이 없어 순위를 산정할 수 없습니다.</Empty>
+            <Empty>{t("dashboard-ranking-board-none")}</Empty>
           </Element>
         ) : (
           <Element isActive>
@@ -90,12 +92,12 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
               ranking
             />
             <Name>
-              {userInfo?.twitch
+              {userInfo?.twitch.id
                 ? userInfo?.twitch.displayName
                 : userInfo?.walletAddress}
             </Name>
             <Amount>
-              ${" "}
+              $
               {data?.receiveTotal
                 ? data?.receiveTotal.toFixed(2)
                 : data?.sendTotal
@@ -118,7 +120,7 @@ function Ranking({ isModalOpen, onClose, data }: IProps) {
                 : el.user.walletAddress}
             </Name>
             <Amount>
-              ${" "}
+              $
               {el?.receiveTotal
                 ? el?.receiveTotal.toFixed(2)
                 : el?.sendTotal
@@ -137,17 +139,17 @@ const Empty = styled.span`
 `;
 
 const Amount = styled.span`
-  width: 50px;
+  width: 60px;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
 
   @media screen and (min-width: 600px) {
-    width: 60px;
+    width: 100px;
   }
 
   @media screen and (min-width: 900px) {
-    width: 100px;
+    width: 120px;
   }
 `;
 

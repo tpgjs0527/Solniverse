@@ -1,6 +1,7 @@
 import Spinner from "components/Spinner";
 import { RankingList } from "pages/my-info/Main";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import Ranking from "./Ranking";
 import Tier from "./Tier";
@@ -26,48 +27,51 @@ interface IProps {
 }
 
 function Dashboard({ receive, data, isLoading }: IProps) {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <Box>
-      <SubTitle>{receive ? "후원받은 내역 통계" : "후원한 내역 통계"}</SubTitle>
-      {isLoading ? (
-        <SpinnerDiv>
-          <Spinner />
-        </SpinnerDiv>
-      ) : (
-        <SubBox>
-          <Col>
-            <ColTitle>총 횟수</ColTitle>
-            <Icon>
-              {receive ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="#534bb1"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="#534bb1"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
-                  />
-                </svg>
-              )}
-            </Icon>
+      <SubTitle>
+        {receive ? `${t("dashboard-receive")}` : `${t("dashboard-give")}`}
+      </SubTitle>
+      <SubBox>
+        <Col>
+          <ColTitle>{t("dashboard-frequency")}</ColTitle>
+          <Icon>
+            {receive ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="#534bb1"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="#534bb1"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+                />
+              </svg>
+            )}
+          </Icon>
+          {isLoading ? (
+            <SpinnerDiv>
+              <Spinner />
+            </SpinnerDiv>
+          ) : (
             <ColContent>
               {data?.receiveCount
                 ? data?.receiveCount
@@ -75,24 +79,30 @@ function Dashboard({ receive, data, isLoading }: IProps) {
                 ? data?.sendCount
                 : 0}
             </ColContent>
-            <ColEmpty></ColEmpty>
-          </Col>
-          <Col>
-            <ColTitle>총 금액</ColTitle>
-            <Icon>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="#85bb65"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </Icon>
+          )}
+          <ColEmpty></ColEmpty>
+        </Col>
+        <Col>
+          <ColTitle>{t("dashboard-amount")}</ColTitle>
+          <Icon>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#85bb65"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </Icon>
+          {isLoading ? (
+            <SpinnerDiv>
+              <Spinner />
+            </SpinnerDiv>
+          ) : (
             <ColContent>
               ${" "}
               {data?.receiveTotal
@@ -101,36 +111,44 @@ function Dashboard({ receive, data, isLoading }: IProps) {
                 ? data?.sendTotal.toFixed(2)
                 : 0}
             </ColContent>
-            <ColEmpty></ColEmpty>
-          </Col>
-          <Tier
-            tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
-            dashboard
-          />
-          <Col>
-            <ColTitle>현재 나의 등수</ColTitle>
-            <Icon>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="#00a8ff"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                />
-              </svg>
-            </Icon>
+          )}
+          <ColEmpty></ColEmpty>
+        </Col>
+        <Tier
+          tier={data?.receiveRank ? data?.receiveRank : data?.sendRank}
+          dashboard
+          isLoading={isLoading}
+        />
+        <Col>
+          <ColTitle>{t("dashboard-ranking")}</ColTitle>
+          <Icon>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#00a8ff"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+              />
+            </svg>
+          </Icon>
+          {isLoading ? (
+            <SpinnerDiv>
+              <Spinner />
+            </SpinnerDiv>
+          ) : (
             <ColContent>
               {data?.ranking !== -1 ? data?.ranking : "-"}
             </ColContent>
-            <ColRef onClick={() => setIsModalOpen(true)}>순위표</ColRef>
-          </Col>
-        </SubBox>
-      )}
-
+          )}
+          <ColRef onClick={() => setIsModalOpen(true)}>
+            {t("dashboard-ranking-board")}
+          </ColRef>
+        </Col>
+      </SubBox>
       <Ranking
         isModalOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -166,7 +184,7 @@ const SpinnerDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 253px;
+  height: 20px;
 `;
 
 const Icon = styled.div`
@@ -176,15 +194,25 @@ const Icon = styled.div`
 `;
 
 const ColContent = styled.span`
+  font-size: 14px;
   letter-spacing: -0.5px;
   font-weight: 600;
+  line-height: 20px;
+
+  @media screen and (min-width: 1024px) {
+    font-size: 15px;
+  }
 `;
 
 const ColTitle = styled.span`
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.5px;
   color: ${(props) => props.theme.subTextColor};
+
+  @media screen and (min-width: 1024px) {
+    font-size: 15px;
+  }
 `;
 
 const Col = styled.div`

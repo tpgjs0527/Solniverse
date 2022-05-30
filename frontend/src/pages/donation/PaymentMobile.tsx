@@ -11,6 +11,7 @@ import { userInfoAtom } from "atoms";
 import useMutation from "hooks/useMutation";
 import { WalletConnectButton } from "@solana/wallet-adapter-react-ui";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export interface ITX {
   result: string;
@@ -19,6 +20,7 @@ export interface ITX {
 }
 
 function PaymentMobile() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userInfoAtom);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +46,7 @@ function PaymentMobile() {
         if (type === "SOL") {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
-            userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+            userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
           }`;
           const message = `${params.message}`;
           const memo = `${txid}`;
@@ -67,7 +69,7 @@ function PaymentMobile() {
         } else if (type === "USDC") {
           const recipient = new PublicKey(`${walletAddress}`);
           const label = `${
-            userInfo.twitch.id ? userInfo.twitch.displayName : "이름없음"
+            userInfo.twitch.id ? userInfo.twitch.displayName : t("anonymous")
           }`;
 
           const message = `${params.message}`;
@@ -95,17 +97,12 @@ function PaymentMobile() {
         setOpenModal(true);
       }
     } else {
-      Swal.fire(
-        "결제 경로 오류",
-        "잘못된 결제 경로입니다. 다시 도네이션을 진행해주세요.",
-        "warning"
-      );
+      Swal.fire(t("payment-error"), t("payment-error-text"), "warning");
       navigate(`/donation/${walletAddress}`);
     }
   };
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     if (!data) {
       getTXId({
         displayName: nickName,
@@ -116,6 +113,7 @@ function PaymentMobile() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     // getSignature();
     if (data) {
       setTXID(data.txid);
@@ -124,37 +122,37 @@ function PaymentMobile() {
 
   return (
     <Container>
-      <PageName>Payment Page</PageName>
+      <PageName>{t("payment")}</PageName>
       <Line />
       <Wrapper>
         <PaymentWrapper>
-          <Title>후원자 정보</Title>
+          <Title>{t("payment-give-info")}</Title>
           <InfoWrapper>
             <Name>{nickName}</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>{userInfo.walletAddress}</Account>
           </InfoWrapper>
-          <Title>크리에이터 정보</Title>
+          <Title>{t("payment-receive-info")}</Title>
           <InfoWrapper>
-            <Name>홀리냥</Name>
+            <Name>{creatorName}</Name>
             <AccountTitle>Account</AccountTitle>
             <Account>{walletAddress}</Account>
           </InfoWrapper>
-          <Title>도네이션 정보</Title>
+          <Title>{t("payment-pay-info")}</Title>
           <TotalPriceWrapper>
             <PriceWrapper style={{ marginBottom: "8px" }}>
-              <Price>Donate Message</Price>
+              <Price>{t("payment-message")}</Price>
               <Price>{message}</Price>
             </PriceWrapper>
             <PriceWrapper>
-              <Price>Donate Price</Price>
+              <Price>{t("payment-amount")}</Price>
               <SOL>
                 {amount} {type}
               </SOL>
             </PriceWrapper>
             <Line />
             <PriceWrapper>
-              <Price>Total</Price>
+              <Price>{t("payment-tot-amount")}</Price>
               <SOL>
                 {amount} {type}
               </SOL>

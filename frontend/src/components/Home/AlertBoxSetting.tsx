@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { Content, OverTitle } from "./DonationIntro";
 import { Phantom } from "./Intro";
@@ -12,19 +13,21 @@ const Images = [
   { imageUrl: "images/alertImg/3.PNG" },
   { imageUrl: "images/alertImg/4.png" },
   { imageUrl: "images/alertImg/5.png" },
+  { imageUrl: "images/alertImg/6.png" },
 ];
 export const AlertBoxSetting = () => {
+  const { t } = useTranslation();
   return (
     <AlertWrapper id="alertBoxSetting">
       <Box>
         <Content>
-          <OverTitle>알림창 설정</OverTitle>
+          <OverTitle>{t("alert-setting")}</OverTitle>
           <RichText>
-            쉽고 간편한 후원 메시지 알림창 설정하기! 준비물은{" "}
+            {t("alert-setting-intro-1")}{" "}
             <Phantom onClick={() => window.open("https://obsproject.com/ko")}>
-              OBS Studio
+              {t("alert-setting-intro-2")}
             </Phantom>
-            와 팬텀 지갑입니다 👨‍🚀
+            {t("alert-setting-intro-3")} 👨‍🚀
           </RichText>
         </Content>
         <ImagesSlider Images={Images} />

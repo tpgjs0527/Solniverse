@@ -10,8 +10,8 @@ export const useSocket = (
 ): [typeof Socket | undefined, () => void] => {
   const disconnect = useCallback(() => {
     if (uuid && sockets[uuid]) {
-      sockets[uuid].disconnect();
-      delete sockets[uuid];
+      // sockets[uuid].disconnect();
+      // delete sockets[uuid];
     }
   }, [uuid]);
   if (!uuid) {
@@ -19,9 +19,9 @@ export const useSocket = (
   }
   if (!sockets[uuid]) {
     sockets[uuid] = io.connect(`${URL}?userKey=${uuid}`, {
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
     });
-    console.info("create Socket", uuid, sockets[uuid]);
+    // console.info("create Socket", uuid, sockets[uuid]);
   }
   return [sockets[uuid], disconnect];
 };

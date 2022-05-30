@@ -14,14 +14,17 @@ const createPublicKey = (publicKey: string) => {
 // 실시간 solana 가격 (USD)
 const getSolanaPrice = async () => {
   const response = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`,
+    `https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDC`,
     {
       method: "GET",
     }
   );
-
-  const data = await response.json();
-  return data.solana.usd;
+  if (response.status === 200) {
+    const data = await response.json();
+    return Number(data.price);
+  } else {
+    return 0;
+  }
 };
 
 // 지갑 잔액
@@ -77,7 +80,6 @@ const getTokenBalance = async (publicKey: string, splToken: string) => {
     const balance = await connection.getTokenAccountBalance(
       createPublicKey(account.toString())
     );
-    // return balance;
     return Number(balance.value.amount) / 1000000;
   } catch (e) {
     return 0;
