@@ -659,7 +659,7 @@ const CandyMachineHome = () => {
                 )}
                 <br />
                 <TitleWrapper>
-                  <Title>{t("snv-drop-price")} : 500 SNV</Title>
+                  <Title>{t("snv-drop-price")} : 250 SNV</Title>
                 </TitleWrapper>
                 {provider && isActive && solanaExplorerLink && (
                   <SolExplorerLink href={solanaExplorerLink} target="_blank">
