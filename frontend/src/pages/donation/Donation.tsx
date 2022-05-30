@@ -356,7 +356,8 @@ function Donation() {
         }
       }
     }
-  }, [amount, snvBalance, usdcBalance]);
+  }, [amount, snvBalance, usdcBalance, userInfo]);
+  console.log("hi");
 
   return (
     <Layout>
